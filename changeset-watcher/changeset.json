@@ -1,0 +1,23 @@
+{
+  "Id": 117634796,
+  "CreatedAt": "2022-02-20T11:43:45Z",
+  "NumChanges": 5,
+  "MinLat": -0.500393,
+  "MaxLat": -0.500338,
+  "MinLong": 36.082344,
+  "MaxLong": 36.082417,
+  "Tags": [
+    { "K": "review_requested", "V": "yes" },
+    { "K": "changesets_count", "V": "1460" },
+    {
+      "K": "hashtags",
+      "V": "#hotosm-project-12091;#Imagery4socialgood;#Kenya"
+    },
+    { "K": "imagery_used", "V": "Bing aerial imagery;.gpx data file" },
+    { "K": "source", "V": "mapwithai" },
+    { "K": "locale", "V": "en-US" },
+    { "K": "host", "V": "https://mapwith.ai/rapid" },
+    { "K": "created_by", "V": "RapiD 1.1.8" },
+    { "K": "comment", "V": "#hotosm-project-12091 #Imagery4socialgood #Kenya" }
+  ]
+}
