@@ -1,3 +1,4 @@
 *.osm
 *.osc
 .DS_Store
+config
