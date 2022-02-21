@@ -39,3 +39,15 @@ type Node struct {
 	Lon       float32 `xml:"lon,attr"`
 	Tags      []Tag   `xml:"tag"`
 }
+
+type Way struct {
+	Id        int       `xml:"id,attr"`
+	Version   int       `xml:"version,attr"`
+	Timestamp string    `xml:"timestamp,attr"`
+	NodeRefs  []NodeRef `xml:"nd"`
+	Tags      []Tag     `xml:"tag"`
+}
+
+type NodeRef struct {
+	Ref int `xml:"ref,attr"`
+}
