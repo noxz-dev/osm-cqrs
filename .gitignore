@@ -2,3 +2,4 @@
 *.osc
 .DS_Store
 config
+.idea
