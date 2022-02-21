@@ -6,7 +6,11 @@ Ein Sonderfall ergibt sich, wenn der Startknoten einer Linie dem Endknoten entsp
 ![](./architecture.png)
 
 ## Search-Backend
-Für die Adresssuche sind POIs und Gebäude interessant.
+Für die Adresssuche sind POIs und Gebäude interessant. Übernommen in die Datenbank sollten daher:
+1. `Nodes`, `Wege` und `Flächen` mit den Tags `tourism` und `name`
+2. `Nodes` und `Flächen` mit den Tags `building` und `name` 
+3. `Nodes` und `Flächen` mit den Tags `building` und `addr`
+4. `Nodes` und `Flächen` mit den Tags `amenity`und `name`
 
 ## Routing-Backend
 Für die Routing-Datenbank ist es sinnvoll, nicht alle OSM-Elemente zu speichern.
