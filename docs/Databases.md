@@ -1,11 +1,11 @@
-#Optimierung der Datenbanken
+# Optimierung der Datenbanken
 Um die Datenbanken zu optimieren, ist es sinnvoll, nur für den jeweiligen Anwendungszweck (Suche, Routing oder Rendering)
 relevante OSM-Elemente zu speichern. OSM kennt `Nodes`(Knoten), `Ways`(Linien) und `Relations`(Relationen). Linien verweisen auf mehrere Knoten.
 Ein Sonderfall ergibt sich, wenn der Startknoten einer Linie dem Endknoten entspricht, sodass sich eine Fläche ergibt.
 
 ![](./architecture.png)
 
-##Search-Backend
+## Search-Backend
 Für die Adresssuche sind POIs und Gebäude interessant.
 
 ## Routing-Backend
