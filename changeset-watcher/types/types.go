@@ -24,27 +24,15 @@ type Tag struct {
 
 type OsmChange struct {
 	Version string   `xml:"version"`
-	Modify  []Modify `xml:"modify"`
-	Create  []Modify `xml:"create"`
-	Delete  []Modify `xml:"delete"`
+	Modify  []Action `xml:"modify"`
+	Create  []Action `xml:"create"`
+	Delete  []Action `xml:"delete"`
 }
 
-type Modify struct {
-	Nodes    []Node     `xml:"node"`
-	Ways     []Way      `xml:"way"`
-	Relation []Relation `xml:"relation"`
-}
-
-type Create struct {
-	Nodes    []Node     `xml:"node"`
-	Ways     []Way      `xml:"way"`
-	Relation []Relation `xml:"relation"`
-}
-
-type Delete struct {
-	Nodes    []Node     `xml:"node"`
-	Ways     []Way      `xml:"way"`
-	Relation []Relation `xml:"relation"`
+type Action struct {
+	Nodes     []Node     `xml:"node"`
+	Ways      []Way      `xml:"way"`
+	Relations []Relation `xml:"relation"`
 }
 
 type Node struct {
