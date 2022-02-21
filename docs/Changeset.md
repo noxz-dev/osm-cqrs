@@ -27,6 +27,10 @@ Bei Elementen innerhalb eines `delete`-Elements ist der Tag `visible` auf `false
 
 **Wird immer die neueste Version in `modify` gesendet oder gibt es inkrementelle updates?**
 
+Höchstwahrscheinlich wird immer das gesamte Element gesendet. Eine potenzielle Änderung (also `modify`) eines `Nodes` könnte auch das Löschen ein oder mehrerer `Tags` sein. Da die Sichtbarkeit (`visible`) einzelner `Tags` nicht geändert werden kann, muss entsprechend der gesamte `Node` mitgesendet werden – abzüglich der gelöschten `Tags`.
+
+Alle `Tags`, die mitgesendet werden, werden dem entsprechenden Element hinzugefügt bzw. – falls bereits vorhanden – werden die jeweiligen `Tags` ersetzt. `Tags`, die im Änderungssatz nicht mitgesendet wurden, werden vom entsprechenden Element entfernt.
+
 ## Vorverarbeitung von Daten
 
 ### [osmconvert](https://wiki.openstreetmap.org/wiki/Osmconvert)
