@@ -6,14 +6,19 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	gzip "github.com/klauspost/pgzip"
 	"github.com/nats-io/nats.go"
+	"github.com/withmandala/go-log"
 
+	"noxz.dev/changeset-watcher/config"
 	"noxz.dev/changeset-watcher/types"
 	"noxz.dev/changeset-watcher/utils"
 )
+
+var logger = log.New(os.Stderr)
 
 func main() {
 
@@ -21,7 +26,7 @@ func main() {
 	defer nc.Close()
 
 	if err != nil {
-		fmt.Printf("Failed to connect to NATS-Server: \n%s \n", err.Error())
+		logger.Infof("Failed to connect to the NATS-Server: \n%s \n", err.Error())
 		return
 	}
 
@@ -42,56 +47,50 @@ func main() {
 		seq, err := utils.ExtractSeqNumber(&stringBody)
 
 		if oldSeq >= seq {
-			fmt.Println("same seq .. waiting for 10 sec")
+			logger.Info("no new sequence number found... waiting for 10 sec")
 			time.Sleep(10 * time.Second)
 			continue
 		}
 		oldSeq = seq
 
-		fmt.Println("new seq " + fmt.Sprint(seq) + " proceeding")
+		logger.Info("new sequence number:" + fmt.Sprint(seq) + " parsing....")
 
 		url, err := utils.BuildChangeSetUrl(seq)
 
 		if err != nil {
-			fmt.Println(err.Error())
+			logger.Error(err.Error())
 			return
 		}
 
-		fmt.Println("fetching " + url)
+		logger.Info("fetching " + url)
 
 		resp, err = http.Get(url)
 
 		if err != nil {
-			fmt.Println(err.Error())
+			logger.Error(err.Error())
 			return
 		}
 
 		reader, err := gzip.NewReader(resp.Body)
 
 		if err != nil {
-			fmt.Println(err.Error())
+			logger.Error(err.Error())
 			return
 		}
 
 		body, _ = io.ReadAll(reader)
 
-		fmt.Println("parsing xml ...")
+		logger.Info("parsing xml ...")
 		osm := types.OsmChange{}
 		err = xml.Unmarshal(body, &osm)
 
-		// for _, cs := range osm.ChageSets {
 		sendNewChangesetNotifcation(nc, &osm)
-		// }
-
 		// fmt.Printf("%+v\n", osm.ChageSets)
-		//changes.modify
 	}
 }
 
 func sendNewChangesetNotifcation(nc *nats.Conn, change *types.OsmChange) {
-	fmt.Println("publishing new changeset...")
 	//changeSetBytes, _ := json.Marshal(change)
-	modifyBytes, _ := json.Marshal(normalizeActionObject(change.Modify))
 
 	/*
 		extractByTag(change.Modify, "highway")
@@ -100,16 +99,30 @@ func sendNewChangesetNotifcation(nc *nats.Conn, change *types.OsmChange) {
 
 		extractByTag(change.Modify, "building")
 
-		//chnages.modify
-		//chnages.*.ways.streets
-		//chnages.*.way.buildings
-		//chnages.*.way
-		//chnages.*.ways.*
-		//chnages.*.relations
+		//changes.modify
+		//changes.delete
+		//changes.create
+		//changes.*.ways.streets
+		//changes.*.ways.buildings
+		//changes.*.ways
+		//changes.*.ways.*
+		//changes.*.relations
 
 		nc.Publish(rootEvent, changeSetBytes)
 	*/
-	nc.Publish(genSub(modifyEvent), modifyBytes)
+	normalizedModify := normalizeActionObject(change.Modify)
+	publishEvent(nc, utils.GenSubject(config.ModifyEvent), types.MODIFY_EVENT, normalizedModify)
+}
+
+func publishEvent(nc *nats.Conn, subject string, EventType string, payload interface{}) {
+	event := utils.CreateEvent("ChangesetWatcher", EventType, payload)
+	bytes, err := json.Marshal(event)
+	if err != nil {
+		logger.Error("Event could not be serialized", err.Error())
+		return
+	}
+	logger.Info("publishing new changeset...")
+	nc.Publish(subject, bytes)
 }
 
 func extractByTag(actions []types.Action, searchTag string) types.Action {
@@ -165,14 +178,4 @@ func hasTag(searchTag string, tags []types.Tag) bool {
 		}
 	}
 	return false
-}
-
-func genSub(names ...string) string {
-	var subject = rootEvent
-
-	for _, name := range names {
-		subject += "." + name
-	}
-
-	return subject
 }

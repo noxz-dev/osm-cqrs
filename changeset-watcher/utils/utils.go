@@ -5,6 +5,11 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/cloudevents/sdk-go/v2/event"
+	"github.com/google/uuid"
+	"noxz.dev/changeset-watcher/config"
 )
 
 func ExtractSeqNumber(body *string) (int, error) {
@@ -32,7 +37,26 @@ func BuildChangeSetUrl(seqNumber int) (string, error) {
 		}
 		result += string(s)
 	}
-	fmt.Println(result)
 	url := "https://planet.openstreetmap.org/replication/minute/" + fmt.Sprint(result) + ".osc.gz"
 	return url, nil
+}
+
+func CreateEvent(source string, eventType string, payload interface{}) *event.Event {
+	event := cloudevents.NewEvent()
+	event.SetID(uuid.New().String())
+	event.SetSource(source)
+	event.SetType(eventType)
+	event.SetData(cloudevents.ApplicationJSON, payload)
+
+	return &event
+}
+
+func GenSubject(names ...string) string {
+	var subject = config.RootEvent
+
+	for _, name := range names {
+		subject += "." + name
+	}
+
+	return subject
 }

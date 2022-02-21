@@ -69,3 +69,9 @@ type Member struct {
 	Ref  int    `xml:"ref,attr"`
 	Role string `xml:"role,attr"`
 }
+
+const (
+	MODIFY_EVENT = "MODIFY"
+	DELETE_EVENT = "DELETE"
+	CREATE_EVENT = "CREATE"
+)
