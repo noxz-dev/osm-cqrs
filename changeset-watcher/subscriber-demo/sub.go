@@ -11,7 +11,8 @@ func main() {
 	defer nc.Close()
 
 	if err != nil {
-		fmt.Printf("Failed to connect to NATS-Server: %s \n", err.Error())
+		fmt.Printf("Failed to connect to NATS-Server: \n%s \n", err.Error())
+		return
 	}
 
 	nc.Subscribe("foo", func(m *nats.Msg) {
