@@ -17,7 +17,13 @@ import (
 
 func main() {
 
-	nc, _ := nats.Connect(nats.DefaultURL)
+	nc, err := nats.Connect(nats.DefaultURL)
+	defer nc.Close()
+
+	if err != nil {
+		fmt.Printf("Failed to connect to NATS-Server: \n%s \n", err.Error())
+		return
+	}
 
 	var oldSeq = 0
 
