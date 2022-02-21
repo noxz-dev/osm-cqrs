@@ -1,6 +1,6 @@
 # osm-cqrs
 
-## setup changeset Watcher
+## setup changeset watcher
 
 - install go
 - run the docker compose to start nats
