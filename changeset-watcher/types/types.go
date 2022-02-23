@@ -70,8 +70,21 @@ type Member struct {
 	Role string `xml:"role,attr"`
 }
 
+type OverPassAnswer struct {
+	Nodes []Node `json:"elements" xml:"node"`
+}
+
 const (
 	MODIFY_EVENT = "MODIFY"
 	DELETE_EVENT = "DELETE"
 	CREATE_EVENT = "CREATE"
 )
+
+func (action Action) ContainsNodeByRef(ref NodeRef) bool {
+	for _, node := range action.Nodes {
+		if node.Id == ref.Ref {
+			return true
+		}
+	}
+	return false
+}
