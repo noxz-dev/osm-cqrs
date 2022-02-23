@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CQRS-Map</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
+
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+
+</head>
+<body>
+<div id="map"></div>
+</body>
+<script>
+    // var map = new L.Map('map').setView({lon: 52.37052, lat: 9.73322}, 10);
+    // L.vectorGrid
+    //     .protobuf('http://localhost:3000/public.osm_roads/{z}/{x}/{y}.pbf', {
+    //         vectorTileLayerStyles: {
+    //             'public.osm_landusages': {
+    //                 weight: 0,
+    //                 fillColor: '#9bc2c4',
+    //                 fillOpacity: 1,
+    //                 fill: true
+    //             },
+    //             'public.osm_roads': {
+    //                 fillColor:
+    //             }
+    //         },
+    //         maxNativeZoom: 14
+    //     })
+    //     .addTo(map);
+    // console.log(map)
+    // L.marker({lon: 52.37052, lat: 9.73322}).bindPopup('Niedersachsen').addTo(map);
+
+
+    // var map = L.map('map').setView({lon: 0, lat: 0}, 2);
+    //
+    // // add the OpenStreetMap tiles
+    // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //     maxZoom: 19,
+    //     attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+    // }).addTo(map);
+    //
+    // // show the scale bar on the lower left corner
+    // L.control.scale({imperial: true, metric: true}).addTo(map);
+    //
+    // // show a marker on the map
+    // L.marker({lon: 0, lat: 0}).bindPopup('The center of the world').addTo(map);
+
+    const pointsLayer = new deck.MVTLayer({
+        data: 'http://localhost:3000/public.osm_amenities/{z}/{x}/{y}.pbf', // 'http://localhost:3000/public.table_source/{z}/{x}/{y}.pbf'
+        id: 'amenities',
+        pointRadiusUnits: 'pixels',
+        getRadius: 5,
+        getFillColor: [230, 0, 0]
+    });
+
+
+    const roadLayer = new deck.MVTLayer({
+        data: 'http://localhost:3000/public.osm_roads/{z}/{x}/{y}.pbf',
+        id: 'road-layer',
+        minZoom: 0,
+        maxZoom: 23,
+        getLineColor: [192, 192, 192],
+        getFillColor: [140, 170, 180],
+
+        getLineWidth: f => {
+            switch (f.properties.class) {
+                case 'street':
+                    return 6;
+                case 'motorway':
+                    return 10;
+                default:
+                    return 1;
+            }
+        },
+        lineWidthMinPixels: 1
+    })
+
+    const waterLayer = new deck.MVTLayer({
+        data: 'http://localhost:3000/public.osm_waterareas/{z}/{x}/{y}.pbf',
+        id: 'water-layer',
+        minZoom: 0,
+        maxZoom: 23,
+        getLineColor: [192, 192, 192],
+        getFillColor: [140, 170, 180],
+        lineWidthMinPixels: 1
+    })
+
+
+    const buildingsLayer = new deck.MVTLayer({
+        data: 'http://localhost:3000/public.osm_buildings/{z}/{x}/{y}.pbf',
+        id: 'building-layer',
+        minZoom: 0,
+        maxZoom: 23,
+        getLineColor: [231, 76, 60],
+        getFillColor: [231, 76, 60],
+        lineWidthMinPixels: 1
+    })
+
+    const landusageLayer = new deck.MVTLayer({
+        data: 'http://localhost:3000/public.osm_landusages/{z}/{x}/{y}.pbf',
+        id: 'landusages-layer',
+        minZoom: 0,
+        maxZoom: 23,
+        getLineColor: [46, 204, 113],
+        getFillColor: [46, 204, 113],
+        lineWidthMinPixels: 1
+    })
+
+
+    const deckgl = new deck.DeckGL({
+        container: 'map',
+        controller: true,
+        // initialViewState: {
+        //     latitude: 52.37052,
+        //     longitude: 9.73322,
+        //     zoom: 12
+        // },
+        initialViewState: {
+            latitude: 0,
+            longitude: 0,
+            zoom: 2
+        },
+        layers: [pointsLayer, landusageLayer, buildingsLayer]
+    });
+
+</script>
+
+<style>
+    body {
+        margin: 0;
+    }
+
+    #map {
+        height: 100vh;
+    }
+</style>
+</html>

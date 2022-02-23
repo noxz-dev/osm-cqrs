@@ -14,3 +14,26 @@ services:
     ports:
       - "25432:5432"
     restart: unless-stopped
+
+  martin:
+    image: urbica/martin
+    environment:
+      - DATABASE_URL=postgres://renderer:password@postgis:5432/gis
+      - DANGER_ACCEPT_INVALID_CERTS=true
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgis
+      - importer
+
+  importer:
+    build:
+      context: .
+    volumes:
+      - importer-diff:/diff
+    depends_on:
+      - postgis
+
+volumes:
+  postgis-data:
+  importer-diff:
