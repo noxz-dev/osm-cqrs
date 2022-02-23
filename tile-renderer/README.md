@@ -29,10 +29,10 @@ imposm import \
     -write -diff
 ````
 
-Config file sums als configuration arguments together (
-see [Config file](https://imposm.org/docs/imposm3/latest/tutorial.html#config-file)). The`mapping.json` file contains
-the database schema (
-see [Data Mapping](https://imposm.org/docs/imposm3/latest/mapping.html)).
+Config file sums als configuration arguments 
+together (see [Config file](https://imposm.org/docs/imposm3/latest/tutorial.html#config-file)). 
+The`mapping.json` file contains the database schema 
+(see [Data Mapping](https://imposm.org/docs/imposm3/latest/mapping.html)).
 
 ````json5
 // config.json
