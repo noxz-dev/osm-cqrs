@@ -83,6 +83,10 @@ func main() {
 		logger.Info("parsing xml ...")
 		osm := types.OsmChange{}
 		err = xml.Unmarshal(body, &osm)
+		if err != nil {
+			logger.Error(err)
+			return
+		}
 
 		sendNewChangesetNotifcation(nc, &osm)
 		// fmt.Printf("%+v\n", osm.ChageSets)
