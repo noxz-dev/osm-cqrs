@@ -111,6 +111,17 @@ func sendNewChangesetNotifcation(nc *nats.Conn, change *types.OsmChange) {
 		nc.Publish(rootEvent, changeSetBytes)
 	*/
 	normalizedModify := normalizeActionObject(change.Modify)
+	/*
+		NACHLADEN TEST
+		nodeIDs, _, _ := nodes_reloading.ExtractMissingNodes(&normalizedModify)
+		nodes, err := nodes_reloading.GetNodesByID(nodeIDs)
+		if err != nil {
+			logger.Error(err)
+		}
+		utils.WriteObjectToFile(&nodes)
+
+	*/
+
 	publishEvent(nc, utils.GenSubject(config.ModifyEvent), types.MODIFY_EVENT, normalizedModify)
 }
 
