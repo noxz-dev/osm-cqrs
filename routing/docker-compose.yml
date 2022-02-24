@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  postgis:
+    image: kartoza/postgis:14-3.1
+    volumes:
+      - postgis-data:/var/lib/postgresql
+    env_file: .env
+    ports:
+      - "35432:5432"
+    restart: unless-stopped
+
+  routing:
+    build:
+      context: .
+    env_file: .env
+    depends_on:
+      - postgis
+
+volumes:
+  postgis-data:
