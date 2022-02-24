@@ -1,5 +1,14 @@
 package types
 
+import (
+	"encoding/xml"
+	"errors"
+	"io"
+	"net/http"
+	"strconv"
+	"strings"
+)
+
 type Osm struct {
 	Version   string      `xml:"version"`
 	ChageSets []ChangeSet `xml:"changeset"`
@@ -29,9 +38,10 @@ type OsmChange struct {
 	Delete  []Action `xml:"delete"`
 }
 type OsmChangeNormalized struct {
-	Modify Action
-	Create Action
-	Delete Action
+	Modify   Action
+	Create   Action
+	Delete   Action
+	Reloaded Action
 }
 
 type Action struct {
@@ -130,6 +140,17 @@ func (osmChangeNormalized OsmChangeNormalized) ExtractMissingNodes() (nodeIDs ma
 	return
 }
 
+func (osmChangeNormalized *OsmChangeNormalized) Reload() (err error) {
+
+	nodeIDs, _, _ := osmChangeNormalized.ExtractMissingNodes()
+	reloadedNodes, err := GetNodesByID(nodeIDs)
+	if err != nil {
+		return err
+	}
+	osmChangeNormalized.Reloaded.Nodes = reloadedNodes
+	return nil
+}
+
 func (action Action) extractMissingNodes(nodeIDs *map[int]struct{}, missingNodes *int, foundNodes *int) {
 	for _, way := range action.Ways {
 		for _, ref := range way.NodeRefs {
@@ -141,4 +162,77 @@ func (action Action) extractMissingNodes(nodeIDs *map[int]struct{}, missingNodes
 			}
 		}
 	}
+}
+
+func (way Way) HasTags(tags ...string) bool {
+	for _, tag := range tags {
+		_, err := way.GetTag(tag)
+		if err != nil {
+			return false
+		}
+	}
+	return true
+
+}
+
+func (way Way) GetTag(tagString string) (value string, err error) {
+	for _, tag := range way.Tags {
+		if tagString == tag.K {
+			return tag.V, nil
+		}
+	}
+	return "", errors.New("Tag " + tagString + " not found")
+
+}
+
+func (node Node) HasTags(tags ...string) bool {
+	for _, tag := range tags {
+		_, err := node.GetTag(tag)
+		if err != nil {
+			return false
+		}
+	}
+	return true
+
+}
+
+func (node Node) GetTag(tagString string) (value string, err error) {
+	for _, tag := range node.Tags {
+		if tagString == tag.K {
+			return tag.V, nil
+		}
+	}
+	return "", errors.New("Tag " + tagString + " not found")
+
+}
+
+func GetNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
+	nodes = make([]Node, 0)
+	var overpassAnswer OverPassAnswer
+	prefixString := "[out:xml][timeout:500];node(id: "
+	postfixString := "0);out;"
+
+	bodyBuilder := strings.Builder{}
+	bodyBuilder.WriteString(prefixString)
+
+	for i := range nodeIDs {
+		bodyBuilder.WriteString(strconv.Itoa(i) + ",")
+	}
+
+	bodyBuilder.WriteString(postfixString)
+	//structure of requestBody: "[out:xml][timeout:500];node(id: 9309596758, 9519334485, ... ); out;"
+	requestBody := strings.NewReader(bodyBuilder.String())
+	resp, err := http.Post("https://overpass-api.de/api/interpreter", "x-www-form-urlencoded", requestBody)
+
+	if err != nil {
+		return nodes, err
+	}
+
+	responseBody, _ := io.ReadAll(resp.Body)
+	err = xml.Unmarshal(responseBody, &overpassAnswer)
+	if err != nil {
+		return nodes, err
+	}
+
+	return overpassAnswer.Nodes, nil
 }

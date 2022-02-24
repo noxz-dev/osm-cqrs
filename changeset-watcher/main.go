@@ -94,40 +94,12 @@ func main() {
 }
 
 func sendNewChangesetNotifcation(nc *nats.Conn, change *types.OsmChange) {
-	//changeSetBytes, _ := json.Marshal(change)
-
-	/*
-		extractByTag(change.Modify, "highway")
-		extractByTag(change.Delete, "highway")
-		extractByTag(change.Create, "highway")
-
-		extractByTag(change.Modify, "building")
-
-		//changes.modify
-		//changes.delete
-		//changes.create
-		//changes.*.ways.streets
-		//changes.*.ways.buildings
-		//changes.*.ways
-		//changes.*.ways.*
-		//changes.*.relations
-
-		nc.Publish(rootEvent, changeSetBytes)
-	*/
-	normalizedModify := change.Normalize()
-	/*
-		//NACHLADEN TEST
-		nodeIDs, missing, found := normalizedModify.ExtractMissingNodes()
-		nodes, err := nodes_reloading.GetNodesByID(nodeIDs)
-		if err != nil {
-			logger.Error(err)
-		}
-		utils.WriteObjectToFile(&nodes, "reload.json")
-		fmt.Printf("Found: %d, Missing: %d /n", found, missing)
-
-	*/
-
-	publishEvent(nc, utils.GenSubject(config.ModifyEvent), types.MODIFY_EVENT, normalizedModify)
+	changeNormalized := change.Normalize()
+	err := changeNormalized.Reload()
+	if err != nil {
+		logger.Error(err.Error())
+	}
+	publishEvent(nc, utils.GenSubject(config.ModifyEvent), types.MODIFY_EVENT, changeNormalized)
 }
 
 func publishEvent(nc *nats.Conn, subject string, EventType string, payload interface{}) {
