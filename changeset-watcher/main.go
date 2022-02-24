@@ -114,15 +114,16 @@ func sendNewChangesetNotifcation(nc *nats.Conn, change *types.OsmChange) {
 
 		nc.Publish(rootEvent, changeSetBytes)
 	*/
-	normalizedModify := normalizeActionObject(change.Modify)
+	normalizedModify := change.Normalize()
 	/*
-		NACHLADEN TEST
-		nodeIDs, _, _ := nodes_reloading.ExtractMissingNodes(&normalizedModify)
+		//NACHLADEN TEST
+		nodeIDs, missing, found := normalizedModify.ExtractMissingNodes()
 		nodes, err := nodes_reloading.GetNodesByID(nodeIDs)
 		if err != nil {
 			logger.Error(err)
 		}
-		utils.WriteObjectToFile(&nodes)
+		utils.WriteObjectToFile(&nodes, "reload.json")
+		fmt.Printf("Found: %d, Missing: %d /n", found, missing)
 
 	*/
 
@@ -167,23 +168,6 @@ func extractByTag(actions []types.Action, searchTag string) types.Action {
 		Relations: relations,
 	}
 
-}
-
-func normalizeActionObject(actions []types.Action) types.Action {
-	ways := make([]types.Way, 0)
-	nodes := make([]types.Node, 0)
-	relations := make([]types.Relation, 0)
-
-	for _, action := range actions {
-		ways = append(ways, action.Ways...)
-		nodes = append(nodes, action.Nodes...)
-		relations = append(relations, action.Relations...)
-	}
-	return types.Action{
-		Ways:      ways,
-		Nodes:     nodes,
-		Relations: relations,
-	}
 }
 
 func hasTag(searchTag string, tags []types.Tag) bool {

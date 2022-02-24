@@ -63,8 +63,8 @@ func GenSubject(names ...string) string {
 	return subject
 }
 
-func WriteObjectToFile(object interface{}) {
-	file, _ := os.OpenFile("big_encode.json", os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
+func WriteObjectToFile(object interface{}, filename string) {
+	file, _ := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
 	defer file.Close()
 
 	encoder := jsoniter.NewEncoder(file)

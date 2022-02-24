@@ -9,23 +9,6 @@ import (
 	"strings"
 )
 
-func ExtractMissingNodes(action *types.Action) (nodeIDs map[int]struct{}, missingNodes int, foundNodes int) {
-	missingNodes = 0
-	foundNodes = 0
-	nodeIDs = make(map[int]struct{})
-	for _, way := range action.Ways {
-		for _, ref := range way.NodeRefs {
-			if action.ContainsNodeByRef(ref) {
-				foundNodes++
-			} else {
-				missingNodes++
-				nodeIDs[ref.Ref] = struct{}{}
-			}
-		}
-	}
-	return
-}
-
 func GetNodesByID(nodeIDs map[int]struct{}) (nodes []types.Node, err error) {
 	nodes = make([]types.Node, 0)
 	var overpassAnswer types.OverPassAnswer

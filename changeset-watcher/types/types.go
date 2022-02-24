@@ -28,6 +28,11 @@ type OsmChange struct {
 	Create  []Action `xml:"create"`
 	Delete  []Action `xml:"delete"`
 }
+type OsmChangeNormalized struct {
+	Modify Action
+	Create Action
+	Delete Action
+}
 
 type Action struct {
 	Nodes     []Node     `xml:"node"`
@@ -87,4 +92,53 @@ func (action Action) ContainsNodeByRef(ref NodeRef) bool {
 		}
 	}
 	return false
+}
+
+func (osmChange OsmChange) Normalize() OsmChangeNormalized {
+	return OsmChangeNormalized{
+		Modify: normalizeActionObject(osmChange.Modify),
+		Delete: normalizeActionObject(osmChange.Delete),
+		Create: normalizeActionObject(osmChange.Create),
+	}
+
+}
+
+func normalizeActionObject(actions []Action) (normalizedAction Action) {
+	ways := make([]Way, 0)
+	nodes := make([]Node, 0)
+	relations := make([]Relation, 0)
+
+	for _, action := range actions {
+		ways = append(ways, action.Ways...)
+		nodes = append(nodes, action.Nodes...)
+		relations = append(relations, action.Relations...)
+	}
+	return Action{
+		Ways:      ways,
+		Nodes:     nodes,
+		Relations: relations,
+	}
+}
+
+func (osmChangeNormalized OsmChangeNormalized) ExtractMissingNodes() (nodeIDs map[int]struct{}, missingNodes int, foundNodes int) {
+	missingNodes = 0
+	foundNodes = 0
+	nodeIDs = make(map[int]struct{})
+	osmChangeNormalized.Modify.extractMissingNodes(&nodeIDs, &missingNodes, &foundNodes)
+	//osmChangeNormalized.Delete.extractMissingNodes(&nodeIDs, &missingNodes, &foundNodes)
+	osmChangeNormalized.Create.extractMissingNodes(&nodeIDs, &missingNodes, &foundNodes)
+	return
+}
+
+func (action Action) extractMissingNodes(nodeIDs *map[int]struct{}, missingNodes *int, foundNodes *int) {
+	for _, way := range action.Ways {
+		for _, ref := range way.NodeRefs {
+			if action.ContainsNodeByRef(ref) {
+				*foundNodes++
+			} else {
+				*missingNodes++
+				(*nodeIDs)[ref.Ref] = struct{}{}
+			}
+		}
+	}
 }
