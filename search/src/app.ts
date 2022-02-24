@@ -3,8 +3,11 @@ import 'dotenv/config';
 import { PORT } from './config';
 import { logger } from 'services/logger';
 import { client } from 'services/es';
+import { nc } from 'services/nats';
+import { StringCodec } from 'nats';
 
 const app = express();
+const sc = StringCodec();
 
 app.use(express.json());
 
@@ -12,6 +15,7 @@ app.listen(PORT, () => {
   logger.info(`search backend is running http://localhost:${PORT}`);
 });
 
+//REPLACE THIS WITH SUBSCRIBE
 app.post('/addData', async (req, res) => {
   await client.index({
     index: 'osm',
@@ -28,6 +32,8 @@ app.post('/addData', async (req, res) => {
 
   res.status(200).send();
 });
+
+// subToEvents();
 
 app.get('/search', async (req, res) => {
   const result = await client.search({
@@ -49,3 +55,12 @@ app.get('/search', async (req, res) => {
 
   res.send(result.hits.hits);
 });
+
+async function subToEvents() {
+  console.log('listen ...');
+
+  const sub = nc.subscribe('foo');
+  for await (const m of sub) {
+    console.log(sc.decode(m.data));
+  }
+}
