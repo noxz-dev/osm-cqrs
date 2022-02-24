@@ -1,0 +1,6 @@
+{
+  "cachedir": "/cache",
+  "connection": "postgis://renderer:password@postgis:5432/gis",
+  "mapping": "/mapping.json",
+  "diffdir": "/diff"
+}
