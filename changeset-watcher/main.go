@@ -99,10 +99,10 @@ func sendNewChangesetNotifcation(nc *nats.Conn, change *types.OsmChange) {
 		logger.Error(err.Error())
 	}
 	streets := extractStreets(changeNormalized)
-	namedBuildings := extractBuildings(changeNormalized)
+	searchPayload := generateSearchEventPayload(changeNormalized)
 	go publishEvent(nc, "all", changeNormalized)
 	go publishEvent(nc, "routing", streets)
-	go publishEvent(nc, "search", namedBuildings)
+	go publishEvent(nc, "search", searchPayload)
 }
 
 func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
@@ -174,8 +174,9 @@ func extractStreets(normalized types.OsmChangeNormalized) (streets types.OsmChan
 }
 
 func extractBuildings(normalized types.OsmChangeNormalized) (buildings types.OsmChangeNormalized) {
+	utils.WriteObjectToFile(normalized, "original.json")
 	tagBuilding := "building"
-	tagName := "name"
+	tagName := "addr:housenumber"
 
 	normalized.Modify.FilterWays(tagName, tagBuilding)
 	normalized.Delete.FilterWays(tagName, tagBuilding)
@@ -193,4 +194,47 @@ func extractBuildings(normalized types.OsmChangeNormalized) (buildings types.Osm
 	normalized.Reloaded.RemoveUnusedNodes(usedNodes)
 
 	return normalized
+}
+
+func generateSearchEventPayload(normalized types.OsmChangeNormalized) types.SearchPayload {
+	buildings := extractBuildings(normalized)
+
+	modifySearchPoints := reduceWaysToSearchPoints(buildings.Modify.Ways, append(buildings.Modify.Nodes, buildings.Reloaded.Nodes...))
+	createSearchPoints := reduceWaysToSearchPoints(buildings.Create.Ways, append(buildings.Create.Nodes, buildings.Reloaded.Nodes...))
+	deleteSearchPoints := reduceWaysToSearchPoints(buildings.Delete.Ways, append(buildings.Delete.Nodes, buildings.Reloaded.Nodes...))
+
+	payload := types.SearchPayload{
+		Modify: modifySearchPoints,
+		Create: createSearchPoints,
+		Delete: deleteSearchPoints,
+	}
+
+	return payload
+}
+
+func reduceWaysToSearchPoints(ways []types.Way, nodes []types.Node) []types.SearchPoint {
+	searchPoints := make([]types.SearchPoint, 0)
+
+	for _, way := range ways {
+		wayNodes := make([]types.Node, 0)
+		for _, nr := range way.NodeRefs {
+			for _, n := range nodes {
+				if n.Id == nr.Ref {
+					wayNodes = append(nodes, n)
+				}
+			}
+		}
+		centroid := utils.CalculateCentroid(&wayNodes)
+
+		name, _ := way.GetTag("name")
+
+		searchPoints = append(searchPoints, types.SearchPoint{
+			Name:     name,
+			Location: centroid,
+			Tags:     way.Tags,
+			Id:       fmt.Sprint("way_", way.Id),
+		})
+
+	}
+	return searchPoints
 }
