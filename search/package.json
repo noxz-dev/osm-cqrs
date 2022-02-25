@@ -1,0 +1,26 @@
+{
+  "name": "search",
+  "version": "1.0.0",
+  "description": "```cmd docker-compose up ```",
+  "main": "app.js",
+  "scripts": {
+    "build": "unbuild",
+    "dev": "onchange -i -k 'src/**/*.ts' -- tsno run src/app.ts",
+    "start": "node dist/app.mjs"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "onchange": "^7.1.0",
+    "tsno": "^2.0.0",
+    "unbuild": "^0.6.9"
+  },
+  "dependencies": {
+    "@elastic/elasticsearch": "^8.0.0",
+    "consola": "^2.15.3",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "nats": "^2.6.1"
+  }
+}
