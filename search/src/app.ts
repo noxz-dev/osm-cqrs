@@ -1,9 +1,9 @@
 import express from 'express';
 import 'dotenv/config';
 import { PORT } from './config';
-import { logger } from 'services/logger';
-import { client } from 'services/es';
-import { nc } from 'services/nats';
+import { logger } from './services/logger';
+import { client } from './services/es';
+import { nc } from './services/nats';
 import { StringCodec } from 'nats';
 
 const app = express();
@@ -33,7 +33,7 @@ app.post('/addData', async (req, res) => {
   res.status(200).send();
 });
 
-// subToEvents();
+// subscribeToEvents();
 
 app.get('/search', async (req, res) => {
   const result = await client.search({
@@ -56,9 +56,7 @@ app.get('/search', async (req, res) => {
   res.send(result.hits.hits);
 });
 
-async function subToEvents() {
-  console.log('listen ...');
-
+async function subscribeToEvents() {
   const sub = nc.subscribe('foo');
   for await (const m of sub) {
     console.log(sc.decode(m.data));

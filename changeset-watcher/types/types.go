@@ -32,10 +32,9 @@ type Tag struct {
 }
 
 type OsmChange struct {
-	Version string   `xml:"version"`
-	Modify  []Action `xml:"modify"`
-	Create  []Action `xml:"create"`
-	Delete  []Action `xml:"delete"`
+	Modify []Action `xml:"modify"`
+	Create []Action `xml:"create"`
+	Delete []Action `xml:"delete"`
 }
 type OsmChangeNormalized struct {
 	Modify   Action
@@ -87,6 +86,24 @@ type Member struct {
 
 type OverPassAnswer struct {
 	Nodes []Node `json:"elements" xml:"node"`
+}
+
+type SearchPoint struct {
+	Name     string
+	Location Location
+	Id       string
+	Tags     []Tag
+}
+
+type Location struct {
+	Lat float32
+	Lng float32
+}
+
+type SearchPayload struct {
+	Modify []SearchPoint
+	Create []SearchPoint
+	Delete []SearchPoint
 }
 
 const (
@@ -267,3 +284,15 @@ func (action *Action) RemoveUnusedNodes(usedNodes map[int]struct{}) {
 	}
 	action.Nodes = filteredNodes
 }
+
+/*
+func (action *Action) convertWayToNodes () {
+	for _ , way := range action.Ways {
+		for
+		utils.CalculateCentroid()
+
+	}
+
+}
+
+*/

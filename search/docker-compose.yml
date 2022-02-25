@@ -32,6 +32,11 @@ services:
     depends_on:
       - elasticsearch
 
+  search-backend:
+    container_name: search
+    build: .
+    environment:
+      - PORT=6000
 volumes:
   elasticsearch-data:
     driver: local
