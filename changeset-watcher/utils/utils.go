@@ -70,3 +70,25 @@ func WriteObjectToFile(object interface{}, filename string) {
 	encoder := jsoniter.NewEncoder(file)
 	encoder.Encode(object)
 }
+
+type Point struct {
+	Lat float32
+	Lng float32
+}
+
+func calculateCentroid(points *[]Point) Point {
+	var xSum float32 = 0.0
+	var ySum float32 = 0.0
+	var len float32 = 0
+
+	for _, p := range *points {
+		xSum += p.Lat
+		ySum += p.Lng
+		len++
+	}
+
+	centroid := Point{Lat: xSum / len, Lng: ySum / len}
+
+	return centroid
+
+}

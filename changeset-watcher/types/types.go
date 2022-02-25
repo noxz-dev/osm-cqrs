@@ -236,3 +236,34 @@ func GetNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
 
 	return overpassAnswer.Nodes, nil
 }
+
+func (action *Action) FilterWays(tags ...string) {
+	filteredWays := make([]Way, 0)
+	for _, way := range action.Ways {
+		if way.HasTags(tags...) {
+			filteredWays = append(filteredWays, way)
+		}
+
+		action.Ways = filteredWays
+	}
+
+}
+
+func (action Action) UsedNodes(nodeIDs *map[int]struct{}) {
+	for _, way := range action.Ways {
+		for _, nodeRef := range way.NodeRefs {
+			(*nodeIDs)[nodeRef.Ref] = struct{}{}
+		}
+	}
+}
+
+func (action *Action) RemoveUnusedNodes(usedNodes map[int]struct{}) {
+	filteredNodes := make([]Node, 0)
+	for _, node := range action.Nodes {
+		_, exists := usedNodes[node.Id]
+		if exists {
+			filteredNodes = append(filteredNodes, node)
+		}
+	}
+	action.Nodes = filteredNodes
+}

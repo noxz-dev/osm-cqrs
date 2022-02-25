@@ -99,6 +99,9 @@ func sendNewChangesetNotifcation(nc *nats.Conn, change *types.OsmChange) {
 	if err != nil {
 		logger.Error(err.Error())
 	}
+	streets := extractStreets(changeNormalized)
+	utils.WriteObjectToFile(changeNormalized, "all.json")
+	utils.WriteObjectToFile(streets, "streets.json")
 	publishEvent(nc, utils.GenSubject(config.ModifyEvent), types.MODIFY_EVENT, changeNormalized)
 }
 
@@ -149,4 +152,23 @@ func hasTag(searchTag string, tags []types.Tag) bool {
 		}
 	}
 	return false
+}
+
+func extractStreets(normalized types.OsmChangeNormalized) (streets types.OsmChangeNormalized) {
+	tagName := "highway"
+	normalized.Create.FilterWays(tagName)
+	normalized.Modify.FilterWays(tagName)
+	normalized.Delete.FilterWays(tagName)
+
+	usedNodes := make(map[int]struct{}, 0)
+	normalized.Create.UsedNodes(&usedNodes)
+	normalized.Delete.UsedNodes(&usedNodes)
+	normalized.Modify.UsedNodes(&usedNodes)
+
+	normalized.Create.RemoveUnusedNodes(usedNodes)
+	normalized.Delete.RemoveUnusedNodes(usedNodes)
+	normalized.Modify.RemoveUnusedNodes(usedNodes)
+	normalized.Reloaded.RemoveUnusedNodes(usedNodes)
+
+	return normalized
 }
