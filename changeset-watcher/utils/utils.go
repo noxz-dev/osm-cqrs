@@ -2,9 +2,16 @@ package utils
 
 import (
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
+
+	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/cloudevents/sdk-go/v2/event"
+	"github.com/google/uuid"
+	"noxz.dev/changeset-watcher/config"
 )
 
 func ExtractSeqNumber(body *string) (int, error) {
@@ -32,7 +39,56 @@ func BuildChangeSetUrl(seqNumber int) (string, error) {
 		}
 		result += string(s)
 	}
-	fmt.Println(result)
 	url := "https://planet.openstreetmap.org/replication/minute/" + fmt.Sprint(result) + ".osc.gz"
 	return url, nil
+}
+
+func CreateEvent(source string, eventType string, payload interface{}) *event.Event {
+	event := cloudevents.NewEvent()
+	event.SetID(uuid.New().String())
+	event.SetSource(source)
+	event.SetType(eventType)
+	event.SetData(cloudevents.ApplicationJSON, payload)
+
+	return &event
+}
+
+func GenSubject(names ...string) string {
+	var subject = config.RootEvent
+
+	for _, name := range names {
+		subject += "." + name
+	}
+
+	return subject
+}
+
+func WriteObjectToFile(object interface{}, filename string) {
+	file, _ := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
+	defer file.Close()
+
+	encoder := jsoniter.NewEncoder(file)
+	encoder.Encode(object)
+}
+
+type Point struct {
+	Lat float32
+	Lng float32
+}
+
+func calculateCentroid(points *[]Point) Point {
+	var xSum float32 = 0.0
+	var ySum float32 = 0.0
+	var len float32 = 0
+
+	for _, p := range *points {
+		xSum += p.Lat
+		ySum += p.Lng
+		len++
+	}
+
+	centroid := Point{Lat: xSum / len, Lng: ySum / len}
+
+	return centroid
+
 }

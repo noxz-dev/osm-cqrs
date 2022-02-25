@@ -1,5 +1,5 @@
 *.osm
 *.osc
 .DS_Store
-config
 .idea
+volumes
