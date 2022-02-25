@@ -33,7 +33,7 @@ app.post('/addData', async (req, res) => {
   res.status(200).send();
 });
 
-// subToEvents();
+// subscribeToEvents();
 
 app.get('/search', async (req, res) => {
   const result = await client.search({
@@ -56,7 +56,7 @@ app.get('/search', async (req, res) => {
   res.send(result.hits.hits);
 });
 
-async function subToEvents() {
+async function subscribeToEvents() {
   console.log('listen ...');
 
   const sub = nc.subscribe('foo');
