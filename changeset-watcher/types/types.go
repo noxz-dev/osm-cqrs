@@ -37,10 +37,10 @@ type OsmChange struct {
 	Delete []Action `xml:"delete"`
 }
 type OsmChangeNormalized struct {
-	Modify   Action
-	Create   Action
-	Delete   Action
-	Reloaded Action
+	Modify   Action `json:"modify"`
+	Create   Action `json:"create"`
+	Delete   Action `json:"delete"`
+	Reloaded Action `json:"reloaded"`
 }
 
 type Action struct {

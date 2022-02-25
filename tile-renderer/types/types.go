@@ -1,8 +1,14 @@
 package types
 
-type Osm struct {
-	Version   string      `xml:"version"`
-	ChageSets []ChangeSet `xml:"changeset"`
+import (
+	"encoding/xml"
+)
+
+type OsmChange struct {
+	XMLName xml.Name `xml:"osmChange"`
+	Create  Action   `xml:"create"`
+	Modify  Action   `xml:"modify"`
+	Delete  Action   `xml:"delete"`
 }
 
 type ChangeSet struct {
@@ -17,16 +23,11 @@ type ChangeSet struct {
 	Tags []Tag `xml:"tag"`
 }
 
-type Tag struct {
-	K string `xml:"k,attr"`
-	V string `xml:"v,attr"`
-}
-
-type OsmChange struct {
-	Version string   `xml:"version"`
-	Modify  []Action `xml:"modify"`
-	Create  []Action `xml:"create"`
-	Delete  []Action `xml:"delete"`
+type OsmChangeNormalized struct {
+	Modify   Action `xml:"modify"`
+	Create   Action `xml:"create"`
+	Delete   Action `xml:"delete"`
+	Reloaded Action `xml:"reloaded"`
 }
 
 type Action struct {
@@ -68,4 +69,9 @@ type Member struct {
 	Type string `xml:"type,attr"`
 	Ref  int    `xml:"ref,attr"`
 	Role string `xml:"role,attr"`
+}
+
+type Tag struct {
+	K string `xml:"k,attr"`
+	V string `xml:"v,attr"`
 }
