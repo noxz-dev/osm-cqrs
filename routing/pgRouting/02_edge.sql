@@ -65,7 +65,7 @@ FROM (
                     )).geom AS geometry,
             tags
          FROM
-             import.osm_ways
+             public.osm_ways
              JOIN imposm2pgr.osm_ways_junctions
          ON
              osm_ways_junctions.point && osm_ways.geometry
