@@ -13,7 +13,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/withmandala/go-log"
 
-	"noxz.dev/changeset-watcher/config"
 	"noxz.dev/changeset-watcher/types"
 	"noxz.dev/changeset-watcher/utils"
 )
@@ -100,13 +99,14 @@ func sendNewChangesetNotifcation(nc *nats.Conn, change *types.OsmChange) {
 		logger.Error(err.Error())
 	}
 	streets := extractStreets(changeNormalized)
-	utils.WriteObjectToFile(changeNormalized, "all.json")
-	utils.WriteObjectToFile(streets, "streets.json")
-	publishEvent(nc, utils.GenSubject(config.ModifyEvent), types.MODIFY_EVENT, changeNormalized)
+	namedBuildings := extractBuildings(changeNormalized)
+	go publishEvent(nc, "all", changeNormalized)
+	go publishEvent(nc, "routing", streets)
+	go publishEvent(nc, "search", namedBuildings)
 }
 
-func publishEvent(nc *nats.Conn, subject string, EventType string, payload interface{}) {
-	event := utils.CreateEvent("ChangesetWatcher", EventType, payload)
+func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
+	event := utils.CreateEvent("ChangesetWatcher", payload)
 	bytes, err := json.Marshal(event)
 	if err != nil {
 		logger.Error("Event could not be serialized", err.Error())
@@ -164,6 +164,28 @@ func extractStreets(normalized types.OsmChangeNormalized) (streets types.OsmChan
 	normalized.Create.UsedNodes(&usedNodes)
 	normalized.Delete.UsedNodes(&usedNodes)
 	normalized.Modify.UsedNodes(&usedNodes)
+
+	normalized.Create.RemoveUnusedNodes(usedNodes)
+	normalized.Delete.RemoveUnusedNodes(usedNodes)
+	normalized.Modify.RemoveUnusedNodes(usedNodes)
+	normalized.Reloaded.RemoveUnusedNodes(usedNodes)
+
+	return normalized
+}
+
+func extractBuildings(normalized types.OsmChangeNormalized) (buildings types.OsmChangeNormalized) {
+	tagBuilding := "building"
+	tagName := "name"
+
+	normalized.Modify.FilterWays(tagName, tagBuilding)
+	normalized.Delete.FilterWays(tagName, tagBuilding)
+	normalized.Create.FilterWays(tagName, tagBuilding)
+
+	usedNodes := make(map[int]struct{}, 0)
+
+	normalized.Modify.UsedNodes(&usedNodes)
+	normalized.Create.UsedNodes(&usedNodes)
+	normalized.Delete.UsedNodes(&usedNodes)
 
 	normalized.Create.RemoveUnusedNodes(usedNodes)
 	normalized.Delete.RemoveUnusedNodes(usedNodes)
