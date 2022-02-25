@@ -1,0 +1,34 @@
+{
+  "tags": {
+    "load_all": true,
+    "exclude": [
+      "created_by",
+      "source*",
+      "tiger:*"
+    ]
+  },
+  "tables": {
+    "ways": {
+      "type": "linestring",
+      "mapping": {
+        "highway": [
+          "__any__"
+        ]
+      },
+      "columns": [
+        {
+          "name": "osm_id",
+          "type": "id"
+        },
+        {
+          "name": "geometry",
+          "type": "geometry"
+        },
+        {
+          "name": "tags",
+          "type": "hstore_tags"
+        }
+      ]
+    }
+  }
+}
