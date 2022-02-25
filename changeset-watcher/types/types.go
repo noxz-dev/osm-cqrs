@@ -267,3 +267,15 @@ func (action *Action) RemoveUnusedNodes(usedNodes map[int]struct{}) {
 	}
 	action.Nodes = filteredNodes
 }
+
+/*
+func (action *Action) convertWayToNodes () {
+	for _ , way := range action.Ways {
+		for
+		utils.CalculateCentroid()
+
+	}
+
+}
+
+*/

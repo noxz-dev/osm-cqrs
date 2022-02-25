@@ -43,11 +43,11 @@ func BuildChangeSetUrl(seqNumber int) (string, error) {
 	return url, nil
 }
 
-func CreateEvent(source string, eventType string, payload interface{}) *event.Event {
+func CreateEvent(source string, payload interface{}) *event.Event {
 	event := cloudevents.NewEvent()
 	event.SetID(uuid.New().String())
 	event.SetSource(source)
-	event.SetType(eventType)
+	event.SetType("ChangeSet")
 	event.SetData(cloudevents.ApplicationJSON, payload)
 
 	return &event
@@ -76,7 +76,7 @@ type Point struct {
 	Lng float32
 }
 
-func calculateCentroid(points *[]Point) Point {
+func CalculateCentroid(points *[]Point) Point {
 	var xSum float32 = 0.0
 	var ySum float32 = 0.0
 	var len float32 = 0
