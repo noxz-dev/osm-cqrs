@@ -1,9 +1,9 @@
 import express from 'express';
 import 'dotenv/config';
 import { PORT } from './config';
-import { logger } from 'services/logger';
-import { client } from 'services/es';
-import { nc } from 'services/nats';
+import { logger } from './services/logger';
+import { client } from './services/es';
+import { nc } from './services/nats';
 import { StringCodec } from 'nats';
 
 const app = express();
@@ -57,8 +57,6 @@ app.get('/search', async (req, res) => {
 });
 
 async function subscribeToEvents() {
-  console.log('listen ...');
-
   const sub = nc.subscribe('foo');
   for await (const m of sub) {
     console.log(sc.decode(m.data));

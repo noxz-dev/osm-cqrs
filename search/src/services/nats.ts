@@ -1,4 +1,3 @@
 import { connect } from 'nats';
-import { DEFAULT_HOST } from 'nats/lib/nats-base-client/types';
 
-export const nc = await connect({ servers: DEFAULT_HOST });
+export const nc = await connect({ servers: '127.0.0.1' });

@@ -11,6 +11,6 @@ COPY . .
 RUN pnpm install
 RUN pnpm run build
 
-EXPOSE 5000:5000
+EXPOSE 6000:6000
 
 CMD ["node", "dist/app.mjs"]
