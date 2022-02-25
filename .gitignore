@@ -1,6 +1,9 @@
 *.osm
 *.osc
 .DS_Store
-config
 .idea
+<<<<<<< HEAD
 *.log
+=======
+volumes
+>>>>>>> 966506a35711fd42c77adbf65192333b8426e023

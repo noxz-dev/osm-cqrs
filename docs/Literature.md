@@ -1,3 +1,4 @@
+
 ## cqrs
 
 - https://ibm-cloud-architecture.github.io/refarch-eda/patterns/cqrs/
@@ -7,6 +8,11 @@
 - https://ibm-cloud-architecture.github.io/refarch-eda/patterns/event-sourcing/
 
 - https://www.kennybastani.com/2017/01/building-event-driven-microservices.html
+
+## events
+
+- https://cloudevents.io/
+- https://nats.io
 
 ## PostGis import
 
@@ -23,3 +29,4 @@
 
 - https://github.com/makinacorpus/ImpOsm2pgRouting
 - https://medium.com/@frederic.rodrigo/imposm2pgrouting-route-planning-on-openstreetmap-road-network-with-the-benefit-of-updates-1e70f280ac5e
+

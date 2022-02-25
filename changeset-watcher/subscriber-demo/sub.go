@@ -15,7 +15,7 @@ func main() {
 		return
 	}
 
-	nc.Subscribe("foo", func(m *nats.Msg) {
+	nc.Subscribe("change.modify", func(m *nats.Msg) {
 		fmt.Printf("Received a message: %s\n", string(m.Data))
 	})
 

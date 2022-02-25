@@ -4,3 +4,10 @@ services:
     image: nats
     ports:
       - '4222:4222'
+  redis:
+    image: redis:latest
+    volumes:
+      - './volumes/redis:/data'
+    ports:
+      - '6379:6379'
+    command: ['redis-server', '--appendonly', 'yes']
