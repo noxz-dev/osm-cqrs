@@ -1,2 +1,3 @@
 import { Client } from '@elastic/elasticsearch';
-export const client = new Client({ node: 'http://localhost:9200' });
+import { ES_IP } from '../config';
+export const client = new Client({ node: ES_IP });

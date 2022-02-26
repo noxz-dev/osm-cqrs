@@ -9,31 +9,19 @@ import { StringCodec } from 'nats';
 const app = express();
 const sc = StringCodec();
 
+subscribeToEvents();
+
 app.use(express.json());
 
 app.listen(PORT, () => {
   logger.info(`search backend is running http://localhost:${PORT}`);
 });
 
-//REPLACE THIS WITH SUBSCRIBE
+//just for testing purposes, production will run on events
 app.post('/addData', async (req, res) => {
-  await client.index({
-    index: 'osm',
-    document: {
-      name: 'Hochschule Hannover',
-      location: {
-        lat: 52.353683,
-        lon: 9.72422,
-      },
-    },
-  });
-
-  await client.indices.refresh({ index: 'osm' });
-
+  await demoInsert();
   res.status(200).send();
 });
-
-// subscribeToEvents();
 
 app.get('/search', async (req, res) => {
   const result = await client.search({
@@ -57,8 +45,51 @@ app.get('/search', async (req, res) => {
 });
 
 async function subscribeToEvents() {
-  const sub = nc.subscribe('foo');
+  const sub = nc.subscribe('search');
   for await (const m of sub) {
-    console.log(sc.decode(m.data));
+    const data = sc.decode(m.data);
+    console.log(data);
+    // insertDocument(data);
   }
+}
+
+interface SearchPoint {
+  Name: string;
+  Id: string;
+  Location: {
+    Lat: number;
+    Lng: number;
+  };
+  Tags?: any[];
+}
+
+async function insertDocument(sp: SearchPoint) {
+  await client.index({
+    index: 'osm',
+    document: {
+      name: sp.Name,
+      location: {
+        lat: sp.Location.Lat,
+        lon: sp.Location.Lng,
+      },
+      tags: sp.Tags,
+    },
+  });
+
+  await client.indices.refresh({ index: 'osm' });
+}
+
+async function demoInsert() {
+  await client.index({
+    index: 'osm',
+    document: {
+      name: 'Hochschule Hannover',
+      location: {
+        lat: 52.353683,
+        lon: 9.72422,
+      },
+    },
+  });
+
+  await client.indices.refresh({ index: 'osm' });
 }

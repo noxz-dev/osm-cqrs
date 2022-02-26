@@ -1,7 +1,7 @@
 ## Setup ElasticSearch
 
 ```bash
-docker-compose up
+docker-compose up --build
 ```
 
 ## setup the schema

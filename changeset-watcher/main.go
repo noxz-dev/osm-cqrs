@@ -21,7 +21,15 @@ var logger = log.New(os.Stderr)
 
 func main() {
 
-	nc, err := nats.Connect(nats.DefaultURL)
+	var url string
+
+	url = os.Getenv("NATS_IP")
+
+	if url == "" {
+		url = nats.DefaultURL
+	}
+
+	nc, err := nats.Connect(url)
 	defer nc.Close()
 
 	if err != nil {
@@ -112,7 +120,7 @@ func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
 		logger.Error("Event could not be serialized", err.Error())
 		return
 	}
-	logger.Info("publishing new changeset...")
+	logger.Info("publishing new changeset to " + subject + " ...")
 	nc.Publish(subject, bytes)
 }
 

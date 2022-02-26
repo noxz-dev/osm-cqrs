@@ -1,9 +1,12 @@
-version: '3'
+version: '3.9'
 services:
   nats:
     image: nats
     ports:
       - '4222:4222'
+    networks:
+      - proxynet
+
   redis:
     image: redis:latest
     volumes:
@@ -11,3 +14,19 @@ services:
     ports:
       - '6379:6379'
     command: ['redis-server', '--appendonly', 'yes']
+    networks:
+      - proxynet
+
+  # watcher:
+  #   build: ./changeset-watcher
+  #   depends_on:
+  #     - nats
+  #   environment:
+  #     - NATS_IP=nats
+  #   restart: unless-stopped
+  #   networks:
+  #     - proxynet
+
+networks:
+  proxynet:
+    name: osm_cqrs_network

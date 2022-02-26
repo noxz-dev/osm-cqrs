@@ -21,6 +21,8 @@ services:
     ports:
       - 9200:9200
       - 9300:9300
+    networks:
+      - proxynet
 
   kibana:
     container_name: kibana
@@ -31,12 +33,23 @@ services:
       - 5601:5601
     depends_on:
       - elasticsearch
+    networks:
+      - proxynet
 
   search-backend:
     container_name: search
     build: .
     environment:
       - PORT=6000
+      - NATS_IP=nats
+      - ES_IP=http://elasticsearch:9200
+    networks:
+      - proxynet
+
 volumes:
   elasticsearch-data:
     driver: local
+
+networks:
+  proxynet:
+    name: osm_cqrs_network
