@@ -14,6 +14,8 @@ services:
     ports:
       - "25432:5432"
     restart: unless-stopped
+    networks:
+      - osm_proxy
 
   martin:
     image: urbica/martin
@@ -25,6 +27,8 @@ services:
     depends_on:
       - postgis
       - importer
+    networks:
+      - osm_proxy
 
   importer:
     build:
@@ -33,7 +37,15 @@ services:
       - importer-diff:/diff
     depends_on:
       - postgis
+    networks:
+      - osm_proxy
+    environment:
+      - NATS_IP=nats
 
 volumes:
   postgis-data:
   importer-diff:
+
+networks:
+  osm_proxy:
+    name: osm_cqrs_network

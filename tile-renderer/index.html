@@ -59,14 +59,14 @@
     // L.marker({lon: 0, lat: 0}).bindPopup('The center of the world').addTo(map);
 
 
-    const map = L.map(document.getElementById('map2'), {
+    /* const map = L.map(document.getElementById('map2'), {
         center: [51.47, 0.45],
         zoom: 4
     });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    }).addTo(map);*/
 
     const pointsLayer = new deck.MVTLayer({
         data: 'http://localhost:3000/public.osm_amenities/{z}/{x}/{y}.pbf', // 'http://localhost:3000/public.table_source/{z}/{x}/{y}.pbf'
@@ -143,7 +143,7 @@
             longitude: 0,
             zoom: 2
         },
-        layers: [pointsLayer, buildingsLayer, waterLayer, roadLayer]
+        layers: [pointsLayer, buildingsLayer, waterLayer, roadLayer, landusageLayer]
     });
 
 </script>
