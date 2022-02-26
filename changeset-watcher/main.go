@@ -182,7 +182,7 @@ func extractStreets(normalized types.OsmChangeNormalized) (streets types.OsmChan
 }
 
 func extractBuildings(normalized types.OsmChangeNormalized) (buildings types.OsmChangeNormalized) {
-	utils.WriteObjectToFile(normalized, "original.json")
+	// utils.WriteObjectToFile(normalized, "original.json")
 	tagBuilding := "building"
 	tagName := "addr:housenumber"
 
