@@ -8,9 +8,8 @@ echo $PGCON
 # Import PBF
 echo "Start PBF import"
 psql "postgresql://${PGCON}" -c "DROP SCHEMA IF EXISTS imposm2pgr CASCADE; DROP SCHEMA IF EXISTS import CASCADE;"
-/src/imposm/imposm import -config /src/imposm/config.json -read /src/imposm/niedersachsen.pbf -write -diff
-#/src/imposm/imposm import -config /src/imposm/config.json -deployproduction
-#/src/imposm/imposm run -config config.json
+/src/imposm/imposm import -config /src/imposm/config.json -read /src/imposm/base.pbf -write -diff
+/src/imposm/imposm import -config /src/imposm/config.json -deployproduction
 
 # Import SQL
 echo "Load ImpOsm2pgRouting into database"
@@ -26,3 +25,5 @@ psql "postgresql://${PGCON}" </src/pgRouting/03_update.sql
 # Import SQL
 echo "Load custom SQL"
 psql "postgresql://${PGCON}" </src/pgRouting/10_network.sql
+
+/src/imposm/imposm run -config /src/imposm/config.json

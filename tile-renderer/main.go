@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/json"
 	"encoding/xml"
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/nats-io/nats.go"
 	"io/ioutil"
 	"log"
 	"noxz.dev/tile-renderer/types"
-	"os/exec"
 )
 
 func main() {
@@ -20,33 +20,43 @@ func main() {
 		return
 	}
 
-	_, err = nc.Subscribe("foo", func(msg *nats.Msg) {
+	log.Printf("Connection succesfull")
+
+	_, err = nc.Subscribe("all", func(msg *nats.Msg) {
 		log.Printf("Received message")
 
-		xmlData := types.Action{}
+		cloudEvent := cloudevents.NewEvent()
 
-		_ = json.Unmarshal(msg.Data, &xmlData)
+		_ = json.Unmarshal(msg.Data, &cloudEvent)
 
-		file, _ := xml.MarshalIndent(xmlData, "", " ")
+		eventData := types.OsmChangeNormalized{}
 
-		_ = ioutil.WriteFile("temp.xml", file, 0644)
-
-		cmd := exec.Command("osm2pgsql", "--append", "-r xml", "-s", "-C 1000", "-G", "--hstore",
-			"--number-processes 24",
-			"--style openstreetmap-carto.style",
-			"--tag-transform-script openstreetmap-carto.lua",
-			"-d gis",
-			"-H localhost",
-			"-U renderer",
-			"-W",
-			"--password renderer",
-			"temp.xml")
-
-		err := cmd.Run()
+		_ = json.Unmarshal(cloudEvent.Data(), &eventData)
 
 		if err != nil {
-			log.Fatalln(err)
+			log.Fatalf(err.Error())
 		}
+
+		createAction := types.Action{
+			Nodes:     append(eventData.Create.Nodes, eventData.Reloaded.Nodes...),
+			Ways:      append(eventData.Create.Ways, eventData.Reloaded.Ways...),
+			Relations: append(eventData.Create.Relations, eventData.Reloaded.Relations...),
+		}
+
+		xmlContent := types.OsmChange{
+			Create: createAction,
+			Delete: eventData.Delete,
+			Modify: eventData.Modify,
+		}
+
+		xmlData, err := xml.MarshalIndent(xmlContent, " ", "    ")
+		xmlData = []byte(xml.Header + string(xmlData))
+
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+
+		_ = ioutil.WriteFile("temp.xml", xmlData, 0644)
 
 	})
 	if err != nil {
