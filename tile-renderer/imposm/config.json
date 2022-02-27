@@ -1,6 +1,6 @@
 {
   "cachedir": "/src/imposm/cache",
-  "connection": "postgis://renderer:password@postgis:5432/gis",
+  "connection": "postgis://renderer:password@renderer-postgis:5432/gis",
   "mapping": "/src/imposm/mapping.json",
   "diffdir": "/src/imposm/diff"
 }

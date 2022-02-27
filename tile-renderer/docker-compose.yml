@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  postgis:
+  renderer-postgis:
     image: kartoza/postgis:14-3.1
     volumes:
       - postgis-data:/var/lib/postgresql
@@ -15,7 +15,7 @@ services:
   martin:
     image: urbica/martin
     environment:
-      - DATABASE_URL=postgres://renderer:password@postgis:5432/gis
+      - DATABASE_URL=postgres://renderer:password@renderer-postgis:5432/gis
       - DANGER_ACCEPT_INVALID_CERTS=true
       - WATCH_MODE=true
     ports:
