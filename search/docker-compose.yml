@@ -37,7 +37,7 @@ services:
       - proxynet
 
   search-backend:
-    container_name: search
+    container_name: search-backend
     build: .
     environment:
       - PORT=6000

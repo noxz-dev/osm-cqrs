@@ -23,7 +23,7 @@ app.post('/addData', async (req, res) => {
   res.status(200).send();
 });
 
-app.get('/search', async (req, res) => {
+app.get('/searchByDistance', async (req, res) => {
   const result = await client.search({
     index: 'osm',
     query: {
@@ -44,12 +44,51 @@ app.get('/search', async (req, res) => {
   res.send(result.hits.hits);
 });
 
+app.get('/searchAll', async (req, res) => {
+  const result = await client.search({
+    index: 'osm',
+    query: {
+      match_all: {},
+    },
+  });
+
+  res.send(result.hits.hits);
+});
+
+app.get('/searchByName', async (req, res) => {
+  const { name } = req.query;
+
+  if (!name) {
+    res.status(400).send('no name specified');
+    return;
+  }
+
+  const result = await client.search({
+    index: 'osm',
+    query: {
+      match: {
+        name: name as string,
+      },
+    },
+  });
+
+  res.send(result.hits.hits);
+});
+
 async function subscribeToEvents() {
   const sub = nc.subscribe('search');
   for await (const m of sub) {
-    const data = sc.decode(m.data);
-    console.log(data);
-    // insertDocument(data);
+    const data = sc.decode(m.data) as any;
+    const event = JSON.parse(data);
+
+    const modify = event.data.Modify as SearchPoint[];
+    const create = event.data.Modify as SearchPoint[];
+    const remove = event.data.Modify as SearchPoint[];
+
+    for await (const loc of create) {
+      console.log('inserting: ', loc);
+      await insertDocument(loc);
+    }
   }
 }
 
@@ -68,11 +107,12 @@ async function insertDocument(sp: SearchPoint) {
     index: 'osm',
     document: {
       name: sp.Name,
+      osmId: sp.Id,
       location: {
         lat: sp.Location.Lat,
         lon: sp.Location.Lng,
       },
-      tags: sp.Tags,
+      tags: sp.Tags || [],
     },
   });
 
@@ -84,10 +124,12 @@ async function demoInsert() {
     index: 'osm',
     document: {
       name: 'Hochschule Hannover',
+      id: '123',
       location: {
         lat: 52.353683,
         lon: 9.72422,
       },
+      tags: [],
     },
   });
 
