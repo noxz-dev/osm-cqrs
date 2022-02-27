@@ -82,13 +82,25 @@ async function subscribeToEvents() {
     const event = JSON.parse(data);
 
     const modify = event.data.Modify as SearchPoint[];
-    const create = event.data.Modify as SearchPoint[];
-    const remove = event.data.Modify as SearchPoint[];
+    const create = event.data.Create as SearchPoint[];
+    const remove = event.data.Delete as SearchPoint[];
+
+    for await (const loc of modify) {
+      console.log('inserting: ', loc);
+      await insertDocument(loc);
+    }
 
     for await (const loc of create) {
       console.log('inserting: ', loc);
       await insertDocument(loc);
     }
+
+    for await (const loc of remove) {
+      console.log('removing: ', loc);
+      await removeDocument(loc);
+    }
+
+    await client.indices.refresh({ index: 'osm' });
   }
 }
 
@@ -103,34 +115,54 @@ interface SearchPoint {
 }
 
 async function insertDocument(sp: SearchPoint) {
-  await client.index({
+  await client.update({
     index: 'osm',
-    document: {
+    id: sp.Id,
+    doc: {
       name: sp.Name,
-      osmId: sp.Id,
       location: {
         lat: sp.Location.Lat,
         lon: sp.Location.Lng,
       },
       tags: sp.Tags || [],
     },
+    doc_as_upsert: true,
   });
+}
 
-  await client.indices.refresh({ index: 'osm' });
+async function removeDocument(sp: SearchPoint) {
+  await client.delete({
+    index: 'osm',
+    id: sp.Id,
+  });
 }
 
 async function demoInsert() {
-  await client.index({
+  // await client.index({
+  //   index: 'osm',
+  //   id: '1234',
+  //   document: {
+  //     name: 'Hochschule Hannover',
+  //     location: {
+  //       lat: 52.353683,
+  //       lon: 9.72422,
+  //     },
+  //     tags: [],
+  //   },
+  // });
+
+  await client.update({
     index: 'osm',
-    document: {
+    id: '1234',
+    doc: {
       name: 'Hochschule Hannover',
-      id: '123',
+      tags: [],
       location: {
         lat: 52.353683,
         lon: 9.72422,
       },
-      tags: [],
     },
+    doc_as_upsert: true,
   });
 
   await client.indices.refresh({ index: 'osm' });
