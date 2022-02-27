@@ -106,7 +106,7 @@ func sendNewChangesetNotifcation(nc *nats.Conn, change *types.OsmChange) {
 	if err != nil {
 		logger.Error(err.Error())
 	}
-	streets := extractStreets(changeNormalized)
+	streets := changeNormalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
 	searchPayload := generateSearchEventPayload(changeNormalized)
 	go publishEvent(nc, "all", changeNormalized)
 	go publishEvent(nc, "routing", streets)
@@ -124,99 +124,43 @@ func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
 	nc.Publish(subject, bytes)
 }
 
-func extractByTag(actions []types.Action, searchTag string) types.Action {
-	ways := make([]types.Way, 0)
-	nodes := make([]types.Node, 0)
-	relations := make([]types.Relation, 0)
-	for _, action := range actions {
-		for _, way := range action.Ways {
-			if hasTag(searchTag, way.Tags) {
-				ways = append(ways, way)
-			}
-		}
-		for _, node := range action.Nodes {
-			if hasTag(searchTag, node.Tags) {
-				nodes = append(nodes, node)
-			}
-		}
-		for _, relation := range action.Relations {
-			if hasTag(searchTag, relation.Tags) {
-				relations = append(relations, relation)
-			}
-		}
-	}
-	return types.Action{
-		Ways:      ways,
-		Nodes:     nodes,
-		Relations: relations,
-	}
-
-}
-
-func hasTag(searchTag string, tags []types.Tag) bool {
-	for _, tag := range tags {
-		if tag.K == searchTag {
-			return true
-		}
-	}
-	return false
-}
-
-func extractStreets(normalized types.OsmChangeNormalized) (streets types.OsmChangeNormalized) {
-	tagName := "highway"
-	normalized.Create.FilterWays(tagName)
-	normalized.Modify.FilterWays(tagName)
-	normalized.Delete.FilterWays(tagName)
-
-	usedNodes := make(map[int]struct{}, 0)
-	normalized.Create.UsedNodes(&usedNodes)
-	normalized.Delete.UsedNodes(&usedNodes)
-	normalized.Modify.UsedNodes(&usedNodes)
-
-	normalized.Create.RemoveUnusedNodes(usedNodes)
-	normalized.Delete.RemoveUnusedNodes(usedNodes)
-	normalized.Modify.RemoveUnusedNodes(usedNodes)
-	normalized.Reloaded.RemoveUnusedNodes(usedNodes)
-
-	return normalized
-}
-
-func extractBuildings(normalized types.OsmChangeNormalized) (buildings types.OsmChangeNormalized) {
-	// utils.WriteObjectToFile(normalized, "original.json")
-	tagBuilding := "building"
-	tagName := "addr:housenumber"
-
-	normalized.Modify.FilterWays(tagName, tagBuilding)
-	normalized.Delete.FilterWays(tagName, tagBuilding)
-	normalized.Create.FilterWays(tagName, tagBuilding)
-
-	usedNodes := make(map[int]struct{}, 0)
-
-	normalized.Modify.UsedNodes(&usedNodes)
-	normalized.Create.UsedNodes(&usedNodes)
-	normalized.Delete.UsedNodes(&usedNodes)
-
-	normalized.Create.RemoveUnusedNodes(usedNodes)
-	normalized.Delete.RemoveUnusedNodes(usedNodes)
-	normalized.Modify.RemoveUnusedNodes(usedNodes)
-	normalized.Reloaded.RemoveUnusedNodes(usedNodes)
-
-	return normalized
-}
-
 func generateSearchEventPayload(normalized types.OsmChangeNormalized) types.SearchPayload {
-	buildings := extractBuildings(normalized)
-
+	//TODO: Nodes-Filter nach Vorstellung entfernen. Ist hier nicht notwendig.
+	buildings := normalized.Filter(
+		[]types.NodeFilter{
+			types.NewNodeFilter("building", "name"),
+			types.NewNodeFilter("building", "addr:street"),
+			types.NewNodeFilter("amenity", "name"),
+			types.NewNodeFilter("tourism", "name"),
+		},
+		[]types.WayFilter{
+			types.NewWayFilter("building", "name"),
+			types.NewWayFilter("building", "addr:street"),
+			types.NewWayFilter("building", "addr:housenumber"),
+			types.NewWayFilter("amenity", "name"),
+			types.NewWayFilter("tourism", "name"),
+		})
 	modifySearchPoints := reduceWaysToSearchPoints(buildings.Modify.Ways, append(buildings.Modify.Nodes, buildings.Reloaded.Nodes...))
 	createSearchPoints := reduceWaysToSearchPoints(buildings.Create.Ways, append(buildings.Create.Nodes, buildings.Reloaded.Nodes...))
 	deleteSearchPoints := reduceWaysToSearchPoints(buildings.Delete.Ways, append(buildings.Delete.Nodes, buildings.Reloaded.Nodes...))
+	points := normalized.Filter(
+		[]types.NodeFilter{
+			types.NewNodeFilter("building", "name"),
+			types.NewNodeFilter("addr:housenumber"),
+			types.NewNodeFilter("addr:street"),
+			types.NewNodeFilter("amenity", "name"),
+			types.NewNodeFilter("tourism", "name"),
+		},
+		[]types.WayFilter{})
+	modifySearchPoints = append(modifySearchPoints, reduceNodesToSearchPoints(points.Modify.Nodes)...)
+	createSearchPoints = append(createSearchPoints, reduceNodesToSearchPoints(points.Create.Nodes)...)
+	deleteSearchPoints = append(deleteSearchPoints, reduceNodesToSearchPoints(points.Delete.Nodes)...)
 
 	payload := types.SearchPayload{
 		Modify: modifySearchPoints,
 		Create: createSearchPoints,
 		Delete: deleteSearchPoints,
 	}
-
 	return payload
 }
 
@@ -234,7 +178,14 @@ func reduceWaysToSearchPoints(ways []types.Way, nodes []types.Node) []types.Sear
 		}
 		centroid := utils.CalculateCentroid(&wayNodes)
 
-		name, _ := way.GetTag("name")
+		name, err := way.GetTag("name")
+		if err != nil {
+			houseNumber, _ := way.GetTag("addr:housenumber")
+			street, _ := way.GetTag("addr:street")
+			city, _ := way.GetTag("addr:city")
+			postcode, _ := way.GetTag("addr:postcode")
+			name = fmt.Sprint(street, " ", houseNumber, ", ", postcode, ", ", city)
+		}
 
 		searchPoints = append(searchPoints, types.SearchPoint{
 			Name:     name,
@@ -245,4 +196,32 @@ func reduceWaysToSearchPoints(ways []types.Way, nodes []types.Node) []types.Sear
 
 	}
 	return searchPoints
+}
+
+func reduceNodesToSearchPoints(nodes []types.Node) []types.SearchPoint {
+	searchPoints := make([]types.SearchPoint, 0)
+	for _, node := range nodes {
+		name, err := node.GetTag("name")
+		if err != nil {
+			houseNumber, _ := node.GetTag("addr:housenumber")
+			street, _ := node.GetTag("addr:street")
+			city, _ := node.GetTag("addr:city")
+			postcode, _ := node.GetTag("addr:postcode")
+
+			name = fmt.Sprint(street, " ", houseNumber, ", ", postcode, ", ", city)
+		}
+		location := types.Location{
+			Lat: node.Lat,
+			Lng: node.Lon,
+		}
+		searchPoints = append(searchPoints, types.SearchPoint{
+			Name:     name,
+			Location: location,
+			Tags:     node.Tags,
+			Id:       fmt.Sprint("node_", node.Id),
+		})
+	}
+
+	return searchPoints
+
 }
