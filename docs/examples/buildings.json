@@ -1,0 +1,926 @@
+{
+  "modify": {
+    "Nodes": [
+      {
+        "Id": 2957867394,
+        "Version": 10,
+        "Timestamp": "2022-02-27T13:51:02Z",
+        "Lat": 52.467216,
+        "Lon": 13.382506,
+        "Tags": [
+          {
+            "K": "addr:city",
+            "V": "Berlin"
+          },
+          {
+            "K": "addr:country",
+            "V": "DE"
+          },
+          {
+            "K": "addr:housenumber",
+            "V": "62"
+          },
+          {
+            "K": "addr:postcode",
+            "V": "12103"
+          },
+          {
+            "K": "addr:street",
+            "V": "Borussiastraße"
+          },
+          {
+            "K": "addr:suburb",
+            "V": "Tempelhof"
+          },
+          {
+            "K": "amenity",
+            "V": "restaurant"
+          },
+          {
+            "K": "check_date:opening_hours",
+            "V": "2022-02-13"
+          },
+          {
+            "K": "contact:phone",
+            "V": "+49 30 7742009"
+          },
+          {
+            "K": "contact:website",
+            "V": "http://www.restaurantamera.de/"
+          },
+          {
+            "K": "cuisine",
+            "V": "pizza"
+          },
+          {
+            "K": "diet:vegan",
+            "V": "no"
+          },
+          {
+            "K": "diet:vegetarian",
+            "V": "yes"
+          },
+          {
+            "K": "name",
+            "V": "Amera"
+          },
+          {
+            "K": "opening_hours",
+            "V": "12:00-24:00"
+          },
+          {
+            "K": "toilets:wheelchair",
+            "V": "yes"
+          },
+          {
+            "K": "wheelchair",
+            "V": "yes"
+          }
+        ]
+      },
+      {
+        "Id": 4221746095,
+        "Version": 2,
+        "Timestamp": "2022-02-27T13:51:16Z",
+        "Lat": 41.221516,
+        "Lon": -8.209691,
+        "Tags": [
+          {
+            "K": "addr:housenumber",
+            "V": "151"
+          },
+          {
+            "K": "addr:postcode",
+            "V": "4560-807"
+          },
+          {
+            "K": "addr:street",
+            "V": "rua da raposeira"
+          },
+          {
+            "K": "internet_access",
+            "V": "wlan"
+          },
+          {
+            "K": "name",
+            "V": "Casal do Outeiro"
+          },
+          {
+            "K": "tourism",
+            "V": "guest_house"
+          }
+        ]
+      },
+      {
+        "Id": 8076650953,
+        "Version": 4,
+        "Timestamp": "2022-02-27T13:51:02Z",
+        "Lat": 48.146706,
+        "Lon": 11.458809,
+        "Tags": [
+          {
+            "K": "addr:housenumber",
+            "V": "1"
+          },
+          {
+            "K": "addr:street",
+            "V": "Bodenseestraße"
+          },
+          {
+            "K": "amenity",
+            "V": "restaurant"
+          },
+          {
+            "K": "capacity",
+            "V": "112"
+          },
+          {
+            "K": "cuisine",
+            "V": "breakfast;burger;bowl,cake"
+          },
+          {
+            "K": "diet:vegetarian",
+            "V": "yes"
+          },
+          {
+            "K": "name",
+            "V": "Cotidiano"
+          },
+          {
+            "K": "opening_hours",
+            "V": "Mo-Sa 08:30-22:00; Su 08:30-21:00"
+          },
+          {
+            "K": "operator",
+            "V": "Cotidiano GmbH"
+          },
+          {
+            "K": "outdoor_seating",
+            "V": "yes"
+          },
+          {
+            "K": "phone",
+            "V": "+498982089440"
+          },
+          {
+            "K": "website",
+            "V": "https://www.cotidiano.de/muenchen-pasing"
+          }
+        ]
+      }
+    ],
+    "Ways": [
+      {
+        "Id": 243709148,
+        "Version": 7,
+        "Timestamp": "2022-02-27T13:51:08Z",
+        "NodeRefs": [
+          {
+            "Ref": 2510820335
+          },
+          {
+            "Ref": 4959358538
+          },
+          {
+            "Ref": 2510820338
+          },
+          {
+            "Ref": 8778506827
+          },
+          {
+            "Ref": 8778506828
+          },
+          {
+            "Ref": 2510820340
+          },
+          {
+            "Ref": 8778506830
+          },
+          {
+            "Ref": 8778506831
+          },
+          {
+            "Ref": 8778506829
+          },
+          {
+            "Ref": 4959358846
+          },
+          {
+            "Ref": 2510820343
+          },
+          {
+            "Ref": 2510820335
+          }
+        ],
+        "Tags": [
+          {
+            "K": "building",
+            "V": "yes"
+          },
+          {
+            "K": "name",
+            "V": "Holy Family Red Crescent Medical College and Hospital"
+          }
+        ]
+      },
+      {
+        "Id": 460829884,
+        "Version": 8,
+        "Timestamp": "2022-02-27T13:51:23Z",
+        "NodeRefs": [
+          {
+            "Ref": 6483936268
+          },
+          {
+            "Ref": 4564299020
+          },
+          {
+            "Ref": 6483936267
+          },
+          {
+            "Ref": 6483936266
+          },
+          {
+            "Ref": 4564299021
+          },
+          {
+            "Ref": 6483936265
+          },
+          {
+            "Ref": 6483936264
+          },
+          {
+            "Ref": 6483936268
+          }
+        ],
+        "Tags": [
+          {
+            "K": "addr:city",
+            "V": "Warszawa"
+          },
+          {
+            "K": "addr:city:simc",
+            "V": "0918123"
+          },
+          {
+            "K": "addr:housenumber",
+            "V": "1"
+          },
+          {
+            "K": "addr:street",
+            "V": "Wiejska"
+          },
+          {
+            "K": "addr:street:sym_ul",
+            "V": "24048"
+          },
+          {
+            "K": "building",
+            "V": "government"
+          },
+          {
+            "K": "building:levels",
+            "V": "6"
+          },
+          {
+            "K": "government",
+            "V": "legislative"
+          },
+          {
+            "K": "name",
+            "V": "Budynek Komisji Sejmowych"
+          },
+          {
+            "K": "office",
+            "V": "government"
+          },
+          {
+            "K": "opening_hours:signed",
+            "V": "no"
+          }
+        ]
+      },
+      {
+        "Id": 460829884,
+        "Version": 8,
+        "Timestamp": "2022-02-27T13:51:23Z",
+        "NodeRefs": [
+          {
+            "Ref": 6483936268
+          },
+          {
+            "Ref": 4564299020
+          },
+          {
+            "Ref": 6483936267
+          },
+          {
+            "Ref": 6483936266
+          },
+          {
+            "Ref": 4564299021
+          },
+          {
+            "Ref": 6483936265
+          },
+          {
+            "Ref": 6483936264
+          },
+          {
+            "Ref": 6483936268
+          }
+        ],
+        "Tags": [
+          {
+            "K": "addr:city",
+            "V": "Warszawa"
+          },
+          {
+            "K": "addr:city:simc",
+            "V": "0918123"
+          },
+          {
+            "K": "addr:housenumber",
+            "V": "1"
+          },
+          {
+            "K": "addr:street",
+            "V": "Wiejska"
+          },
+          {
+            "K": "addr:street:sym_ul",
+            "V": "24048"
+          },
+          {
+            "K": "building",
+            "V": "government"
+          },
+          {
+            "K": "building:levels",
+            "V": "6"
+          },
+          {
+            "K": "government",
+            "V": "legislative"
+          },
+          {
+            "K": "name",
+            "V": "Budynek Komisji Sejmowych"
+          },
+          {
+            "K": "office",
+            "V": "government"
+          },
+          {
+            "K": "opening_hours:signed",
+            "V": "no"
+          }
+        ]
+      },
+      {
+        "Id": 738616230,
+        "Version": 3,
+        "Timestamp": "2022-02-27T13:51:12Z",
+        "NodeRefs": [
+          {
+            "Ref": 6916450554
+          },
+          {
+            "Ref": 6916450553
+          },
+          {
+            "Ref": 6916450552
+          },
+          {
+            "Ref": 6916484428
+          },
+          {
+            "Ref": 6916484427
+          },
+          {
+            "Ref": 6916484426
+          },
+          {
+            "Ref": 8338684902
+          },
+          {
+            "Ref": 6916450554
+          }
+        ],
+        "Tags": [
+          {
+            "K": "addr:city",
+            "V": "Cape Town"
+          },
+          {
+            "K": "addr:housenumber",
+            "V": "266"
+          },
+          {
+            "K": "addr:street",
+            "V": "Lower Main Road"
+          },
+          {
+            "K": "building",
+            "V": "commercial"
+          },
+          {
+            "K": "building:levels",
+            "V": "2"
+          }
+        ]
+      },
+      {
+        "Id": 897133363,
+        "Version": 2,
+        "Timestamp": "2022-02-27T13:51:12Z",
+        "NodeRefs": [
+          {
+            "Ref": 8338684897
+          },
+          {
+            "Ref": 8338684898
+          },
+          {
+            "Ref": 8338684899
+          },
+          {
+            "Ref": 8338684900
+          },
+          {
+            "Ref": 8338684901
+          },
+          {
+            "Ref": 8338684902
+          },
+          {
+            "Ref": 6916484426
+          },
+          {
+            "Ref": 6916484427
+          },
+          {
+            "Ref": 6916484428
+          },
+          {
+            "Ref": 6916450552
+          },
+          {
+            "Ref": 2376643762
+          },
+          {
+            "Ref": 8338684903
+          },
+          {
+            "Ref": 8338684904
+          },
+          {
+            "Ref": 8338684905
+          },
+          {
+            "Ref": 8338684897
+          }
+        ],
+        "Tags": [
+          {
+            "K": "addr:city",
+            "V": "Salt River"
+          },
+          {
+            "K": "addr:housename",
+            "V": "Malta House"
+          },
+          {
+            "K": "addr:housenumber",
+            "V": "3"
+          },
+          {
+            "K": "addr:postcode",
+            "V": "7925"
+          },
+          {
+            "K": "addr:street",
+            "V": "Malta Road"
+          },
+          {
+            "K": "building",
+            "V": "commercial"
+          },
+          {
+            "K": "building:levels",
+            "V": "3"
+          }
+        ]
+      }
+    ],
+    "Relations": [
+      {
+        "Id": 5754099,
+        "Version": 4,
+        "Timestamp": "2022-02-27T13:50:40Z",
+        "Member": [
+          {
+            "Type": "way",
+            "Ref": 386625782,
+            "Role": "inner"
+          },
+          {
+            "Type": "way",
+            "Ref": 386625783,
+            "Role": "outer"
+          }
+        ],
+        "Tags": [
+          {
+            "K": "addr:housenumber",
+            "V": "26"
+          },
+          {
+            "K": "addr:street",
+            "V": "Calle de San Enrique"
+          },
+          {
+            "K": "building",
+            "V": "apartments"
+          },
+          {
+            "K": "building:levels",
+            "V": "4"
+          },
+          {
+            "K": "type",
+            "V": "multipolygon"
+          }
+        ]
+      }
+    ]
+  },
+  "create": {
+    "Nodes": [],
+    "Ways": [],
+    "Relations": [
+      {
+        "Id": 13870808,
+        "Version": 1,
+        "Timestamp": "2022-02-27T13:51:19Z",
+        "Member": [
+          {
+            "Type": "way",
+            "Ref": 1035741299,
+            "Role": "outer"
+          },
+          {
+            "Type": "way",
+            "Ref": 1035741300,
+            "Role": "outer"
+          }
+        ],
+        "Tags": [
+          {
+            "K": "amenity",
+            "V": "parking"
+          },
+          {
+            "K": "type",
+            "V": "multipolygon"
+          }
+        ]
+      },
+      {
+        "Id": 13870809,
+        "Version": 1,
+        "Timestamp": "2022-02-27T13:51:19Z",
+        "Member": [
+          {
+            "Type": "way",
+            "Ref": 1035741360,
+            "Role": "outer"
+          },
+          {
+            "Type": "way",
+            "Ref": 1035741357,
+            "Role": "inner"
+          }
+        ],
+        "Tags": [
+          {
+            "K": "building",
+            "V": "yes"
+          },
+          {
+            "K": "type",
+            "V": "multipolygon"
+          }
+        ]
+      }
+    ]
+  },
+  "delete": {
+    "Nodes": [],
+    "Ways": [],
+    "Relations": []
+  },
+  "reloaded": {
+    "Nodes": [
+      {
+        "Id": 2376643762,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.930138,
+        "Lon": 18.465399,
+        "Tags": null
+      },
+      {
+        "Id": 2510820335,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 23.745562,
+        "Lon": 90.40097,
+        "Tags": null
+      },
+      {
+        "Id": 2510820338,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 23.746363,
+        "Lon": 90.40396,
+        "Tags": null
+      },
+      {
+        "Id": 2510820340,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 23.747154,
+        "Lon": 90.403625,
+        "Tags": null
+      },
+      {
+        "Id": 2510820343,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 23.746307,
+        "Lon": 90.40069,
+        "Tags": null
+      },
+      {
+        "Id": 4564299020,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 52.22469,
+        "Lon": 21.026976,
+        "Tags": null
+      },
+      {
+        "Id": 4564299021,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 52.224304,
+        "Lon": 21.027706,
+        "Tags": null
+      },
+      {
+        "Id": 4959358538,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 23.745626,
+        "Lon": 90.40123,
+        "Tags": [
+          {
+            "K": "barrier",
+            "V": "gate"
+          },
+          {
+            "K": "bicycle",
+            "V": "yes"
+          },
+          {
+            "K": "foot",
+            "V": "yes"
+          },
+          {
+            "K": "horse",
+            "V": "yes"
+          },
+          {
+            "K": "motorcar",
+            "V": "yes"
+          },
+          {
+            "K": "motorcycle",
+            "V": "yes"
+          }
+        ]
+      },
+      {
+        "Id": 4959358846,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 23.746946,
+        "Lon": 90.402695,
+        "Tags": null
+      },
+      {
+        "Id": 6483936264,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 52.224285,
+        "Lon": 21.027468,
+        "Tags": null
+      },
+      {
+        "Id": 6483936265,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 52.224297,
+        "Lon": 21.027697,
+        "Tags": null
+      },
+      {
+        "Id": 6483936266,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 52.22471,
+        "Lon": 21.0272,
+        "Tags": null
+      },
+      {
+        "Id": 6483936267,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 52.2247,
+        "Lon": 21.02719,
+        "Tags": null
+      },
+      {
+        "Id": 6483936268,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 52.22468,
+        "Lon": 21.026966,
+        "Tags": null
+      },
+      {
+        "Id": 6916450552,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.93015,
+        "Lon": 18.465391,
+        "Tags": null
+      },
+      {
+        "Id": 6916450553,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.930225,
+        "Lon": 18.465204,
+        "Tags": null
+      },
+      {
+        "Id": 6916450554,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.93009,
+        "Lon": 18.465128,
+        "Tags": null
+      },
+      {
+        "Id": 6916484426,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.93003,
+        "Lon": 18.465294,
+        "Tags": null
+      },
+      {
+        "Id": 6916484427,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.93004,
+        "Lon": 18.465347,
+        "Tags": null
+      },
+      {
+        "Id": 6916484428,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.930073,
+        "Lon": 18.465347,
+        "Tags": null
+      },
+      {
+        "Id": 8338684897,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.929947,
+        "Lon": 18.46564,
+        "Tags": null
+      },
+      {
+        "Id": 8338684898,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.929855,
+        "Lon": 18.465235,
+        "Tags": null
+      },
+      {
+        "Id": 8338684899,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.929886,
+        "Lon": 18.465164,
+        "Tags": null
+      },
+      {
+        "Id": 8338684900,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.929955,
+        "Lon": 18.465143,
+        "Tags": null
+      },
+      {
+        "Id": 8338684901,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.930027,
+        "Lon": 18.465134,
+        "Tags": null
+      },
+      {
+        "Id": 8338684902,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.930084,
+        "Lon": 18.465155,
+        "Tags": null
+      },
+      {
+        "Id": 8338684903,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.930172,
+        "Lon": 18.46555,
+        "Tags": null
+      },
+      {
+        "Id": 8338684904,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.93006,
+        "Lon": 18.465586,
+        "Tags": null
+      },
+      {
+        "Id": 8338684905,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": -33.93006,
+        "Lon": 18.465605,
+        "Tags": null
+      },
+      {
+        "Id": 8778506827,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 23.746832,
+        "Lon": 90.40391,
+        "Tags": null
+      },
+      {
+        "Id": 8778506828,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 23.746807,
+        "Lon": 90.40367,
+        "Tags": null
+      },
+      {
+        "Id": 8778506829,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 23.747124,
+        "Lon": 90.40264,
+        "Tags": null
+      },
+      {
+        "Id": 8778506830,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 23.747124,
+        "Lon": 90.40333,
+        "Tags": null
+      },
+      {
+        "Id": 8778506831,
+        "Version": 0,
+        "Timestamp": "",
+        "Lat": 23.74718,
+        "Lon": 90.40312,
+        "Tags": null
+      }
+    ],
+    "Ways": null,
+    "Relations": null
+  }
+}

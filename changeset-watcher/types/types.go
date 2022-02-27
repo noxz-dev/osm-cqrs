@@ -147,24 +147,24 @@ func normalizeActionObject(actions []Action) (normalizedAction Action) {
 	}
 }
 
-func (osmChangeNormalized OsmChangeNormalized) ExtractMissingNodes() (nodeIDs map[int]struct{}, missingNodes int, foundNodes int) {
+func (normalized OsmChangeNormalized) ExtractMissingNodes() (nodeIDs map[int]struct{}, missingNodes int, foundNodes int) {
 	missingNodes = 0
 	foundNodes = 0
 	nodeIDs = make(map[int]struct{})
-	osmChangeNormalized.Modify.extractMissingNodes(&nodeIDs, &missingNodes, &foundNodes)
+	normalized.Modify.extractMissingNodes(&nodeIDs, &missingNodes, &foundNodes)
 	//osmChangeNormalized.Delete.extractMissingNodes(&nodeIDs, &missingNodes, &foundNodes)
-	osmChangeNormalized.Create.extractMissingNodes(&nodeIDs, &missingNodes, &foundNodes)
+	normalized.Create.extractMissingNodes(&nodeIDs, &missingNodes, &foundNodes)
 	return
 }
 
-func (osmChangeNormalized *OsmChangeNormalized) Reload() (err error) {
+func (normalized *OsmChangeNormalized) Reload() (err error) {
 
-	nodeIDs, _, _ := osmChangeNormalized.ExtractMissingNodes()
+	nodeIDs, _, _ := normalized.ExtractMissingNodes()
 	reloadedNodes, err := GetNodesByID(nodeIDs)
 	if err != nil {
 		return err
 	}
-	osmChangeNormalized.Reloaded.Nodes = reloadedNodes
+	normalized.Reloaded.Nodes = reloadedNodes
 	return nil
 }
 
@@ -254,13 +254,14 @@ func GetNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
 	return overpassAnswer.Nodes, nil
 }
 
-func (action *Action) FilterWays(tags ...string) {
+func (action *Action) FilterWays(filters ...WayFilter) {
 	filteredWays := make([]Way, 0)
 	for _, way := range action.Ways {
-		if way.HasTags(tags...) {
-			filteredWays = append(filteredWays, way)
+		for _, filter := range filters {
+			if way.HasTags(filter.TagKeys...) {
+				filteredWays = append(filteredWays, way)
+			}
 		}
-
 		action.Ways = filteredWays
 	}
 
@@ -274,7 +275,18 @@ func (action Action) UsedNodes(nodeIDs *map[int]struct{}) {
 	}
 }
 
-func (action *Action) RemoveUnusedNodes(usedNodes map[int]struct{}) {
+func (action Action) UsedNodesByFilter(nodeIDs *map[int]struct{}, filters ...NodeFilter) {
+	for _, node := range action.Nodes {
+		for _, filter := range filters {
+			if node.HasTags(filter.TagKeys...) {
+				(*nodeIDs)[node.Id] = struct{}{}
+			}
+		}
+	}
+
+}
+
+func (action *Action) DeleteAllNodesExcept(usedNodes map[int]struct{}) {
 	filteredNodes := make([]Node, 0)
 	for _, node := range action.Nodes {
 		_, exists := usedNodes[node.Id]
@@ -285,14 +297,26 @@ func (action *Action) RemoveUnusedNodes(usedNodes map[int]struct{}) {
 	action.Nodes = filteredNodes
 }
 
-/*
-func (action *Action) convertWayToNodes () {
-	for _ , way := range action.Ways {
-		for
-		utils.CalculateCentroid()
+func (normalized OsmChangeNormalized) Filter(nodeFilters []NodeFilter, wayFilters []WayFilter) OsmChangeNormalized {
+	usedNodes := make(map[int]struct{}, 0)
+	normalized.Create.FilterWays(wayFilters...)
+	normalized.Modify.FilterWays(wayFilters...)
+	normalized.Delete.FilterWays(wayFilters...)
 
-	}
+	normalized.Create.UsedNodes(&usedNodes)
+	normalized.Delete.UsedNodes(&usedNodes)
+	normalized.Modify.UsedNodes(&usedNodes)
+
+	normalized.Modify.UsedNodesByFilter(&usedNodes, nodeFilters...)
+	normalized.Delete.UsedNodesByFilter(&usedNodes, nodeFilters...)
+	normalized.Reloaded.UsedNodesByFilter(&usedNodes, nodeFilters...)
+	normalized.Create.UsedNodesByFilter(&usedNodes, nodeFilters...)
+
+	normalized.Create.DeleteAllNodesExcept(usedNodes)
+	normalized.Delete.DeleteAllNodesExcept(usedNodes)
+	normalized.Modify.DeleteAllNodesExcept(usedNodes)
+	normalized.Reloaded.DeleteAllNodesExcept(usedNodes)
+
+	return normalized
 
 }
-
-*/
