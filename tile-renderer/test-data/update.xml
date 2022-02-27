@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version="0.6" generator="osmdbt-create-diff/0.3">
+    <modify>
+        <node id="9521577041" version="2" timestamp="2022-02-20T12:47:25Z" uid="1962399" user="Frans S" changeset="117637194" lat="10.0" lon="48.8071389"/>
+        <node id="9521577038" version="2" timestamp="2022-02-20T12:47:25Z" uid="1962399" user="Frans S" changeset="117637194" lat="10.0" lon="20.0"/>
+        <node id="9521577039" version="2" timestamp="2022-02-20T12:47:25Z" uid="1962399" user="Frans S" changeset="117637194" lat="-19.7987607" lon="20"/>
+        <node id="9521577040" version="2" timestamp="2022-02-20T12:47:25Z" uid="1962399" user="Frans S" changeset="117637194" lat="-19.7987604" lon="48.8071382"/>
+    </modify>
+</osmChange>

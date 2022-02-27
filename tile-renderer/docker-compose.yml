@@ -5,12 +5,7 @@ services:
     image: kartoza/postgis:14-3.1
     volumes:
       - postgis-data:/var/lib/postgresql
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASS=${POSTGRES_PASS}
-      - ALLOW_IP_RANGE=${ALLOW_IP_RANGE}
-      - POSTGRES_MULTIPLE_EXTENSIONS=${POSTGRES_MULTIPLE_EXTENSIONS}
+    env_file: .env
     ports:
       - "25432:5432"
     restart: unless-stopped
@@ -22,6 +17,7 @@ services:
     environment:
       - DATABASE_URL=postgres://renderer:password@postgis:5432/gis
       - DANGER_ACCEPT_INVALID_CERTS=true
+      - WATCH_MODE=true
     ports:
       - "3000:3000"
     depends_on:
@@ -33,8 +29,10 @@ services:
   importer:
     build:
       context: .
+    env_file: .env
     volumes:
-      - importer-diff:/diff
+      - importer-diff:/src/imposm/diff
+      - importer-cache:/src/imposm/cache
     depends_on:
       - postgis
     networks:
@@ -45,6 +43,7 @@ services:
 volumes:
   postgis-data:
   importer-diff:
+  importer-cache:
 
 networks:
   osm_proxy:

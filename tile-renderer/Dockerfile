@@ -16,7 +16,7 @@ RUN go build -o /tile-renderer
 ## Deploy ##
 FROM debian:stable-slim
 
-RUN apt-get update && apt-get install -y wget
+RUN apt-get update && apt-get install -y wget && apt-get install -y postgresql-client
 
 COPY --from=build /tile-renderer /src/tile-renderer
 
@@ -30,10 +30,12 @@ COPY base.pbf ./base.pbf
 #COPY data/niedersachsen.pbf ./niedersachsen.pbf
 COPY imposm/config.json ./config.json
 COPY imposm/mapping.json ./mapping.json
+
 ENV PATH="/src/imposm:${PATH}"
 
 WORKDIR /src
-
+COPY test-data/create.xml .
+COPY test-data/update.xml .
 COPY run.sh .
 ENTRYPOINT ["/src/run.sh"]
 

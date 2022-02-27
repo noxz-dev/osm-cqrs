@@ -27,7 +27,7 @@ func main() {
 	nc, err := nats.Connect(url)
 	defer nc.Close()
 
-	log.Printf("Connecting...")
+	log.Printf("Connecting to NATS-Server...")
 
 	if err != nil {
 		log.Fatalf("Failed to connect to NATS-Server: \n%s \n", err.Error())
@@ -77,9 +77,13 @@ func main() {
 			log.Fatalf(err.Error())
 		}
 
-		// err = ioutil.WriteFile("temp.osc", xmlData, 0644)
+		// For running test update.xml and create.xml in testdata folder
+		// data, err := ioutil.ReadFile("update.xml")
+		// if err != nil {
+		//	 log.Fatal(err)
+		// }
 
-		err = gzipWrite(file, xmlData)
+		err = GzipWrite(file, xmlData)
 
 		if err != nil {
 			log.Fatalf(err.Error())
@@ -100,6 +104,7 @@ func main() {
 	select {}
 }
 
+// RunImposmUpdate writes the gzip osmChange file to the database via imposm
 func RunImposmUpdate() {
 	imposm := "imposm"
 	imposmCommand := "diff"
@@ -129,7 +134,8 @@ func RunImposmUpdate() {
 
 }
 
-func gzipWrite(w io.Writer, data []byte) error {
+// GzipWrite gzips the given data and writes it to the disk
+func GzipWrite(w io.Writer, data []byte) error {
 	gw, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
 	defer func(gw *gzip.Writer) {
 		err := gw.Close()

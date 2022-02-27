@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osmChange version="0.6" generator="osmdbt-create-diff/0.3">
+    <create>
+        <node id="9521577041" version="1" timestamp="2022-02-20T12:47:25Z" uid="1962399" user="Frans S" changeset="117637194" lat="-19.7987232" lon="48.8071389"/>
+        <node id="9521577038" version="1" timestamp="2022-02-20T12:47:25Z" uid="1962399" user="Frans S" changeset="117637194" lat="-19.7987235" lon="48.8071577"/>
+        <node id="9521577039" version="1" timestamp="2022-02-20T12:47:25Z" uid="1962399" user="Frans S" changeset="117637194" lat="-19.7987607" lon="48.807157"/>
+        <node id="9521577040" version="1" timestamp="2022-02-20T12:47:25Z" uid="1962399" user="Frans S" changeset="117637194" lat="-19.7987604" lon="48.8071382"/>
+        <way id="1033470683" version="1" timestamp="2022-02-20T12:47:25Z" uid="1962399" user="Frans S" changeset="117637194">
+            <nd ref="9521577041"/>
+            <nd ref="9521577038"/>
+            <nd ref="9521577039"/>
+            <nd ref="9521577040"/>
+            <nd ref="9521577041"/>
+            <tag k="building" v="yes"/>
+        </way>
+    </create>
+</osmChange>
