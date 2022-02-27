@@ -17,3 +17,5 @@ docker-compose -f ./search/docker-compose.yml up
 ```bash
 ./start-production.sh
 ```
+
+![](./docs/architecture.png)

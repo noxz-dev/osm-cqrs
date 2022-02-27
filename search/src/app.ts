@@ -39,24 +39,42 @@ async function subscribeToEvents() {
     const data = sc.decode(m.data) as any;
     const event = JSON.parse(data);
 
-    const modify = event.data.Modify as SearchPoint[];
-    const create = event.data.Create as SearchPoint[];
-    const remove = event.data.Delete as SearchPoint[];
+    if (!event.data) return;
 
-    for await (const loc of modify) {
-      console.log('inserting: ', loc);
-      await insertDocument(loc);
+    console.time('fullPayload');
+
+    try {
+      const modify = event.data.Modify as SearchPoint[];
+
+      for await (const loc of modify) {
+        await insertDocument(loc);
+      }
+    } catch (err) {
+      logger.error(err);
     }
 
-    for await (const loc of create) {
-      console.log('inserting: ', loc);
-      await insertDocument(loc);
+    try {
+      const create = event.data.Create as SearchPoint[];
+
+      for await (const loc of create) {
+        await insertDocument(loc);
+      }
+    } catch (err) {
+      logger.error(err);
     }
 
-    for await (const loc of remove) {
-      console.log('removing: ', loc);
-      await removeDocument(loc);
+    try {
+      const remove = event.data.Delete as SearchPoint[];
+
+      for await (const loc of remove) {
+        console.log('removing: ', loc.Id);
+        await removeDocument(loc);
+      }
+    } catch (err) {
+      logger.error(err);
     }
+
+    console.timeEnd('fullPayload');
 
     await client.indices.refresh({ index: 'osm' });
   }
@@ -64,6 +82,7 @@ async function subscribeToEvents() {
 
 async function insertDocument(sp: SearchPoint) {
   try {
+    console.time('insertDocument');
     await client.update({
       index: 'osm',
       id: sp.Id,
@@ -77,6 +96,7 @@ async function insertDocument(sp: SearchPoint) {
       },
       doc_as_upsert: true,
     });
+    console.timeEnd('insertDocument');
   } catch (err: any) {
     logger.error(err);
   }
@@ -88,8 +108,6 @@ async function removeDocument(sp: SearchPoint) {
       index: 'osm',
       id: sp.Id,
     });
-
-    logger.info('insert successful');
   } catch (err: any) {
     logger.error(err);
   }
