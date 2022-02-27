@@ -17,6 +17,16 @@ services:
     networks:
       - proxynet
 
+  watcher:
+    build: ./changeset-watcher
+    depends_on:
+      - nats
+    environment:
+      - NATS_IP=nats
+    restart: unless-stopped
+    networks:
+      - proxynet
+
 networks:
   proxynet:
     name: osm_cqrs_network

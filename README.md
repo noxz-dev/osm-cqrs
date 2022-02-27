@@ -1,14 +1,19 @@
 # osm-cqrs
 
-## main setup
+## watch dev setup
 
 ```bash
-docker-compose up --build
+docker-compose up
 ```
 
-## search-setup
+## search dev setup
 
 ```bash
-cd search
-docker-compose up --build
+docker-compose -f ./search/docker-compose.yml up
+```
+
+## full infrastructure production setup
+
+```bash
+docker-compose -f docker-compose.production.yml -f ./search/docker-compose.production.yml up --build
 ```
