@@ -125,6 +125,7 @@ func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
 }
 
 func generateSearchEventPayload(normalized types.OsmChangeNormalized) types.SearchPayload {
+	//TODO: Nodes-Filter nach Vorstellung entfernen. Ist hier nicht notwendig.
 	buildings := normalized.Filter(
 		[]types.NodeFilter{
 			types.NewNodeFilter("building", "name"),
@@ -141,14 +142,24 @@ func generateSearchEventPayload(normalized types.OsmChangeNormalized) types.Sear
 	modifySearchPoints := reduceWaysToSearchPoints(buildings.Modify.Ways, append(buildings.Modify.Nodes, buildings.Reloaded.Nodes...))
 	createSearchPoints := reduceWaysToSearchPoints(buildings.Create.Ways, append(buildings.Create.Nodes, buildings.Reloaded.Nodes...))
 	deleteSearchPoints := reduceWaysToSearchPoints(buildings.Delete.Ways, append(buildings.Delete.Nodes, buildings.Reloaded.Nodes...))
-	//TODO: Es werden nur die Wege zu `SearchPoints` umgewandelt. Die gefilterten Nodes müssen auch entsprechend umgewandelt werden!
+	points := normalized.Filter(
+		[]types.NodeFilter{
+			types.NewNodeFilter("building", "name"),
+			types.NewNodeFilter("addr:housenumber"),
+			types.NewNodeFilter("addr:street"),
+			types.NewNodeFilter("amenity", "name"),
+			types.NewNodeFilter("tourism", "name"),
+		},
+		[]types.WayFilter{})
+	modifySearchPoints = append(modifySearchPoints, reduceNodesToSearchPoints(points.Modify.Nodes)...)
+	createSearchPoints = append(createSearchPoints, reduceNodesToSearchPoints(points.Create.Nodes)...)
+	deleteSearchPoints = append(deleteSearchPoints, reduceNodesToSearchPoints(points.Delete.Nodes)...)
 
 	payload := types.SearchPayload{
 		Modify: modifySearchPoints,
 		Create: createSearchPoints,
 		Delete: deleteSearchPoints,
 	}
-
 	return payload
 }
 
@@ -166,7 +177,14 @@ func reduceWaysToSearchPoints(ways []types.Way, nodes []types.Node) []types.Sear
 		}
 		centroid := utils.CalculateCentroid(&wayNodes)
 
-		name, _ := way.GetTag("name")
+		name, err := way.GetTag("name")
+		if err != nil {
+			houseNumber, _ := way.GetTag("addr:housenumber")
+			street, _ := way.GetTag("addr:street")
+			city, _ := way.GetTag("addr:city")
+			postcode, _ := way.GetTag("addr:postcode")
+			name = fmt.Sprint(street, " ", houseNumber, ", ", postcode, ", ", city)
+		}
 
 		searchPoints = append(searchPoints, types.SearchPoint{
 			Name:     name,
@@ -177,4 +195,32 @@ func reduceWaysToSearchPoints(ways []types.Way, nodes []types.Node) []types.Sear
 
 	}
 	return searchPoints
+}
+
+func reduceNodesToSearchPoints(nodes []types.Node) []types.SearchPoint {
+	searchPoints := make([]types.SearchPoint, 0)
+	for _, node := range nodes {
+		name, err := node.GetTag("name")
+		if err != nil {
+			houseNumber, _ := node.GetTag("addr:housenumber")
+			street, _ := node.GetTag("addr:street")
+			city, _ := node.GetTag("addr:city")
+			postcode, _ := node.GetTag("addr:postcode")
+
+			name = fmt.Sprint(street, " ", houseNumber, ", ", postcode, ", ", city)
+		}
+		location := types.Location{
+			Lat: node.Lat,
+			Lng: node.Lon,
+		}
+		searchPoints = append(searchPoints, types.SearchPoint{
+			Name:     name,
+			Location: location,
+			Tags:     node.Tags,
+			Id:       fmt.Sprint("node_", node.Id),
+		})
+	}
+
+	return searchPoints
+
 }
