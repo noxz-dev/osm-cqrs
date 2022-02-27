@@ -38,6 +38,3 @@ COPY test-data/create.xml .
 COPY test-data/update.xml .
 COPY run.sh .
 ENTRYPOINT ["/src/run.sh"]
-
-# TODO: ADD working container for accepting events and publishing them to the database \
-
