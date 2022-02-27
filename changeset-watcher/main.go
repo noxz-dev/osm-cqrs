@@ -129,12 +129,13 @@ func generateSearchEventPayload(normalized types.OsmChangeNormalized) types.Sear
 	buildings := normalized.Filter(
 		[]types.NodeFilter{
 			types.NewNodeFilter("building", "name"),
-			types.NewNodeFilter("building", "addr:housenumber"),
+			types.NewNodeFilter("building", "addr:street"),
 			types.NewNodeFilter("amenity", "name"),
 			types.NewNodeFilter("tourism", "name"),
 		},
 		[]types.WayFilter{
 			types.NewWayFilter("building", "name"),
+			types.NewWayFilter("building", "addr:street"),
 			types.NewWayFilter("building", "addr:housenumber"),
 			types.NewWayFilter("amenity", "name"),
 			types.NewWayFilter("tourism", "name"),

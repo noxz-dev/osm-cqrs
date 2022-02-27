@@ -8,9 +8,12 @@ Ein Sonderfall ergibt sich, wenn der Startknoten einer Linie dem Endknoten entsp
 ## Search-Backend
 Für die Adresssuche sind POIs und Gebäude interessant. Übernommen in die Datenbank sollten daher:
 1. `Nodes`, `Wege` und `Flächen` mit den Tags `tourism` und `name`
-2. `Nodes` und `Flächen` mit den Tags `building` und `name` 
-3. `Nodes` und `Flächen` mit den Tags `building` und `addr`
-4. `Nodes` und `Flächen` mit den Tags `amenity`und `name`
+2. `Nodes` und `Flächen` mit den Tags `building` und `name`
+3. `Flächen` mit den Tags `building` und `addr:street`
+4. `Flächen` mit den Tags `buildings`und `addr:housenumber`
+5. `Nodes` und `Flächen` mit den Tags `amenity`und `name`
+6. `Nodes` mit dem Tag `addr:street`
+7. `Nodes` mit dem Tag `addr:housenumber`
 
 ## Routing-Backend
 Für die Routing-Datenbank ist es sinnvoll, nicht alle OSM-Elemente zu speichern.
