@@ -28,8 +28,8 @@ services:
 
   importer:
     build:
-      context: .
-    env_file: .env
+      context: ./tile-renderer
+    env_file: ./tile-renderer/.env
     volumes:
       - renderer-importer-diff:/src/imposm/diff
       - renderer-importer-cache:/src/imposm/cache

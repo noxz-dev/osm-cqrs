@@ -15,5 +15,5 @@ docker-compose -f ./search/docker-compose.yml up
 ## full infrastructure production setup
 
 ```bash
-docker-compose -f docker-compose.production.yml -f ./search/docker-compose.production.yml up --build
+./start-production.sh
 ```

@@ -14,8 +14,8 @@ services:
 
   routing:
     build:
-      context: .
-    env_file: .env
+      context: ./routing/
+    env_file: ./routing/.env
     restart: unless-stopped
     volumes:
       - routing-importer-diff:/src/imposm/diff
