@@ -17,62 +17,20 @@ app.listen(PORT, () => {
   logger.info(`search backend is running http://localhost:${PORT}`);
 });
 
+interface SearchPoint {
+  Name: string;
+  Id: string;
+  Location: {
+    Lat: number;
+    Lng: number;
+  };
+  Tags?: any[];
+}
+
 //just for testing purposes, production will run on events
 app.post('/addData', async (req, res) => {
   await demoInsert();
   res.status(200).send();
-});
-
-app.get('/searchByDistance', async (req, res) => {
-  const result = await client.search({
-    index: 'osm',
-    query: {
-      bool: {
-        filter: {
-          geo_distance: {
-            distance: '1000km',
-            location: {
-              lat: 52.398425,
-              lon: 9.725097,
-            },
-          },
-        },
-      },
-    },
-  });
-
-  res.send(result.hits.hits);
-});
-
-app.get('/searchAll', async (req, res) => {
-  const result = await client.search({
-    index: 'osm',
-    query: {
-      match_all: {},
-    },
-  });
-
-  res.send(result.hits.hits);
-});
-
-app.get('/searchByName', async (req, res) => {
-  const { name } = req.query;
-
-  if (!name) {
-    res.status(400).send('no name specified');
-    return;
-  }
-
-  const result = await client.search({
-    index: 'osm',
-    query: {
-      match: {
-        name: name as string,
-      },
-    },
-  });
-
-  res.send(result.hits.hits);
 });
 
 async function subscribeToEvents() {
@@ -104,53 +62,40 @@ async function subscribeToEvents() {
   }
 }
 
-interface SearchPoint {
-  Name: string;
-  Id: string;
-  Location: {
-    Lat: number;
-    Lng: number;
-  };
-  Tags?: any[];
-}
-
 async function insertDocument(sp: SearchPoint) {
-  await client.update({
-    index: 'osm',
-    id: sp.Id,
-    doc: {
-      name: sp.Name,
-      location: {
-        lat: sp.Location.Lat,
-        lon: sp.Location.Lng,
+  try {
+    await client.update({
+      index: 'osm',
+      id: sp.Id,
+      doc: {
+        name: sp.Name,
+        location: {
+          lat: sp.Location.Lat,
+          lon: sp.Location.Lng,
+        },
+        tags: sp.Tags || [],
       },
-      tags: sp.Tags || [],
-    },
-    doc_as_upsert: true,
-  });
+      doc_as_upsert: true,
+    });
+  } catch (err: any) {
+    logger.error(err);
+  }
 }
 
 async function removeDocument(sp: SearchPoint) {
-  await client.delete({
-    index: 'osm',
-    id: sp.Id,
-  });
+  try {
+    await client.delete({
+      index: 'osm',
+      id: sp.Id,
+    });
+
+    logger.info('insert successful');
+  } catch (err: any) {
+    logger.error(err);
+  }
 }
 
 async function demoInsert() {
-  // await client.index({
-  //   index: 'osm',
-  //   id: '1234',
-  //   document: {
-  //     name: 'Hochschule Hannover',
-  //     location: {
-  //       lat: 52.353683,
-  //       lon: 9.72422,
-  //     },
-  //     tags: [],
-  //   },
-  // });
-
   await client.update({
     index: 'osm',
     id: '1234',
@@ -167,3 +112,96 @@ async function demoInsert() {
 
   await client.indices.refresh({ index: 'osm' });
 }
+
+interface SearchByDistanceBody {
+  location: {
+    lat: number;
+    lon: number;
+  };
+  distance: string;
+}
+
+app.get('/searchByDistance', async (req, res) => {
+  const { location, distance }: SearchByDistanceBody = req.body;
+  if (!location) {
+    res.status(400).send('no location specified');
+  }
+
+  if (!distance) {
+    res.status(400).send('no distance specified');
+  }
+
+  const result = await client.search({
+    index: 'osm',
+    query: {
+      bool: {
+        filter: {
+          geo_distance: {
+            distance: distance,
+            location: location,
+          },
+        },
+      },
+    },
+  });
+
+  res.send(result.hits.hits);
+});
+
+app.get('/searchAll', async (req, res) => {
+  const result = await client.search({
+    index: 'osm',
+    query: {
+      match_all: {},
+    },
+  });
+
+  res.send(result.hits.hits);
+});
+
+app.get('/searchByName', async (req, res) => {
+  const { name } = req.body;
+  if (!name) {
+    res.status(400).send('no query specified');
+  }
+
+  const result = await client.search({
+    index: 'osm',
+    query: {
+      match: {
+        name: name as string,
+      },
+    },
+  });
+
+  res.send(result.hits.hits);
+});
+
+app.get('/rawQuery', async (req, res) => {
+  const { query } = req.body;
+  if (!query) {
+    res.status(400).send('no query specified');
+  }
+
+  try {
+    const result = await client.search(query);
+    res.send(result);
+  } catch (err) {
+    logger.error(err);
+    res.status(400).send('raw query failed');
+  }
+});
+
+app.get('/count', async (req, res) => {
+  try {
+    const result = await client.count({
+      query: {
+        match_all: {},
+      },
+    });
+    res.send(result);
+  } catch (err) {
+    logger.error(err);
+    res.status(400).send('count query failed');
+  }
+});
