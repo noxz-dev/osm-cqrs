@@ -42,6 +42,7 @@ func NewStatistic(filename string, fieldNames ...string) Statistic {
 		for _, fieldName := range fieldNames {
 			sb.WriteString("," + fieldName)
 		}
+		sb.WriteString("\n")
 		file.WriteString(sb.String())
 	}
 	return Statistic{
@@ -74,10 +75,9 @@ func (statistic *Statistic) SetValue(fieldName string, value string) error {
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
 	}
-
-	for _, field := range statistic.fields {
+	for i, field := range statistic.fields {
 		if field.name == fieldName {
-			field.value = value
+			statistic.fields[i].value = value
 		}
 	}
 	return nil
@@ -107,11 +107,11 @@ func (statistic *Statistic) StopTimerAndSetDuration(fieldName string) error {
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
 	}
-
-	for _, field := range statistic.fields {
+	fields := statistic.fields
+	for i, field := range statistic.fields {
 		if field.name == fieldName {
 			duration := time.Since(field.startTime)
-			field.value = strconv.FormatInt(duration.Milliseconds(), 10)
+			fields[i].value = strconv.FormatInt(duration.Milliseconds(), 10)
 		}
 	}
 
@@ -128,14 +128,11 @@ func (statistic *Statistic) EndColum() error {
 	statistic.state = Ready
 
 	sb := strings.Builder{}
-	for i, field := range statistic.fields {
-		if i == 0 {
-			sb.WriteString(field.value)
-		} else {
-			sb.WriteString("," + field.value)
-		}
+	sb.WriteString(time.Now().Format(time.RFC3339))
+	for _, field := range statistic.fields {
+		sb.WriteString("," + field.value)
 	}
-
+	sb.WriteString("\n")
 	_, err := statistic.csvFile.WriteString(sb.String())
 	return err
 

@@ -10,15 +10,15 @@ func (normalized OsmChangeNormalized) ExtractMissingNodes() (nodeIDs map[int]str
 	return
 }
 
-func (normalized *OsmChangeNormalized) Reload() (err error) {
+func (normalized *OsmChangeNormalized) Reload() (reloaded int, err error) {
 
 	nodeIDs, _, _ := normalized.ExtractMissingNodes()
 	reloadedNodes, err := getNodesByID(nodeIDs)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	normalized.Reloaded.Nodes = reloadedNodes
-	return nil
+	return len(reloadedNodes), nil
 }
 
 func (normalized OsmChangeNormalized) Filter(nodeFilters []NodeFilter, wayFilters []WayFilter) OsmChangeNormalized {
@@ -52,6 +52,10 @@ func (osmChange OsmChange) Normalize() OsmChangeNormalized {
 		Create: normalizeActionObject(osmChange.Create),
 	}
 
+}
+
+func (normalized *OsmChangeNormalized) size() int {
+	return normalized.Delete.Size() + normalized.Modify.Size() + normalized.Create.Size() + normalized.Reloaded.Size()
 }
 
 func normalizeActionObject(actions []Action) (normalizedAction Action) {

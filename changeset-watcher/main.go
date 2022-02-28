@@ -7,7 +7,9 @@ import (
 	"io"
 	"net/http"
 	"noxz.dev/changeset-watcher/config"
+	"noxz.dev/changeset-watcher/statistics"
 	"os"
+	"strconv"
 	"time"
 
 	gzip "github.com/klauspost/pgzip"
@@ -19,9 +21,19 @@ import (
 )
 
 var logger = log.New(os.Stderr)
+var statistic = statistics.NewStatistic("watcher-statistics.csv",
+	config.NumberOfIncomingElements,
+	config.DurationChangSetDownload,
+	config.DurationNodesReloading,
+	config.NumberOfReloadedNodes,
+	config.NumberOfPublishedElements,
+	config.NumberOfPublishedRoutingElements,
+	config.DurationForRoutesFiltering,
+	config.NumberOfPublishedSearchElements,
+	config.DurationForSearchFiltering)
 
 func main() {
-
+	defer statistic.Close()
 	var url string
 
 	url = os.Getenv("NATS_IP")
@@ -41,7 +53,7 @@ func main() {
 	var oldSeq = 0
 
 	for {
-
+		statistic.BeginnColum()
 		resp, err := http.Get(config.OsmMinuteReplicationStateURL)
 
 		if err != nil {
@@ -71,7 +83,7 @@ func main() {
 		}
 
 		logger.Info("fetching " + url)
-
+		statistic.StartTimer(config.DurationChangSetDownload)
 		resp, err = http.Get(url)
 
 		if err != nil {
@@ -87,7 +99,7 @@ func main() {
 		}
 
 		body, _ = io.ReadAll(reader)
-
+		statistic.StopTimerAndSetDuration(config.DurationChangSetDownload)
 		logger.Info("parsing xml ...")
 		osm := types.OsmChange{}
 		err = xml.Unmarshal(body, &osm)
@@ -97,13 +109,20 @@ func main() {
 		}
 		osmNormalized := osm.Normalize()
 		logger.Info("reloading missing nodes referenced by ways...")
-		err = osmNormalized.Reload()
+		statistic.StartTimer(config.DurationNodesReloading)
+		reloaded, err := osmNormalized.Reload()
+		statistic.StopTimerAndSetDuration(config.DurationNodesReloading)
+		statistic.SetValue(config.NumberOfReloadedNodes, strconv.Itoa(reloaded))
 		if err != nil {
 			logger.Error("error while reloading missing nodes: ", err.Error())
 			err = nil
 		}
 		logger.Info("missing nodes reloaded")
-
+		err = statistic.EndColum()
+		if err != nil {
+			logger.Error(err.Error())
+			return
+		}
 		go sendAllChangesets(nc, osmNormalized)
 		go sendRoutingChangesets(nc, osmNormalized)
 		go sendSearchChangesets(nc, osmNormalized)
