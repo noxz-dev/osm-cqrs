@@ -95,12 +95,12 @@ func main() {
 			return
 		}
 
-		sendNewChangesetNotifcation(nc, &osm)
+		sendNewChangesetNotification(nc, &osm)
 		// fmt.Printf("%+v\n", osm.ChageSets)
 	}
 }
 
-func sendNewChangesetNotifcation(nc *nats.Conn, change *types.OsmChange) {
+func sendNewChangesetNotification(nc *nats.Conn, change *types.OsmChange) {
 	changeNormalized := change.Normalize()
 	err := changeNormalized.Reload()
 	if err != nil {
