@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"noxz.dev/changeset-watcher/config"
 	"os"
 	"time"
 
@@ -33,7 +34,7 @@ func main() {
 	defer nc.Close()
 
 	if err != nil {
-		logger.Infof("Failed to connect to the NATS-Server: \n%s \n", err.Error())
+		logger.Errorf("Failed to connect to the NATS-Server: \n%s \n", err.Error())
 		return
 	}
 
@@ -41,7 +42,7 @@ func main() {
 
 	for {
 
-		resp, err := http.Get("https://planet.openstreetmap.org/replication/minute/state.txt")
+		resp, err := http.Get(config.OsmMinuteReplicationStateURL)
 
 		if err != nil {
 			fmt.Println(err.Error())
@@ -108,6 +109,9 @@ func sendNewChangesetNotification(nc *nats.Conn, change *types.OsmChange) {
 	}
 	streets := changeNormalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
 	searchPayload := generateSearchEventPayload(changeNormalized)
+
+	utils.WriteObjectToFile(&streets, "streets.json")
+	utils.WriteObjectToFile(&searchPayload, "payload.json")
 	go publishEvent(nc, "all", changeNormalized)
 	go publishEvent(nc, "routing", streets)
 	go publishEvent(nc, "search", searchPayload)

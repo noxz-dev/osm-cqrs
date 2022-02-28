@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"noxz.dev/changeset-watcher/config"
 	"strconv"
 	"strings"
 )
@@ -46,7 +47,7 @@ func getNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
 	bodyBuilder.WriteString(postfixString)
 	//structure of requestBody: "[out:xml][timeout:500];node(id: 9309596758, 9519334485, ... ); out;"
 	requestBody := strings.NewReader(bodyBuilder.String())
-	resp, err := http.Post("https://overpass-api.de/api/interpreter", "x-www-form-urlencoded", requestBody)
+	resp, err := http.Post(config.OverpassApiURL, "x-www-form-urlencoded", requestBody)
 
 	if err != nil {
 		return nodes, err
