@@ -119,7 +119,10 @@ func sendNewChangesetNotification(nc *nats.Conn, change *types.OsmChange) {
 }
 
 func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
-	event := utils.CreateEvent("ChangesetWatcher", payload, subject)
+	event, err := utils.CreateEvent("ChangesetWatcher", payload, subject)
+	if err != nil {
+		logger.Error("Cloudevents wrapper could not be created: ", err.Error())
+	}
 	bytes, err := json.Marshal(event)
 	if err != nil {
 		logger.Error("Event could not be serialized", err.Error())
