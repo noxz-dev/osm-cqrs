@@ -5,7 +5,7 @@ services:
     image: kartoza/postgis:14-3.1
     volumes:
       - renderer-postgis-data:/var/lib/postgresql
-    env_file: ../osm-cqrs/routing/.env
+    env_file: .env
     ports:
       - "25432:5432"
     restart: unless-stopped
