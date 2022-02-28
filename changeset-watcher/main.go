@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"noxz.dev/changeset-watcher/config"
 	"os"
 	"time"
 
@@ -33,7 +34,7 @@ func main() {
 	defer nc.Close()
 
 	if err != nil {
-		logger.Infof("Failed to connect to the NATS-Server: \n%s \n", err.Error())
+		logger.Errorf("Failed to connect to the NATS-Server: \n%s \n", err.Error())
 		return
 	}
 
@@ -41,7 +42,7 @@ func main() {
 
 	for {
 
-		resp, err := http.Get("https://planet.openstreetmap.org/replication/minute/state.txt")
+		resp, err := http.Get(config.OsmMinuteReplicationStateURL)
 
 		if err != nil {
 			fmt.Println(err.Error())
@@ -54,8 +55,8 @@ func main() {
 		seq, err := utils.ExtractSeqNumber(&stringBody)
 
 		if oldSeq >= seq {
-			logger.Info("no new sequence number found... waiting for 10 sec")
-			time.Sleep(10 * time.Second)
+			logger.Info("no new sequence number found... waiting for ", config.SequenceNumberPollingInterval, " sec")
+			time.Sleep(config.SequenceNumberPollingInterval * time.Second)
 			continue
 		}
 		oldSeq = seq
@@ -94,34 +95,52 @@ func main() {
 			logger.Error(err)
 			return
 		}
+		osmNormalized := osm.Normalize()
+		logger.Info("reloading missing nodes referenced by ways...")
+		err = osmNormalized.Reload()
+		if err != nil {
+			logger.Error("error while reloading missing nodes: ", err.Error())
+			err = nil
+		}
+		logger.Info("missing nodes reloaded")
 
-		sendNewChangesetNotifcation(nc, &osm)
-		// fmt.Printf("%+v\n", osm.ChageSets)
+		go sendAllChangesets(nc, osmNormalized)
+		go sendRoutingChangesets(nc, osmNormalized)
+		go sendSearchChangesets(nc, osmNormalized)
 	}
 }
 
-func sendNewChangesetNotifcation(nc *nats.Conn, change *types.OsmChange) {
-	changeNormalized := change.Normalize()
-	err := changeNormalized.Reload()
-	if err != nil {
-		logger.Error(err.Error())
-	}
-	streets := changeNormalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
-	searchPayload := generateSearchEventPayload(changeNormalized)
-	go publishEvent(nc, "all", changeNormalized)
-	go publishEvent(nc, "routing", streets)
-	go publishEvent(nc, "search", searchPayload)
+func sendSearchChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+	searchPayload := generateSearchEventPayload(normalized)
+	publishEvent(nc, config.SearchSubject, searchPayload)
+
+}
+
+func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+	streets := normalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
+	publishEvent(nc, config.RoutingSubject, streets)
+}
+
+func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+	publishEvent(nc, config.AllSubject, normalized)
 }
 
 func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
-	event := utils.CreateEvent("ChangesetWatcher", payload)
+	event, err := utils.CreateEvent("ChangesetWatcher", payload, subject)
+	if err != nil {
+		logger.Error("cloudevents wrapper could not be created: ", err.Error())
+		return
+	}
 	bytes, err := json.Marshal(event)
 	if err != nil {
 		logger.Error("Event could not be serialized", err.Error())
 		return
 	}
 	logger.Info("publishing new changeset to " + subject + " ...")
-	nc.Publish(subject, bytes)
+	err = nc.Publish(subject, bytes)
+	if err != nil {
+		logger.Error("failed to publish new change set to subject ["+subject+"]: ", err.Error())
+	}
 }
 
 func generateSearchEventPayload(normalized types.OsmChangeNormalized) types.SearchPayload {
