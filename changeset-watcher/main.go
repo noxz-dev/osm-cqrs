@@ -129,8 +129,6 @@ func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
 	event, err := utils.CreateEvent("ChangesetWatcher", payload, subject)
 	if err != nil {
 		logger.Error("cloudevents wrapper could not be created: ", err.Error())
-		utils.WriteObjectToFile(&payload, "errorPayload.json")
-		utils.WriteObjectToFile(&event, "errorEvent.json")
 		return
 	}
 	bytes, err := json.Marshal(event)
