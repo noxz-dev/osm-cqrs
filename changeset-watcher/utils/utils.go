@@ -45,11 +45,11 @@ func BuildChangeSetUrl(seqNumber int) (string, error) {
 	return url, nil
 }
 
-func CreateEvent(source string, payload interface{}) *event.Event {
+func CreateEvent(source string, payload interface{}, subject string) *event.Event {
 	event := cloudevents.NewEvent()
 	event.SetID(uuid.New().String())
 	event.SetSource(source)
-	event.SetType("ChangeSet")
+	event.SetType(subject + "Event")
 	event.SetData(cloudevents.ApplicationJSON, payload)
 
 	return &event

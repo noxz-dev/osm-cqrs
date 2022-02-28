@@ -102,6 +102,7 @@ func main() {
 }
 
 func sendNewChangesetNotification(nc *nats.Conn, change *types.OsmChange) {
+	//TODO: Für jedes subject eine eigene Methode, damit es parallelisierbar ist.
 	changeNormalized := change.Normalize()
 	err := changeNormalized.Reload()
 	if err != nil {
@@ -118,7 +119,7 @@ func sendNewChangesetNotification(nc *nats.Conn, change *types.OsmChange) {
 }
 
 func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
-	event := utils.CreateEvent("ChangesetWatcher", payload)
+	event := utils.CreateEvent("ChangesetWatcher", payload, subject)
 	bytes, err := json.Marshal(event)
 	if err != nil {
 		logger.Error("Event could not be serialized", err.Error())
