@@ -104,15 +104,15 @@ func main() {
 func sendNewChangesetNotification(nc *nats.Conn, change *types.OsmChange) {
 	//TODO: Für jedes subject eine eigene Methode, damit es parallelisierbar ist.
 	changeNormalized := change.Normalize()
+	logger.Info("reloading missing nodes referenced by ways...")
 	err := changeNormalized.Reload()
 	if err != nil {
-		logger.Error(err.Error())
+		logger.Error("error while reloading missing nodes: ", err.Error())
 	}
+	logger.Info("missing nodes reloaded")
 	streets := changeNormalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
 	searchPayload := generateSearchEventPayload(changeNormalized)
 
-	utils.WriteObjectToFile(&streets, "streets.json")
-	utils.WriteObjectToFile(&searchPayload, "payload.json")
 	go publishEvent(nc, "all", changeNormalized)
 	go publishEvent(nc, "routing", streets)
 	go publishEvent(nc, "search", searchPayload)
@@ -121,7 +121,7 @@ func sendNewChangesetNotification(nc *nats.Conn, change *types.OsmChange) {
 func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
 	event, err := utils.CreateEvent("ChangesetWatcher", payload, subject)
 	if err != nil {
-		logger.Error("Cloudevents wrapper could not be created: ", err.Error())
+		logger.Error("cloudevents wrapper could not be created: ", err.Error())
 	}
 	bytes, err := json.Marshal(event)
 	if err != nil {
@@ -131,7 +131,7 @@ func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
 	logger.Info("publishing new changeset to " + subject + " ...")
 	err = nc.Publish(subject, bytes)
 	if err != nil {
-		logger.Error("Failed to publish new change set to " + subject)
+		logger.Error("failed to publish new change set to " + subject)
 	}
 }
 
