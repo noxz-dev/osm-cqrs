@@ -95,33 +95,43 @@ func main() {
 			logger.Error(err)
 			return
 		}
+		osmNormalized := osm.Normalize()
+		logger.Info("reloading missing nodes referenced by ways...")
+		err = osmNormalized.Reload()
+		if err != nil {
+			logger.Error("error while reloading missing nodes: ", err.Error())
+			err = nil
+		}
+		logger.Info("missing nodes reloaded")
 
-		sendNewChangesetNotification(nc, &osm)
-		// fmt.Printf("%+v\n", osm.ChageSets)
+		go sendAllChangesets(nc, osmNormalized)
+		go sendRoutingChangesets(nc, osmNormalized)
+		go sendSearchChangesets(nc, osmNormalized)
 	}
 }
 
-func sendNewChangesetNotification(nc *nats.Conn, change *types.OsmChange) {
-	//TODO: Für jedes subject eine eigene Methode, damit es parallelisierbar ist.
-	changeNormalized := change.Normalize()
-	logger.Info("reloading missing nodes referenced by ways...")
-	err := changeNormalized.Reload()
-	if err != nil {
-		logger.Error("error while reloading missing nodes: ", err.Error())
-	}
-	logger.Info("missing nodes reloaded")
-	streets := changeNormalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
-	searchPayload := generateSearchEventPayload(changeNormalized)
+func sendSearchChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+	searchPayload := generateSearchEventPayload(normalized)
+	publishEvent(nc, config.SearchSubject, searchPayload)
 
-	go publishEvent(nc, config.AllSubject, changeNormalized)
-	go publishEvent(nc, config.RoutingSubject, streets)
-	go publishEvent(nc, config.SearchSubject, searchPayload)
+}
+
+func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+	streets := normalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
+	publishEvent(nc, config.RoutingSubject, streets)
+}
+
+func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+	publishEvent(nc, config.AllSubject, normalized)
 }
 
 func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
 	event, err := utils.CreateEvent("ChangesetWatcher", payload, subject)
 	if err != nil {
 		logger.Error("cloudevents wrapper could not be created: ", err.Error())
+		utils.WriteObjectToFile(&payload, "errorPayload.json")
+		utils.WriteObjectToFile(&event, "errorEvent.json")
+		return
 	}
 	bytes, err := json.Marshal(event)
 	if err != nil {
