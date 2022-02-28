@@ -10,7 +10,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"io"
 	"log"
-	"noxz.dev/tile-renderer/types"
+	"noxz.dev/tile-renderer/backend/types"
 	"os"
 	"os/exec"
 	"time"

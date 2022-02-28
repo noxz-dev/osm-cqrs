@@ -1,4 +1,4 @@
-module noxz.dev/tile-renderer
+module noxz.dev/tile-renderer/backend
 
 go 1.17
 

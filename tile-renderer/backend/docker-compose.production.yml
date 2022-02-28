@@ -5,7 +5,7 @@ services:
     image: kartoza/postgis:14-3.1
     volumes:
       - renderer-postgis-data:/var/lib/postgresql
-    env_file: ../osm-cqrs/routing/.env
+    env_file: ./tile-renderer/backend/.env
     ports:
       - "25432:5432"
     restart: unless-stopped
@@ -28,8 +28,8 @@ services:
 
   importer:
     build:
-      context: ./tile-renderer
-    env_file: ./tile-renderer/.env
+      context: ./tile-renderer/backend
+    env_file: ./tile-renderer/backend/.env
     volumes:
       - renderer-importer-diff:/src/imposm/diff
       - renderer-importer-cache:/src/imposm/cache
