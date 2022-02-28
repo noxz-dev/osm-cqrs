@@ -55,8 +55,8 @@ func main() {
 		seq, err := utils.ExtractSeqNumber(&stringBody)
 
 		if oldSeq >= seq {
-			logger.Info("no new sequence number found... waiting for 10 sec")
-			time.Sleep(10 * time.Second)
+			logger.Info("no new sequence number found... waiting for ", config.SequenceNumberPollingInterval, " sec")
+			time.Sleep(config.SequenceNumberPollingInterval * time.Second)
 			continue
 		}
 		oldSeq = seq
@@ -113,9 +113,9 @@ func sendNewChangesetNotification(nc *nats.Conn, change *types.OsmChange) {
 	streets := changeNormalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
 	searchPayload := generateSearchEventPayload(changeNormalized)
 
-	go publishEvent(nc, "all", changeNormalized)
-	go publishEvent(nc, "routing", streets)
-	go publishEvent(nc, "search", searchPayload)
+	go publishEvent(nc, config.AllSubject, changeNormalized)
+	go publishEvent(nc, config.RoutingSubject, streets)
+	go publishEvent(nc, config.SearchSubject, searchPayload)
 }
 
 func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
@@ -131,7 +131,7 @@ func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
 	logger.Info("publishing new changeset to " + subject + " ...")
 	err = nc.Publish(subject, bytes)
 	if err != nil {
-		logger.Error("failed to publish new change set to " + subject)
+		logger.Error("failed to publish new change set to subject ["+subject+"]: ", err.Error())
 	}
 }
 

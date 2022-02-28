@@ -1,11 +1,5 @@
 package config
 
-const RootEvent = "change"
-
-const ModifyEvent = "modify"
-const DeleteEvent = "delete"
-const CreateEvent = "create"
-
-const StreetEvent = "streets"
-const BuildingEvent = "buildings"
-const OtherEvent = "others"
+const (
+	SequenceNumberPollingInterval = 10 //Unit of measurement: time in seconds
+)
