@@ -125,7 +125,10 @@ func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
 		return
 	}
 	logger.Info("publishing new changeset to " + subject + " ...")
-	nc.Publish(subject, bytes)
+	err = nc.Publish(subject, bytes)
+	if err != nil {
+		logger.Error("Failed to publish new change set to " + subject)
+	}
 }
 
 func generateSearchEventPayload(normalized types.OsmChangeNormalized) types.SearchPayload {
