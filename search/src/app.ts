@@ -140,7 +140,11 @@ interface SearchByDistanceBody {
 }
 
 app.get('/searchByDistance', async (req, res) => {
-  const { location, distance }: SearchByDistanceBody = req.body;
+  const {
+    location = { lat: 52.353683, lon: 9.72422 },
+    distance = '1000km',
+  }: SearchByDistanceBody = req.body;
+
   if (!location) {
     res.status(400).send('no location specified');
   }
@@ -166,15 +170,21 @@ app.get('/searchByDistance', async (req, res) => {
   res.send(result.hits.hits);
 });
 
-app.get('/searchAll', async (req, res) => {
-  const result = await client.search({
-    index: 'osm',
-    query: {
-      match_all: {},
-    },
-  });
+app.get('/all', async (req, res) => {
+  try {
+    const result = await client.search({
+      index: 'osm',
+      query: {
+        match_all: {},
+      },
+      size: 1000,
+    });
 
-  res.send(result.hits.hits);
+    res.send(result.hits.hits);
+  } catch (err) {
+    logger.error(err);
+    res.status(500).send();
+  }
 });
 
 app.get('/searchByName', async (req, res) => {
@@ -188,6 +198,27 @@ app.get('/searchByName', async (req, res) => {
     query: {
       match: {
         name: name as string,
+      },
+    },
+  });
+
+  res.send(result.hits.hits);
+});
+
+app.get('/searchByNameFuzzy', async (req, res) => {
+  const { name } = req.body;
+  if (!name) {
+    res.status(400).send('no query specified');
+  }
+
+  const result = await client.search({
+    index: 'osm',
+    query: {
+      multi_match: {
+        fuzziness: 'AUTO',
+        operator: 'AND',
+        fields: ['name'],
+        query: name,
       },
     },
   });
