@@ -13,7 +13,7 @@ func (normalized OsmChangeNormalized) ExtractMissingNodes() (nodeIDs map[int]str
 func (normalized *OsmChangeNormalized) Reload() (err error) {
 
 	nodeIDs, _, _ := normalized.ExtractMissingNodes()
-	reloadedNodes, err := GetNodesByID(nodeIDs)
+	reloadedNodes, err := getNodesByID(nodeIDs)
 	if err != nil {
 		return err
 	}

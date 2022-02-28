@@ -133,7 +133,7 @@ func (node Node) GetTag(tagString string) (value string, err error) {
 
 }
 
-func GetNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
+func getNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
 	nodes = make([]Node, 0)
 	var overpassAnswer OverPassAnswer
 	prefixString := "[out:xml][timeout:500];node(id: "
