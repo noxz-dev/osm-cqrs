@@ -30,7 +30,7 @@ func ExtractSeqNumber(body *string) (int, error) {
 	return seqNumber, nil
 }
 
-func BuildChangeSetUrl(seqNumber int) (string, error) {
+func BuildChangeSetUrl(seqNumber int) string {
 
 	seq := fmt.Sprint("000000000", seqNumber)
 	seqShorted := seq[len(seq)-9:]
@@ -42,7 +42,7 @@ func BuildChangeSetUrl(seqNumber int) (string, error) {
 		result += string(s)
 	}
 	url := "https://planet.openstreetmap.org/replication/minute/" + fmt.Sprint(result) + ".osc.gz"
-	return url, nil
+	return url
 }
 
 func CreateEvent(source string, payload interface{}, subject string, contentType string) (*event.Event, error) {
@@ -76,15 +76,15 @@ func WriteObjectToFile(object interface{}, filename string) {
 func CalculateCentroid(points *[]types.Node) types.Location {
 	var xSum float32 = 0.0
 	var ySum float32 = 0.0
-	var len float32 = 0
+	var numberOfNodes float32 = 0
 
 	for _, p := range *points {
 		xSum += p.Lat
 		ySum += p.Lon
-		len++
+		numberOfNodes++
 	}
 
-	centroid := types.Location{Lat: xSum / len, Lng: ySum / len}
+	centroid := types.Location{Lat: xSum / numberOfNodes, Lng: ySum / numberOfNodes}
 
 	return centroid
 }
