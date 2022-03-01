@@ -24,7 +24,7 @@ import (
 )
 
 var logger = log.New(os.Stderr)
-var statistic = statistics.NewStatistic("watcher-statistics.csv",
+var stat = statistics.NewStatistic("watcher-statistics.csv",
 	config.NumberOfIncomingElements,
 	config.DurationChangSetDownload,
 	config.DurationNodesReloading,
@@ -36,9 +36,9 @@ var statistic = statistics.NewStatistic("watcher-statistics.csv",
 	config.DurationForSearchFiltering)
 
 func main() {
-	defer statistic.Close()
+	defer stat.Close()
 	if !config.CollectStatistics {
-		statistic.Close()
+		stat.Close()
 	}
 	var url string
 
@@ -59,7 +59,7 @@ func main() {
 	var oldSeq = 0
 
 	for {
-		statistic.BeginnColum()
+
 		resp, err := http.Get(config.OsmMinuteReplicationStateURL)
 
 		if err != nil {
@@ -79,6 +79,7 @@ func main() {
 			time.Sleep(config.SequenceNumberPollingInterval * time.Second)
 			continue
 		}
+		logIfFailing(stat.BeginnColum())
 		oldSeq = seq
 
 		logger.Info("new sequence number:" + fmt.Sprint(seq) + " parsing....")
@@ -91,7 +92,7 @@ func main() {
 		}
 
 		logger.Info("fetching " + url)
-		statistic.StartTimer(config.DurationChangSetDownload)
+		logIfFailing(stat.StartTimer(config.DurationChangSetDownload))
 		resp, err = http.Get(url)
 
 		if err != nil {
@@ -114,7 +115,7 @@ func main() {
 		}
 
 		body, _ = io.ReadAll(reader)
-		statistic.StopTimerAndSetDuration(config.DurationChangSetDownload)
+		logIfFailing(stat.StopTimerAndSetDuration(config.DurationChangSetDownload))
 		logger.Info("parsing xml ...")
 		osm := types.OsmChange{}
 		err = xml.Unmarshal(body, &osm)
@@ -133,17 +134,17 @@ func main() {
 		go sendRoutingChangesets(nc, osmNormalized, wg)
 		go sendSearchChangesets(nc, osmNormalized, wg)
 		wg.Wait()
-		_ = statistic.EndColum()
+		logIfFailing(stat.EndColum())
 	}
 }
 
 func reloadNodes(osmNormalized *types.OsmChangeNormalized) {
-	statistic.SetValue(config.NumberOfIncomingElements, strconv.Itoa(osmNormalized.Size()))
+	logIfFailing(stat.SetValue(config.NumberOfIncomingElements, strconv.Itoa(osmNormalized.Size())))
 	logger.Info("reloading missing nodes referenced by ways...")
-	statistic.StartTimer(config.DurationNodesReloading)
+	logIfFailing(stat.StartTimer(config.DurationNodesReloading))
 	reloaded, err := osmNormalized.Reload()
-	statistic.StopTimerAndSetDuration(config.DurationNodesReloading)
-	statistic.SetValue(config.NumberOfReloadedNodes, strconv.Itoa(reloaded))
+	logIfFailing(stat.StopTimerAndSetDuration(config.DurationNodesReloading))
+	logIfFailing(stat.SetValue(config.NumberOfReloadedNodes, strconv.Itoa(reloaded)))
 	if err != nil {
 		logger.Error("error while reloading missing nodes: ", err.Error())
 		return
@@ -153,20 +154,20 @@ func reloadNodes(osmNormalized *types.OsmChangeNormalized) {
 
 func sendSearchChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
 	defer wg.Done()
-	err := statistic.StartTimer(config.DurationForSearchFiltering)
+	err := stat.StartTimer(config.DurationForSearchFiltering)
 	if err != nil {
 		logger.Error(err.Error())
 	}
 	searchPayload := generateSearchEventPayload(normalized)
 	publishEvent(nc, config.SearchSubject, searchPayload, cloudevents.ApplicationJSON)
-	statistic.StopTimerAndSetDuration(config.DurationForSearchFiltering)
-	statistic.SetValue(config.NumberOfPublishedSearchElements, strconv.Itoa(searchPayload.Size()))
+	logIfFailing(stat.StopTimerAndSetDuration(config.DurationForSearchFiltering))
+	logIfFailing(stat.SetValue(config.NumberOfPublishedSearchElements, strconv.Itoa(searchPayload.Size())))
 
 }
 
 func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
 	defer wg.Done()
-	statistic.StartTimer(config.DurationForRoutesFiltering)
+	logIfFailing(stat.StartTimer(config.DurationForRoutesFiltering))
 	streets := normalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
 	createAction := types.Action{
 		Nodes:     append(streets.Create.Nodes, streets.Reloaded.Nodes...),
@@ -197,14 +198,14 @@ func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, 
 	fmt.Println(len(zippedBytes))
 
 	publishEvent(nc, config.RoutingSubject, zippedBytes, "text/plain")
-	statistic.StopTimerAndSetDuration(config.DurationForRoutesFiltering)
-	statistic.SetValue(config.NumberOfPublishedRoutingElements, strconv.Itoa(streets.Size()))
+	logIfFailing(stat.StopTimerAndSetDuration(config.DurationForRoutesFiltering))
+	logIfFailing(stat.SetValue(config.NumberOfPublishedRoutingElements, strconv.Itoa(streets.Size())))
 }
 
 func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
 	defer wg.Done()
 	publishEvent(nc, config.AllSubject, normalized, cloudevents.ApplicationJSON)
-	statistic.SetValue(config.NumberOfPublishedElements, strconv.Itoa(normalized.Size()))
+	logIfFailing(stat.SetValue(config.NumberOfPublishedElements, strconv.Itoa(normalized.Size())))
 }
 
 func publishEvent(nc *nats.Conn, subject string, payload interface{}, contentType string) {
@@ -352,5 +353,12 @@ func reduceNodesToSearchPoints(nodes []types.Node) []types.SearchPoint {
 	}
 
 	return searchPoints
+
+}
+
+func logIfFailing(err error) {
+	if err != nil {
+		logger.Error(err.Error())
+	}
 
 }
