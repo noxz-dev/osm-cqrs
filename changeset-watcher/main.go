@@ -35,6 +35,9 @@ var statistic = statistics.NewStatistic("watcher-statistics.csv",
 
 func main() {
 	defer statistic.Close()
+	if !config.CollectStatistics {
+		statistic.Close()
+	}
 	var url string
 
 	url = os.Getenv("NATS_IP")
@@ -117,18 +120,11 @@ func main() {
 			logger.Error(err)
 			return
 		}
+
 		osmNormalized := osm.Normalize()
-		statistic.SetValue(config.NumberOfIncomingElements, strconv.Itoa(osmNormalized.Size()))
-		logger.Info("reloading missing nodes referenced by ways...")
-		statistic.StartTimer(config.DurationNodesReloading)
-		reloaded, err := osmNormalized.Reload()
-		statistic.StopTimerAndSetDuration(config.DurationNodesReloading)
-		statistic.SetValue(config.NumberOfReloadedNodes, strconv.Itoa(reloaded))
-		if err != nil {
-			logger.Error("error while reloading missing nodes: ", err.Error())
-			err = nil
-		}
-		logger.Info("missing nodes reloaded")
+
+		reloadNodes(&osmNormalized)
+
 		wg := new(sync.WaitGroup)
 		wg.Add(3)
 		go sendAllChangesets(nc, osmNormalized, wg)
@@ -137,6 +133,20 @@ func main() {
 		wg.Wait()
 		_ = statistic.EndColum()
 	}
+}
+
+func reloadNodes(osmNormalized *types.OsmChangeNormalized) {
+	statistic.SetValue(config.NumberOfIncomingElements, strconv.Itoa(osmNormalized.Size()))
+	logger.Info("reloading missing nodes referenced by ways...")
+	statistic.StartTimer(config.DurationNodesReloading)
+	reloaded, err := osmNormalized.Reload()
+	statistic.StopTimerAndSetDuration(config.DurationNodesReloading)
+	statistic.SetValue(config.NumberOfReloadedNodes, strconv.Itoa(reloaded))
+	if err != nil {
+		logger.Error("error while reloading missing nodes: ", err.Error())
+		return
+	}
+	logger.Info("missing nodes reloaded")
 }
 
 func sendSearchChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {

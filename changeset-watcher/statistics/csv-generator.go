@@ -26,6 +26,7 @@ const (
 	Collecting StatisticState = iota
 	Ready
 	Closed
+	Paused
 )
 
 func NewStatistic(filename string, fieldNames ...string) Statistic {
@@ -58,6 +59,8 @@ func (statistic *Statistic) BeginnColum() error {
 		return errors.New("colum has to be ended before beginning a new one")
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
+	case Paused:
+		return errors.New("this operation is not allowed, because this statistic is paused")
 	}
 	statistic.state = Collecting
 	now := time.Now()
@@ -74,7 +77,10 @@ func (statistic *Statistic) SetValue(fieldName string, value string) error {
 		return errors.New("start new colum before setting a value")
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
+	case Paused:
+		return errors.New("this operation is not allowed, because this statistic is paused")
 	}
+
 	for i, field := range statistic.fields {
 		if field.name == fieldName {
 			statistic.fields[i].value = value
@@ -89,6 +95,8 @@ func (statistic *Statistic) StartTimer(fieldName string) error {
 		return errors.New("start new colum before starting a timer")
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
+	case Paused:
+		return errors.New("this operation is not allowed, because this statistic is paused")
 	}
 
 	for i, field := range statistic.fields {
@@ -106,6 +114,8 @@ func (statistic *Statistic) StopTimerAndSetDuration(fieldName string) error {
 		return errors.New("start new colum before stopping a timer")
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
+	case Paused:
+		return errors.New("this operation is not allowed, because this statistic is paused")
 	}
 	fields := statistic.fields
 	for i, field := range statistic.fields {
@@ -124,6 +134,8 @@ func (statistic *Statistic) EndColum() error {
 		return errors.New("start new colum before ending a colum")
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
+	case Paused:
+		return errors.New("this operation is not allowed, because this statistic is paused")
 	}
 	statistic.state = Ready
 
@@ -144,5 +156,17 @@ func (statistic *Statistic) Close() error {
 	}
 	statistic.state = Closed
 	return statistic.csvFile.Close()
+}
 
+func (statistic *Statistic) Pause() error {
+	switch statistic.state {
+	case Closed:
+		return errors.New("this operation is not allowed, because this statistic is closed")
+	case Paused:
+		return errors.New("this operation is not allowed, because this statistic is paused")
+	case Collecting:
+		return errors.New("statistic cant be paused, while collecting data. end colum to pause")
+	}
+	statistic.state = Paused
+	return nil
 }
