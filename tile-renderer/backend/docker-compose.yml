@@ -28,7 +28,7 @@ services:
 
   importer:
     build:
-      context: ..
+      context: .
     env_file: .env
     volumes:
       - renderer-importer-diff:/src/imposm/diff
