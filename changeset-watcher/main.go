@@ -14,8 +14,6 @@ import (
 	"sync"
 	"time"
 
-	"noxz.dev/changeset-watcher/config"
-
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	gzip "github.com/klauspost/pgzip"
 	"github.com/nats-io/nats.go"
