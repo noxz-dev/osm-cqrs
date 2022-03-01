@@ -24,8 +24,8 @@ type ChangeSet struct {
 }
 
 type OsmChangeNormalized struct {
-	Modify   Action `xml:"modify"`
 	Create   Action `xml:"create"`
+	Modify   Action `xml:"modify"`
 	Delete   Action `xml:"delete"`
 	Reloaded Action `xml:"reloaded"`
 }

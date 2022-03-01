@@ -32,9 +32,9 @@ type OsmChange struct {
 
 type OsmChangeNormalizedXML struct {
 	XMLName xml.Name `xml:"osmChange"`
-	Modify  Action   `json:"modify"`
-	Create  Action   `json:"create"`
-	Delete  Action   `json:"delete"`
+	Create  Action   `xml:"create"`
+	Modify  Action   `xml:"modify"`
+	Delete  Action   `xml:"delete"`
 }
 type OsmChangeNormalized struct {
 	Modify   Action `json:"modify"`

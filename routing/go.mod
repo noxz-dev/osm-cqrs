@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.8.0
+	github.com/klauspost/pgzip v1.2.5
 	github.com/nats-io/nats.go v1.13.1-0.20220121202836-972a071d373d
 )
 
@@ -12,6 +13,7 @@ require (
 	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
+	github.com/klauspost/compress v1.14.4 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
 	github.com/nats-io/nats-server/v2 v2.7.3 // indirect

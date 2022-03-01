@@ -21,7 +21,7 @@ services:
       - routing-importer-diff:/src/imposm/diff
       - routing-importer-cache:/src/imposm/cache
     depends_on:
-      - postgis
+      - routing-postgis
     networks:
       - osm_proxy
 
