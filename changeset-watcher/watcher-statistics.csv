@@ -1,0 +1,5 @@
+timestamp,number of incoming elements,duration of download (in ms),duration for reloading nodes (in ms),number of reloaded nodes,number of published elements for subject [all],number of published elements for subject [routing],duration for Filtering for [routing] (in ms),number of published elements for subject [search],duration for Filtering for [search] (in ms)
+2022-03-01T10:31:07+01:00,60325,1496,3684,3174,63499,3330,24,55,156
+2022-03-01T10:32:21+01:00,49548,608,1081,1395,50943,1033,12,87,112
+2022-03-01T10:33:03+01:00,39515,368,615,661,40176,665,6,24,76
+2022-03-01T10:34:19+01:00,58743,470,3777,2852,61595,1385,13,53,139
