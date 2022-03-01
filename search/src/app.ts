@@ -77,7 +77,9 @@ async function subscribeToEvents() {
 
     const endTime = performance.now();
     logger.info(
-      `processing the full search payload took ${endTime - startTime} ms`
+      `processing the full search payload took ${(endTime - startTime).toFixed(
+        3
+      )} ms`
     );
 
     await client.indices.refresh({ index: 'osm' });
@@ -101,7 +103,7 @@ async function insertDocument(sp: SearchPoint) {
       doc_as_upsert: true,
     });
     const endTime = performance.now();
-    logger.info(`insert document took ${endTime - startTime} ms`);
+    logger.info(`insert document took ${(endTime - startTime).toFixed(3)} ms`);
   } catch (err: any) {
     logger.error(err);
   }
@@ -109,10 +111,14 @@ async function insertDocument(sp: SearchPoint) {
 
 async function removeDocument(sp: SearchPoint) {
   try {
+    const startTime = performance.now();
+
     await client.delete({
       index: 'osm',
       id: sp.Id,
     });
+    const endTime = performance.now();
+    logger.info(`delete document took ${(endTime - startTime).toFixed(3)} ms`);
   } catch (err: any) {
     logger.error(err);
   }
