@@ -1,3 +1,3 @@
 import consola from 'consola';
 
-export const logger = consola;
+export const logger = consola.withTag('SEARCH');

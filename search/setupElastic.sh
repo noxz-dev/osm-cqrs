@@ -1,7 +1,7 @@
 # curl -XDELETE "http://localhost:9200/osm"
 
 echo "setup elasticsearch schema"
-curl -XPUT "http://elasticsearch:9200/osm" -H 'Content-Type: application/json' -d'
+curl -XPUT "http://localhost:9200/osm" -H 'Content-Type: application/json' -d'
 {
   "mappings": {
     "properties": {
