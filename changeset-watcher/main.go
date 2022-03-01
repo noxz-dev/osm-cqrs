@@ -1,15 +1,18 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
-	"noxz.dev/changeset-watcher/config"
 	"os"
 	"time"
 
+	"noxz.dev/changeset-watcher/config"
+
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	gzip "github.com/klauspost/pgzip"
 	"github.com/nats-io/nats.go"
 	"github.com/withmandala/go-log"
@@ -112,32 +115,88 @@ func main() {
 
 func sendSearchChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
 	searchPayload := generateSearchEventPayload(normalized)
-	publishEvent(nc, config.SearchSubject, searchPayload)
+	publishEvent(nc, config.SearchSubject, searchPayload, cloudevents.ApplicationJSON)
 
 }
 
 func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
 	streets := normalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
-	publishEvent(nc, config.RoutingSubject, streets)
+	createAction := types.Action{
+		Nodes:     append(streets.Create.Nodes, streets.Reloaded.Nodes...),
+		Ways:      append(streets.Create.Ways, streets.Reloaded.Ways...),
+		Relations: append(streets.Create.Relations, streets.Reloaded.Relations...),
+	}
+
+	xmlContent := types.OsmChangeNormalizedXML{
+		Create: createAction,
+		Delete: streets.Delete,
+		Modify: streets.Modify,
+	}
+
+	xmlData, err := xml.MarshalIndent(xmlContent, " ", "    ")
+	if err != nil {
+		logger.Error(err.Error())
+	}
+	xmlData = []byte(xml.Header + string(xmlData))
+
+	var b bytes.Buffer
+	w := gzip.NewWriter(&b)
+
+	w.Write(xmlData)
+	w.Close()
+
+	zippedBytes := b.Bytes()
+
+	fmt.Println(len(zippedBytes))
+
+	publishEvent(nc, config.RoutingSubject, zippedBytes, "text/plain")
 }
 
 func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
-	publishEvent(nc, config.AllSubject, normalized)
+	publishEvent(nc, config.AllSubject, normalized, cloudevents.ApplicationJSON)
 }
 
-func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
-	event, err := utils.CreateEvent("ChangesetWatcher", payload, subject)
+func publishEvent(nc *nats.Conn, subject string, payload interface{}, contentType string) {
+	event, err := utils.CreateEvent("ChangesetWatcher", payload, subject, contentType)
 	if err != nil {
 		logger.Error("cloudevents wrapper could not be created: ", err.Error())
 		return
 	}
 	bytes, err := json.Marshal(event)
+
 	if err != nil {
 		logger.Error("Event could not be serialized", err.Error())
 		return
 	}
 	logger.Info("publishing new changeset to " + subject + " ...")
 	err = nc.Publish(subject, bytes)
+	if err != nil {
+		logger.Error("failed to publish new change set to subject ["+subject+"]: ", err.Error())
+	}
+}
+
+func publishEventGziped(nc *nats.Conn, subject string, payload interface{}) {
+	event, err := utils.CreateEvent("ChangesetWatcher", payload, subject, cloudevents.ApplicationXML)
+	if err != nil {
+		logger.Error("cloudevents wrapper could not be created: ", err.Error())
+		return
+	}
+	eventBytes, err := json.Marshal(event)
+	if err != nil {
+		logger.Error("Event could not be serialized", err.Error())
+		return
+	}
+
+	var b bytes.Buffer
+	w := gzip.NewWriter(&b)
+
+	w.Write(eventBytes)
+	w.Close()
+
+	zippedBytes := b.Bytes()
+
+	logger.Info("publishing new changeset to " + subject + " ...")
+	err = nc.Publish(subject, zippedBytes)
 	if err != nil {
 		logger.Error("failed to publish new change set to subject ["+subject+"]: ", err.Error())
 	}

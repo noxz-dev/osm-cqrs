@@ -45,12 +45,12 @@ func BuildChangeSetUrl(seqNumber int) (string, error) {
 	return url, nil
 }
 
-func CreateEvent(source string, payload interface{}, subject string) (*event.Event, error) {
+func CreateEvent(source string, payload interface{}, subject string, contentType string) (*event.Event, error) {
 	natsPublishEvent := cloudevents.NewEvent()
 	natsPublishEvent.SetID(uuid.New().String())
 	natsPublishEvent.SetSource(source)
 	natsPublishEvent.SetType(subject + "Event")
-	err := natsPublishEvent.SetData(cloudevents.ApplicationJSON, payload)
+	err := natsPublishEvent.SetData(contentType, payload)
 
 	return &natsPublishEvent, err
 }
