@@ -101,7 +101,6 @@ func main() {
 		}
 
 		reader, err := gzip.NewReader(resp.Body)
-		resp.Body.Close()
 
 		if err != nil {
 			logger.Error(err.Error())
@@ -109,6 +108,7 @@ func main() {
 		}
 
 		body, _ = io.ReadAll(reader)
+		resp.Body.Close()
 		logIfFailing(stat.StopTimerAndSetDuration(config.DurationChangSetDownload))
 		logger.Info("parsing xml ...")
 		osm := types.OsmChange{}
@@ -296,10 +296,11 @@ func reduceWaysToSearchPoints(ways []types.Way, nodes []types.Node) []types.Sear
 		for _, nr := range way.NodeRefs {
 			for _, n := range nodes {
 				if n.Id == nr.Ref {
-					wayNodes = append(nodes, n)
+					wayNodes = append(wayNodes, n)
 				}
 			}
 		}
+
 		centroid := utils.CalculateCentroid(&wayNodes)
 
 		name, err := way.GetTag("name")
