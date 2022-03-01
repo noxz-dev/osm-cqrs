@@ -1,5 +1,7 @@
 package types
 
+import "encoding/xml"
+
 type Osm struct {
 	Version   string      `xml:"version"`
 	ChageSets []ChangeSet `xml:"changeset"`
@@ -26,6 +28,13 @@ type OsmChange struct {
 	Modify []Action `xml:"modify"`
 	Create []Action `xml:"create"`
 	Delete []Action `xml:"delete"`
+}
+
+type OsmChangeNormalizedXML struct {
+	XMLName xml.Name `xml:"osmChange"`
+	Modify  Action   `json:"modify"`
+	Create  Action   `json:"create"`
+	Delete  Action   `json:"delete"`
 }
 type OsmChangeNormalized struct {
 	Modify   Action `json:"modify"`
