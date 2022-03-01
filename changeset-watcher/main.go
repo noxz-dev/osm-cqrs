@@ -59,7 +59,9 @@ func main() {
 
 		if err != nil {
 			fmt.Println(err.Error())
-			return
+			err = nil
+			logger.Info("try same http request again...")
+			continue
 		}
 
 		body, _ := io.ReadAll(resp.Body)
@@ -89,7 +91,14 @@ func main() {
 
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			err = nil
+			logger.Info("try same http request again...")
+			resp, err = http.Get(url)
+		}
+
+		if err != nil {
+			logger.Error(err.Error())
+			continue
 		}
 
 		reader, err := gzip.NewReader(resp.Body)
