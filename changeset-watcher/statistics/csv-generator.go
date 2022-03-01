@@ -61,9 +61,9 @@ func (statistic *Statistic) BeginnColum() error {
 	}
 	statistic.state = Collecting
 	now := time.Now()
-	for _, field := range statistic.fields {
-		field.value = ""
-		field.startTime = now
+	for i, _ := range statistic.fields {
+		statistic.fields[i].value = ""
+		statistic.fields[i].startTime = now
 	}
 	return nil
 }
@@ -91,9 +91,9 @@ func (statistic *Statistic) StartTimer(fieldName string) error {
 		return errors.New("this operation is not allowed, because this statistic is closed")
 	}
 
-	for _, field := range statistic.fields {
+	for i, field := range statistic.fields {
 		if field.name == fieldName {
-			field.startTime = time.Now()
+			statistic.fields[i].startTime = time.Now()
 		}
 	}
 

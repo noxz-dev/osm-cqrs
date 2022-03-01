@@ -54,7 +54,7 @@ func (osmChange OsmChange) Normalize() OsmChangeNormalized {
 
 }
 
-func (normalized *OsmChangeNormalized) size() int {
+func (normalized *OsmChangeNormalized) Size() int {
 	return normalized.Delete.Size() + normalized.Modify.Size() + normalized.Create.Size() + normalized.Reloaded.Size()
 }
 

@@ -10,6 +10,7 @@ import (
 	"noxz.dev/changeset-watcher/statistics"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 
 	gzip "github.com/klauspost/pgzip"
@@ -108,6 +109,7 @@ func main() {
 			return
 		}
 		osmNormalized := osm.Normalize()
+		statistic.SetValue(config.NumberOfIncomingElements, strconv.Itoa(osmNormalized.Size()))
 		logger.Info("reloading missing nodes referenced by ways...")
 		statistic.StartTimer(config.DurationNodesReloading)
 		reloaded, err := osmNormalized.Reload()
@@ -118,30 +120,42 @@ func main() {
 			err = nil
 		}
 		logger.Info("missing nodes reloaded")
-		err = statistic.EndColum()
-		if err != nil {
-			logger.Error(err.Error())
-			return
-		}
-		go sendAllChangesets(nc, osmNormalized)
-		go sendRoutingChangesets(nc, osmNormalized)
-		go sendSearchChangesets(nc, osmNormalized)
+		wg := new(sync.WaitGroup)
+		wg.Add(3)
+		go sendAllChangesets(nc, osmNormalized, wg)
+		go sendRoutingChangesets(nc, osmNormalized, wg)
+		go sendSearchChangesets(nc, osmNormalized, wg)
+		wg.Wait()
+		_ = statistic.EndColum()
 	}
 }
 
-func sendSearchChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+func sendSearchChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
+	defer wg.Done()
+	err := statistic.StartTimer(config.DurationForSearchFiltering)
+	if err != nil {
+		logger.Error(err.Error())
+	}
 	searchPayload := generateSearchEventPayload(normalized)
 	publishEvent(nc, config.SearchSubject, searchPayload)
+	statistic.StopTimerAndSetDuration(config.DurationForSearchFiltering)
+	statistic.SetValue(config.NumberOfPublishedSearchElements, strconv.Itoa(searchPayload.Size()))
 
 }
 
-func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
+	defer wg.Done()
+	statistic.StartTimer(config.DurationForRoutesFiltering)
 	streets := normalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
 	publishEvent(nc, config.RoutingSubject, streets)
+	statistic.StopTimerAndSetDuration(config.DurationForRoutesFiltering)
+	statistic.SetValue(config.NumberOfPublishedRoutingElements, strconv.Itoa(streets.Size()))
 }
 
-func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
+	defer wg.Done()
 	publishEvent(nc, config.AllSubject, normalized)
+	statistic.SetValue(config.NumberOfPublishedElements, strconv.Itoa(normalized.Size()))
 }
 
 func publishEvent(nc *nats.Conn, subject string, payload interface{}) {
