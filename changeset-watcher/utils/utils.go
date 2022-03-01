@@ -30,7 +30,7 @@ func ExtractSeqNumber(body *string) (int, error) {
 	return seqNumber, nil
 }
 
-func BuildChangeSetUrl(seqNumber int) (string, error) {
+func BuildChangeSetUrl(seqNumber int) string {
 
 	seq := fmt.Sprint("000000000", seqNumber)
 	seqShorted := seq[len(seq)-9:]
@@ -42,7 +42,7 @@ func BuildChangeSetUrl(seqNumber int) (string, error) {
 		result += string(s)
 	}
 	url := "https://planet.openstreetmap.org/replication/minute/" + fmt.Sprint(result) + ".osc.gz"
-	return url, nil
+	return url
 }
 
 func CreateEvent(source string, payload interface{}, subject string, contentType string) (*event.Event, error) {

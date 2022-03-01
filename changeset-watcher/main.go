@@ -42,9 +42,7 @@ func main() {
 	}
 	var url string
 
-	url = os.Getenv("NATS_IP")
-
-	if url == "" {
+	if url := os.Getenv("NATS_IP"); url == "" {
 		url = nats.DefaultURL
 	}
 
@@ -52,7 +50,7 @@ func main() {
 	defer nc.Close()
 
 	if err != nil {
-		logger.Errorf("Failed to connect to the NATS-Server: \n%s \n", err.Error())
+		logger.Fatalf("Failed to connect to the NATS-Server: \n%s \n", err.Error())
 		return
 	}
 
@@ -72,7 +70,7 @@ func main() {
 		body, _ := io.ReadAll(resp.Body)
 		stringBody := string(body)
 
-		seq, err := utils.ExtractSeqNumber(&stringBody)
+		seq, _ := utils.ExtractSeqNumber(&stringBody)
 
 		if oldSeq >= seq {
 			logger.Info("no new sequence number found... waiting for ", config.SequenceNumberPollingInterval, " sec")
@@ -84,12 +82,7 @@ func main() {
 
 		logger.Info("new sequence number:" + fmt.Sprint(seq) + " parsing....")
 
-		url, err := utils.BuildChangeSetUrl(seq)
-
-		if err != nil {
-			logger.Error(err.Error())
-			return
-		}
+		url := utils.BuildChangeSetUrl(seq)
 
 		logger.Info("fetching " + url)
 		logIfFailing(stat.StartTimer(config.DurationChangSetDownload))
@@ -108,10 +101,11 @@ func main() {
 		}
 
 		reader, err := gzip.NewReader(resp.Body)
+		resp.Body.Close()
 
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			continue
 		}
 
 		body, _ = io.ReadAll(reader)
@@ -121,7 +115,7 @@ func main() {
 		err = xml.Unmarshal(body, &osm)
 		if err != nil {
 			logger.Error(err)
-			return
+			continue
 		}
 
 		osmNormalized := osm.Normalize()
