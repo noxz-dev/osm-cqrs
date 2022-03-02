@@ -35,7 +35,7 @@ func getNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
 	nodes = make([]Node, 0)
 	var overpassAnswer OverPassAnswer
 	prefixString := "[out:xml][timeout:500];node(id: "
-	postfixString := "0);out;"
+	postfixString := "0);out meta;"
 
 	bodyBuilder := strings.Builder{}
 	bodyBuilder.WriteString(prefixString)

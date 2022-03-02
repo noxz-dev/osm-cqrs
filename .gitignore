@@ -2,8 +2,6 @@
 *.osc
 .DS_Store
 .idea
-<<<<<<< HEAD
 *.log
-=======
 volumes
->>>>>>> 966506a35711fd42c77adbf65192333b8426e023
+*statistics.csv

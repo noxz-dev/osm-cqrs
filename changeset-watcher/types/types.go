@@ -111,3 +111,7 @@ const (
 	DELETE_EVENT = "DELETE"
 	CREATE_EVENT = "CREATE"
 )
+
+func (payload *SearchPayload) Size() int {
+	return len(payload.Delete) + len(payload.Modify) + len(payload.Create)
+}

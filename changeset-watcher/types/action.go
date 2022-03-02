@@ -9,6 +9,10 @@ func (action Action) ContainsNodeByRef(ref NodeRef) bool {
 	return false
 }
 
+func (action *Action) Size() int {
+	return len(action.Ways) + len(action.Relations) + len(action.Nodes)
+}
+
 func (action *Action) DeleteAllNodesExcept(usedNodes map[int]struct{}) {
 	filteredNodes := make([]Node, 0)
 	for _, node := range action.Nodes {

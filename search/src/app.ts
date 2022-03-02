@@ -5,6 +5,7 @@ import { logger } from './services/logger';
 import { client } from './services/es';
 import { nc } from './services/nats';
 import { StringCodec } from 'nats';
+import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 
 const app = express();
 const sc = StringCodec();
@@ -36,12 +37,12 @@ app.post('/addData', async (req, res) => {
 async function subscribeToEvents() {
   const sub = nc.subscribe('search');
   for await (const m of sub) {
+    const startTime = performance.now();
+
     const data = sc.decode(m.data) as any;
     const event = JSON.parse(data);
 
     if (!event.data) return;
-
-    console.time('fullPayload');
 
     try {
       const modify = event.data.Modify as SearchPoint[];
@@ -74,7 +75,12 @@ async function subscribeToEvents() {
       logger.error(err);
     }
 
-    console.timeEnd('fullPayload');
+    const endTime = performance.now();
+    logger.info(
+      `processing the full search payload took ${(endTime - startTime).toFixed(
+        3
+      )} ms`
+    );
 
     await client.indices.refresh({ index: 'osm' });
   }
@@ -82,7 +88,7 @@ async function subscribeToEvents() {
 
 async function insertDocument(sp: SearchPoint) {
   try {
-    console.time('insertDocument');
+    const startTime = performance.now();
     await client.update({
       index: 'osm',
       id: sp.Id,
@@ -96,7 +102,8 @@ async function insertDocument(sp: SearchPoint) {
       },
       doc_as_upsert: true,
     });
-    console.timeEnd('insertDocument');
+    const endTime = performance.now();
+    logger.info(`insert document took ${(endTime - startTime).toFixed(3)} ms`);
   } catch (err: any) {
     logger.error(err);
   }
@@ -104,10 +111,14 @@ async function insertDocument(sp: SearchPoint) {
 
 async function removeDocument(sp: SearchPoint) {
   try {
+    const startTime = performance.now();
+
     await client.delete({
       index: 'osm',
       id: sp.Id,
     });
+    const endTime = performance.now();
+    logger.info(`delete document took ${(endTime - startTime).toFixed(3)} ms`);
   } catch (err: any) {
     logger.error(err);
   }
@@ -188,51 +199,125 @@ app.get('/all', async (req, res) => {
 });
 
 app.get('/searchByName', async (req, res) => {
-  const { name } = req.body;
-  if (!name) {
-    res.status(400).send('no query specified');
-  }
+  try {
+    const { name } = req.body;
+    if (!name) {
+      res.status(400).send('no query specified');
+    }
 
-  const result = await client.search({
-    index: 'osm',
-    query: {
-      match: {
-        name: name as string,
+    const result = await client.search({
+      index: 'osm',
+      query: {
+        match: {
+          name: {
+            query: name,
+            fuzziness: 'AUTO',
+            operator: 'AND',
+          },
+        },
       },
-    },
-  });
+    });
 
-  res.send(result.hits.hits);
+    res.send(result.hits.hits);
+  } catch (err) {
+    res.status(400).send();
+  }
 });
 
-app.get('/searchByNameFuzzy', async (req, res) => {
-  const { name } = req.body;
-  if (!name) {
-    res.status(400).send('no query specified');
-  }
+app.get('/searchByAddress', async (req, res) => {
+  try {
+    const {
+      city,
+      housenumber,
+      street,
+      amenity,
+    }: { city: string; housenumber: string; street: string; amenity: string } =
+      req.body;
 
-  const result = await client.search({
-    index: 'osm',
-    query: {
-      multi_match: {
-        fuzziness: 'AUTO',
-        operator: 'AND',
-        fields: ['name'],
-        query: name,
+    const query = [];
+
+    if (city && city.length > 1) {
+      query.push({ match: { 'tags.K': 'addr:city' } });
+      query.push({
+        match: {
+          'tags.V': {
+            query: city,
+            operator: 'AND',
+          },
+        },
+      });
+    }
+
+    if (housenumber && housenumber.length > 1) {
+      query.push({ match: { 'tags.K': 'addr:housenumber' } });
+      query.push({ match: { 'tags.V': housenumber } });
+    }
+
+    if (street && street.length > 1) {
+      query.push({ match: { 'tags.K': 'addr:street' } });
+      query.push({
+        match: {
+          'tags.V': {
+            query: street,
+            operator: 'AND',
+            fuziness: 'AUTO',
+          },
+        },
+      });
+    }
+
+    if (amenity && amenity.length > 1) {
+      query.push({ match: { 'tags.K': 'amenity' } });
+      query.push({ match: { 'tags.V': amenity } });
+    }
+
+    if (query.length === 0) {
+      res.send([]);
+      return;
+    }
+
+    const result = await client.search({
+      index: 'osm',
+      query: {
+        bool: {
+          must: query as QueryDslQueryContainer[],
+        },
       },
-    },
-  });
+    });
 
-  res.send(result.hits.hits);
+    res.send(result.hits.hits);
+  } catch (err) {
+    logger.error(err);
+    res.status(400).send();
+  }
 });
+
+// app.get('/searchByNameFuzzy', async (req, res) => {
+//   const { name } = req.body;
+//   if (!name) {
+//     res.status(400).send('no query specified');
+//   }
+
+//   const result = await client.search({
+//     index: 'osm',
+//     query: {
+//       multi_match: {
+//         fuzziness: 'AUTO',
+//         fields: ['name'],
+//         query: name,
+//       },
+//     },
+//   });
+
+//   res.send(result.hits.hits);
+// });
 
 app.get('/rawQuery', async (req, res) => {
-  const { query } = req.body;
-  if (!query) {
-    res.status(400).send('no query specified');
-  }
-
   try {
+    const { query } = req.body;
+    if (!query) {
+      res.status(400).send('no query specified');
+    }
     const result = await client.search(query);
     res.send(result);
   } catch (err) {

@@ -8,9 +8,12 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
+	"sync"
 	"time"
 
 	"noxz.dev/changeset-watcher/config"
+	"noxz.dev/changeset-watcher/statistics"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	gzip "github.com/klauspost/pgzip"
@@ -22,14 +25,25 @@ import (
 )
 
 var logger = log.New(os.Stderr)
+var stat = statistics.NewStatistic("watcher.statistics.csv",
+	config.NumberOfIncomingElements,
+	config.DurationChangSetDownload,
+	config.DurationNodesReloading,
+	config.NumberOfReloadedNodes,
+	config.NumberOfPublishedElements,
+	config.NumberOfPublishedRoutingElements,
+	config.DurationForRoutesFiltering,
+	config.NumberOfPublishedSearchElements,
+	config.DurationForSearchFiltering)
 
 func main() {
-
+	defer stat.Close()
+	if !config.CollectStatistics {
+		stat.Close()
+	}
 	var url string
 
-	url = os.Getenv("NATS_IP")
-
-	if url == "" {
+	if url := os.Getenv("NATS_IP"); url == "" {
 		url = nats.DefaultURL
 	}
 
@@ -37,7 +51,7 @@ func main() {
 	defer nc.Close()
 
 	if err != nil {
-		logger.Errorf("Failed to connect to the NATS-Server: \n%s \n", err.Error())
+		logger.Fatalf("Failed to connect to the NATS-Server: \n%s \n", err.Error())
 		return
 	}
 
@@ -49,77 +63,106 @@ func main() {
 
 		if err != nil {
 			fmt.Println(err.Error())
-			return
+			err = nil
+			logger.Info("try same http request again...")
+			continue
 		}
 
 		body, _ := io.ReadAll(resp.Body)
 		stringBody := string(body)
 
-		seq, err := utils.ExtractSeqNumber(&stringBody)
+		seq, _ := utils.ExtractSeqNumber(&stringBody)
 
 		if oldSeq >= seq {
 			logger.Info("no new sequence number found... waiting for ", config.SequenceNumberPollingInterval, " sec")
 			time.Sleep(config.SequenceNumberPollingInterval * time.Second)
 			continue
 		}
+		logIfFailing(stat.BeginnColum())
 		oldSeq = seq
 
 		logger.Info("new sequence number:" + fmt.Sprint(seq) + " parsing....")
 
-		url, err := utils.BuildChangeSetUrl(seq)
-
-		if err != nil {
-			logger.Error(err.Error())
-			return
-		}
+		url := utils.BuildChangeSetUrl(seq)
 
 		logger.Info("fetching " + url)
-
+		logIfFailing(stat.StartTimer(config.DurationChangSetDownload))
 		resp, err = http.Get(url)
 
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			err = nil
+			logger.Info("try same http request again...")
+			resp, err = http.Get(url)
+		}
+
+		if err != nil {
+			logger.Error(err.Error())
+			continue
 		}
 
 		reader, err := gzip.NewReader(resp.Body)
 
 		if err != nil {
 			logger.Error(err.Error())
-			return
+			continue
 		}
 
 		body, _ = io.ReadAll(reader)
-
+		resp.Body.Close()
+		logIfFailing(stat.StopTimerAndSetDuration(config.DurationChangSetDownload))
 		logger.Info("parsing xml ...")
 		osm := types.OsmChange{}
 		err = xml.Unmarshal(body, &osm)
 		if err != nil {
 			logger.Error(err)
-			return
+			continue
 		}
-		osmNormalized := osm.Normalize()
-		logger.Info("reloading missing nodes referenced by ways...")
-		err = osmNormalized.Reload()
-		if err != nil {
-			logger.Error("error while reloading missing nodes: ", err.Error())
-			err = nil
-		}
-		logger.Info("missing nodes reloaded")
 
-		go sendAllChangesets(nc, osmNormalized)
-		go sendRoutingChangesets(nc, osmNormalized)
-		go sendSearchChangesets(nc, osmNormalized)
+		osmNormalized := osm.Normalize()
+
+		reloadNodes(&osmNormalized)
+
+		wg := new(sync.WaitGroup)
+		wg.Add(3)
+		go sendAllChangesets(nc, osmNormalized, wg)
+		go sendRoutingChangesets(nc, osmNormalized, wg)
+		go sendSearchChangesets(nc, osmNormalized, wg)
+		wg.Wait()
+		logIfFailing(stat.EndColum())
 	}
 }
 
-func sendSearchChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+func reloadNodes(osmNormalized *types.OsmChangeNormalized) {
+	logIfFailing(stat.SetValue(config.NumberOfIncomingElements, strconv.Itoa(osmNormalized.Size())))
+	logger.Info("reloading missing nodes referenced by ways...")
+	logIfFailing(stat.StartTimer(config.DurationNodesReloading))
+	reloaded, err := osmNormalized.Reload()
+	logIfFailing(stat.StopTimerAndSetDuration(config.DurationNodesReloading))
+	logIfFailing(stat.SetValue(config.NumberOfReloadedNodes, strconv.Itoa(reloaded)))
+	if err != nil {
+		logger.Error("error while reloading missing nodes: ", err.Error())
+		return
+	}
+	logger.Info("missing nodes reloaded")
+}
+
+func sendSearchChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
+	defer wg.Done()
+	err := stat.StartTimer(config.DurationForSearchFiltering)
+	if err != nil {
+		logger.Error(err.Error())
+	}
 	searchPayload := generateSearchEventPayload(normalized)
 	publishEvent(nc, config.SearchSubject, searchPayload, cloudevents.ApplicationJSON)
+	logIfFailing(stat.StopTimerAndSetDuration(config.DurationForSearchFiltering))
+	logIfFailing(stat.SetValue(config.NumberOfPublishedSearchElements, strconv.Itoa(searchPayload.Size())))
 
 }
 
-func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
+	defer wg.Done()
+	logIfFailing(stat.StartTimer(config.DurationForRoutesFiltering))
 	streets := normalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
 	createAction := types.Action{
 		Nodes:     append(streets.Create.Nodes, streets.Reloaded.Nodes...),
@@ -159,9 +202,12 @@ func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) 
 	fmt.Println(len(zippedBytes))
 
 	publishEvent(nc, config.RoutingSubject, zippedBytes, "text/plain")
+	logIfFailing(stat.StopTimerAndSetDuration(config.DurationForRoutesFiltering))
+	logIfFailing(stat.SetValue(config.NumberOfPublishedRoutingElements, strconv.Itoa(streets.Size())))
 }
 
-func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
+func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
+	defer wg.Done()
 
 	createAction := types.Action{
 		Nodes:     append(normalized.Create.Nodes, normalized.Reloaded.Nodes...),
@@ -201,6 +247,8 @@ func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
 	fmt.Println(len(zippedBytes))
 
 	publishEvent(nc, config.AllSubject, zippedBytes, "text/plain")
+	logIfFailing(stat.SetValue(config.NumberOfPublishedElements, strconv.Itoa(normalized.Size())))
+
 }
 
 func publishEvent(nc *nats.Conn, subject string, payload interface{}, contentType string) {
@@ -297,10 +345,11 @@ func reduceWaysToSearchPoints(ways []types.Way, nodes []types.Node) []types.Sear
 		for _, nr := range way.NodeRefs {
 			for _, n := range nodes {
 				if n.Id == nr.Ref {
-					wayNodes = append(nodes, n)
+					wayNodes = append(wayNodes, n)
 				}
 			}
 		}
+
 		centroid := utils.CalculateCentroid(&wayNodes)
 
 		name, err := way.GetTag("name")
@@ -348,5 +397,12 @@ func reduceNodesToSearchPoints(nodes []types.Node) []types.SearchPoint {
 	}
 
 	return searchPoints
+
+}
+
+func logIfFailing(err error) {
+	if err != nil {
+		logger.Error(err.Error())
+	}
 
 }
