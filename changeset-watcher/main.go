@@ -142,8 +142,17 @@ func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) 
 	var b bytes.Buffer
 	w := gzip.NewWriter(&b)
 
-	w.Write(xmlData)
-	w.Close()
+	_, err = w.Write(xmlData)
+	if err != nil {
+		logger.Error(err.Error())
+		return
+	}
+
+	err = w.Close()
+	if err != nil {
+		logger.Error(err.Error())
+		return
+	}
 
 	zippedBytes := b.Bytes()
 
@@ -153,7 +162,45 @@ func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) 
 }
 
 func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized) {
-	publishEvent(nc, config.AllSubject, normalized, cloudevents.ApplicationJSON)
+
+	createAction := types.Action{
+		Nodes:     append(normalized.Create.Nodes, normalized.Reloaded.Nodes...),
+		Ways:      append(normalized.Create.Ways, normalized.Reloaded.Ways...),
+		Relations: append(normalized.Create.Relations, normalized.Reloaded.Relations...),
+	}
+
+	xmlContent := types.OsmChangeNormalizedXML{
+		Create: createAction,
+		Modify: normalized.Modify,
+		Delete: normalized.Delete,
+	}
+
+	xmlData, err := xml.MarshalIndent(xmlContent, " ", "    ")
+	if err != nil {
+		logger.Error(err.Error())
+	}
+	xmlData = []byte(xml.Header + string(xmlData))
+
+	var b bytes.Buffer
+	w := gzip.NewWriter(&b)
+
+	_, err = w.Write(xmlData)
+	if err != nil {
+		logger.Error(err.Error())
+		return
+	}
+
+	err = w.Close()
+	if err != nil {
+		logger.Error(err.Error())
+		return
+	}
+
+	zippedBytes := b.Bytes()
+
+	fmt.Println(len(zippedBytes))
+
+	publishEvent(nc, config.AllSubject, zippedBytes, "text/plain")
 }
 
 func publishEvent(nc *nats.Conn, subject string, payload interface{}, contentType string) {
