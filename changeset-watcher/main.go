@@ -24,7 +24,7 @@ import (
 )
 
 var logger = log.New(os.Stderr)
-var stat = statistics.NewStatistic("watcher-statistics.csv",
+var stat = statistics.NewStatistic("watcher.statistics.csv",
 	config.NumberOfIncomingElements,
 	config.DurationChangSetDownload,
 	config.DurationNodesReloading,
