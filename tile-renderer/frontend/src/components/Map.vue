@@ -1,110 +1,109 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
 import { Map } from 'maplibre-gl';
-
-// style: 'https://demotiles.maplibre.org/style.json', // stylesheet location,
-
+import { onMounted } from 'vue';
+import { aeroway } from '../mapStyles/aeroways';
+import { boundaries } from '../mapStyles/boundaries';
+import { bridges } from '../mapStyles/bridges';
+import { building } from '../mapStyles/building';
+import { landuse } from '../mapStyles/landuse';
+import { roads } from '../mapStyles/roads';
+import { tunnel } from '../mapStyles/tunnels';
+import { water } from '../mapStyles/water';
 onMounted(() => {
   const map = new Map({
     container: 'map',
+    center: [9.7255, 52.36643],
+    zoom: 15,
     style: {
       version: 8,
-      name: '',
       sources: {
-        streets: {
+        martin: {
           type: 'vector',
-          url: 'http://localhost:3000/public.osm_roads.json'
-        },
-        landusages: {
-          type: 'vector',
-          url: 'http://localhost:3000/public.osm_landusages.json'
+          url: 'http://localhost:3000/public.osm_waterways,public.osm_landusages,public.osm_admin,public.osm_buildings,public.osm_roads,public.osm_aeroways,public.osm_waterways,public.osm_waterareas.json'
         }
       },
       layers: [
         {
-          id: 'landuse',
-          type: 'fill',
-          source: 'landusages',
-          'source-layer': 'public.osm_landusages',
-          minzoom: 5,
-
-          paint: {
-            'fill-color': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              15,
-              [
-                'match',
-                ['get', 'class'],
-                'park',
-                'hsl(99, 57%, 75%)',
-                'airport',
-                'hsl(230, 15%, 91%)',
-                'cemetery',
-                'hsl(81, 28%, 81%)',
-                'glacier',
-                'hsl(196, 60%, 85%)',
-                'hospital',
-                'hsl(340, 37%, 87%)',
-                'pitch',
-                'hsl(99, 58%, 70%)',
-                'sand',
-                'hsl(56, 47%, 87%)',
-                'school',
-                'hsl(50, 48%, 81%)',
-                'hsl(35, 16%, 85%)'
-              ],
-              16,
-              [
-                'match',
-                ['get', 'class'],
-                'park',
-                'hsl(99, 57%, 75%)',
-                'airport',
-                'hsl(230, 29%, 89%)',
-                'cemetery',
-                'hsl(81, 28%, 81%)',
-                'glacier',
-                'hsl(196, 60%, 85%)',
-                'hospital',
-                'hsl(340, 63%, 89%)',
-                'pitch',
-                'hsl(99, 58%, 70%)',
-                'sand',
-                'hsl(56, 47%, 87%)',
-                'school',
-                'hsl(50, 48%, 81%)',
-                'hsl(35, 16%, 85%)'
-              ]
-            ],
-            'fill-opacity': [
-              'interpolate',
-              ['linear'],
-              ['zoom'],
-              5,
-              0,
-              6,
-              ['match', ['get', 'class'], 'glacier', 0.5, 1]
-            ]
-          }
+          id: 'background',
+          type: 'background',
+          paint: { 'background-color': 'rgb(239,239,239)' }
         },
-        {
-          id: 'streets',
-          source: 'streets',
-          'source-layer': 'public.osm_roads',
-          type: 'line',
-          paint: {
-            'line-color': '#000'
-          }
-        }
-      ]
-    },
-    center: [0, 0],
-    zoom: 0
-  });
+        landuse.park_base,
+        landuse.park_outline,
+        landuse.residential,
+        landuse.wood,
+        landuse.grass,
+        landuse.cementry,
+        landuse.hospital,
+        landuse.school,
 
-  console.log(map);
+        water.river,
+        water.other,
+        water.areas,
+
+        aeroway.fill,
+        aeroway.runway,
+        aeroway.taxiway,
+
+        tunnel.motorway_link_casing,
+        tunnel.service_track_casing,
+        tunnel.link_casing,
+        tunnel.street_casing,
+        tunnel.seconday_tetiary_casing,
+        tunnel.motorway_casing,
+        tunnel.path_pedestrian,
+        tunnel.motorway_link,
+        tunnel.service_track,
+        tunnel.link,
+        tunnel.residental,
+        tunnel.secondary_tertiary,
+        tunnel.trunk_primary,
+        tunnel.motorway,
+        tunnel.major_rail,
+        tunnel.major_rail_hatching,
+
+        roads.residential_base,
+        roads.residential_casting,
+        roads.motorway_link_casing,
+        roads.service_track_casing,
+        roads.link_casing,
+        roads.secondary_tertiary_casing,
+        roads.trunk_primary_casing,
+        roads.motorway_casing,
+        roads.path_pedestrian,
+        roads.motorway_link,
+        roads.service_track,
+        roads.link,
+        roads.seconday_tetiary,
+        roads.trunk_primary,
+        roads.motorway,
+        roads.major_rail,
+        roads.major_rail_hatching,
+
+        bridges.motorway_link_casing,
+        bridges.service_track_casing,
+        bridges.street_casing,
+        bridges.path_pedestrian_casing,
+        bridges.secondary_tertiary_casing,
+        bridges.trunk_primary_casing,
+        bridges.motorway_casing,
+        bridges.motorway_link,
+        bridges.service_track,
+        bridges.street,
+        bridges.secondary_tertiary,
+        bridges.trunk_primary,
+        bridges.motorway,
+        bridges.major_rail,
+        bridges.major_rail_hatching,
+
+        building.area,
+
+        boundaries._3,
+        boundaries._2_z0_4,
+        boundaries._2_z5_
+      ]
+    }
+  });
 });
 </script>
 

@@ -37,8 +37,6 @@ func main() {
 	_, err = nc.Subscribe("routing", func(msg *nats.Msg) {
 		log.Printf("Received message")
 
-		//start := time.Now()
-
 		cloudEvent := cloudevents.NewEvent()
 
 		_ = json.Unmarshal(msg.Data, &cloudEvent)
