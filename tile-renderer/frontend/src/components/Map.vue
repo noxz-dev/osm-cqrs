@@ -5,6 +5,9 @@ import { aeroway } from '../mapStyles/aeroways';
 import { boundaries } from '../mapStyles/boundaries';
 import { bridges } from '../mapStyles/bridges';
 import { building } from '../mapStyles/building';
+import { amenities } from '../mapStyles/labels/landuse';
+import { road_labels } from '../mapStyles/labels/roads';
+import { water_labels } from '../mapStyles/labels/water';
 import { landuse } from '../mapStyles/landuse';
 import { roads } from '../mapStyles/roads';
 import { tunnel } from '../mapStyles/tunnels';
@@ -17,11 +20,13 @@ onMounted(() => {
     style: {
       version: 8,
       sources: {
-        martin: {
+        osm_cqrs: {
           type: 'vector',
-          url: 'http://localhost:3000/public.osm_waterways,public.osm_landusages,public.osm_admin,public.osm_buildings,public.osm_roads,public.osm_aeroways,public.osm_waterways,public.osm_waterareas.json'
+          url: 'http://localhost:8080/capabilities/osm_cqrs.json'
         }
       },
+      sprite: 'https://go-spatial.github.io/carto-assets/spritesets/osm_tegola_spritesheet',
+      glyphs: 'https://go-spatial.github.io/carto-assets/fonts/{fontstack}/{range}.pbf',
       layers: [
         {
           id: 'background',
@@ -48,8 +53,8 @@ onMounted(() => {
         tunnel.motorway_link_casing,
         tunnel.service_track_casing,
         tunnel.link_casing,
-        tunnel.street_casing,
         tunnel.seconday_tetiary_casing,
+        tunnel.primary_casing,
         tunnel.motorway_casing,
         tunnel.path_pedestrian,
         tunnel.motorway_link,
@@ -62,8 +67,8 @@ onMounted(() => {
         tunnel.major_rail,
         tunnel.major_rail_hatching,
 
-        roads.residential_base,
         roads.residential_casting,
+        roads.residential_base,
         roads.motorway_link_casing,
         roads.service_track_casing,
         roads.link_casing,
@@ -82,14 +87,12 @@ onMounted(() => {
 
         bridges.motorway_link_casing,
         bridges.service_track_casing,
-        bridges.street_casing,
         bridges.path_pedestrian_casing,
         bridges.secondary_tertiary_casing,
         bridges.trunk_primary_casing,
         bridges.motorway_casing,
         bridges.motorway_link,
         bridges.service_track,
-        bridges.street,
         bridges.secondary_tertiary,
         bridges.trunk_primary,
         bridges.motorway,
@@ -98,9 +101,15 @@ onMounted(() => {
 
         building.area,
 
-        boundaries._3,
-        boundaries._2_z0_4,
-        boundaries._2_z5_
+        boundaries._1_2,
+        boundaries._3_4,
+        boundaries._5_6,
+        boundaries._7_8,
+        // boundaries._9_10,
+
+        road_labels.z14,
+        water_labels.areas_z15,
+        amenities.park
       ]
     }
   });

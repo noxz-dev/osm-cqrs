@@ -3,9 +3,8 @@ import { LayerSpecification } from 'maplibre-gl';
 const park_base: LayerSpecification = {
   id: 'park',
   type: 'fill',
-  source: 'martin',
-  'source-layer': 'public.osm_landusages',
-  filter: ['all', ['==', 'type', 'park']],
+  source: 'osm_cqrs',
+  'source-layer': 'landuse_park',
   paint: {
     'fill-color': '#d8e8c8',
     'fill-opacity': 0.7,
@@ -16,9 +15,8 @@ const park_base: LayerSpecification = {
 const park_outline: LayerSpecification = {
   id: 'park_outline',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_landusages',
-  filter: ['all', ['==', 'type', 'park']],
+  source: 'osm_cqrs',
+  'source-layer': 'landuse_park',
   paint: {
     'line-dasharray': [1, 1.5],
     'line-color': 'rgba(228, 241, 215, 1)'
@@ -28,10 +26,9 @@ const park_outline: LayerSpecification = {
 const residential: LayerSpecification = {
   id: 'landuse_residential',
   type: 'fill',
-  source: 'martin',
+  source: 'osm_cqrs',
   maxzoom: 8,
-  'source-layer': 'public.osm_landusages',
-  filter: ['==', 'type', 'residential'],
+  'source-layer': 'landuse_residential',
   paint: {
     'fill-color': {
       base: 1,
@@ -46,9 +43,8 @@ const residential: LayerSpecification = {
 const wood: LayerSpecification = {
   id: 'landcover_wood',
   type: 'fill',
-  source: 'martin',
-  'source-layer': 'public.osm_landusages',
-  filter: ['all', ['in', 'type', 'wood', 'forest']],
+  source: 'osm_cqrs',
+  'source-layer': 'landuse_wood',
   paint: {
     'fill-antialias': false,
     'fill-color': 'hsla(98, 61%, 72%, 0.7)',
@@ -59,9 +55,8 @@ const wood: LayerSpecification = {
 const grass: LayerSpecification = {
   id: 'landcover_grass',
   type: 'fill',
-  source: 'martin',
-  'source-layer': 'public.osm_landusages',
-  filter: ['all', ['in', 'type', 'grass', 'garden', 'meadow', 'pitch', 'common', 'recreation_ground']],
+  source: 'osm_cqrs',
+  'source-layer': 'landuse_grass',
   paint: {
     'fill-antialias': false,
     'fill-color': 'rgba(176, 213, 154, 1)',
@@ -72,27 +67,24 @@ const grass: LayerSpecification = {
 const cementry: LayerSpecification = {
   id: 'landuse_cemetery',
   type: 'fill',
-  source: 'martin',
-  'source-layer': 'public.osm_landusages',
-  filter: ['==', 'type', 'cemetery'],
+  source: 'osm_cqrs',
+  'source-layer': 'landuse_cemetery',
   paint: { 'fill-color': 'hsl(75, 37%, 81%)' }
 };
 
 const hospital: LayerSpecification = {
   id: 'landuse_hospital',
   type: 'fill',
-  source: 'martin',
-  'source-layer': 'public.osm_landusages',
-  filter: ['==', 'type', 'hospital'],
+  source: 'osm_cqrs',
+  'source-layer': 'landuse_hospital',
   paint: { 'fill-color': '#fde' }
 };
 
 const school: LayerSpecification = {
   id: 'landuse_school',
   type: 'fill',
-  source: 'martin',
-  'source-layer': 'public.osm_landusages',
-  filter: ['==', 'type', 'school'],
+  source: 'osm_cqrs',
+  'source-layer': 'landuse_school',
   paint: { 'fill-color': 'rgb(236,238,204)' }
 };
 

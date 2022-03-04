@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   renderer-postgis:
@@ -7,22 +7,23 @@ services:
       - renderer-postgis-data:/var/lib/postgresql
     env_file: .env
     ports:
-      - "25432:5432"
+      - '25432:5432'
     restart: unless-stopped
     networks:
       - osm_proxy
+    shm_size: 1g
 
-  martin:
-    image: urbica/martin
-    environment:
-      - DATABASE_URL=postgres://renderer:password@renderer-postgis:5432/gis
-      - DANGER_ACCEPT_INVALID_CERTS=true
-      - WATCH_MODE=true
-    ports:
-      - "3000:3000"
+  tegola:
+    image: gospatial/tegola:edge
+    volumes:
+      - ./tegola:/opt/tegola_config
+    command: ['serve', '--config', '/opt/tegola_config/config.toml']
     depends_on:
-      - postgis
-      - importer
+      - renderer-postgis
+    env_file:
+      - .env
+    ports:
+      - '8080:8080'
     networks:
       - osm_proxy
 

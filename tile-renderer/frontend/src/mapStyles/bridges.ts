@@ -1,12 +1,10 @@
 import { LayerSpecification } from 'maplibre-gl';
-import { isBridge } from './helper';
 
 const motorway_link_casing: LayerSpecification = {
   id: 'bridge_motorway_link_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', ['==', 'type', 'motorway_link'], isBridge],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_motorways_link',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#e9ac77',
@@ -25,9 +23,8 @@ const motorway_link_casing: LayerSpecification = {
 const service_track_casing: LayerSpecification = {
   id: 'bridge_service_track_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isBridge, ['in', 'type', 'service', 'track']],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_service_track',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#cfcdca',
@@ -42,39 +39,11 @@ const service_track_casing: LayerSpecification = {
   }
 };
 
-const street_casing: LayerSpecification = {
-  id: 'bridge_street_casing',
-  type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isBridge, ['in', 'type', 'street', 'street_limited']],
-  layout: { 'line-join': 'round' },
-  paint: {
-    'line-color': 'hsl(36, 6%, 74%)',
-    'line-opacity': {
-      stops: [
-        [12, 0],
-        [12.5, 1]
-      ]
-    },
-    'line-width': {
-      base: 1.2,
-      stops: [
-        [12, 0.5],
-        [13, 1],
-        [14, 4],
-        [20, 25]
-      ]
-    }
-  }
-};
-
 const path_pedestrian_casing: LayerSpecification = {
   id: 'bridge_path_pedestrian_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isBridge, ['in', 'type', 'path', 'pedestrian']],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_pedestrian',
   paint: {
     'line-color': 'hsl(35, 6%, 80%)',
     'line-dasharray': [1, 0],
@@ -91,9 +60,8 @@ const path_pedestrian_casing: LayerSpecification = {
 const secondary_tertiary_casing: LayerSpecification = {
   id: 'bridge_secondary_tertiary_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isBridge, ['in', 'type', 'secondary', 'tertiary']],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_secondary_tertiary',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#e9ac77',
@@ -110,9 +78,8 @@ const secondary_tertiary_casing: LayerSpecification = {
 const trunk_primary_casing: LayerSpecification = {
   id: 'bridge_trunk_primary_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isBridge, ['in', 'type', 'primary', 'trunk']],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_trunk_primary',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#e9ac77',
@@ -131,9 +98,8 @@ const trunk_primary_casing: LayerSpecification = {
 const motorway_casing: LayerSpecification = {
   id: 'bridge_motorway_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', ['==', 'type', 'motorway'], isBridge],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_motorways',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#e9ac77',
@@ -152,9 +118,8 @@ const motorway_casing: LayerSpecification = {
 const motorway_link: LayerSpecification = {
   id: 'bridge_motorway_link',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', ['==', 'type', 'motorway_link'], isBridge],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_motorways_link',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#fc8',
@@ -173,9 +138,8 @@ const motorway_link: LayerSpecification = {
 const service_track: LayerSpecification = {
   id: 'bridge_service_track',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isBridge, ['in', 'type', 'service', 'track']],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_service_track',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#fff',
@@ -190,32 +154,11 @@ const service_track: LayerSpecification = {
   }
 };
 
-const street: LayerSpecification = {
-  id: 'bridge_street',
-  type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isBridge, ['in', 'type', 'residental']],
-  layout: { 'line-join': 'round' },
-  paint: {
-    'line-color': '#fff',
-    'line-width': {
-      base: 1.2,
-      stops: [
-        [13.5, 0],
-        [14, 2.5],
-        [20, 18]
-      ]
-    }
-  }
-};
-
 const secondary_tertiary: LayerSpecification = {
   id: 'bridge_secondary_tertiary',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isBridge, ['in', 'type', 'secondary', 'tertiary']],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_secondary_tertiary',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#fea',
@@ -233,9 +176,8 @@ const secondary_tertiary: LayerSpecification = {
 const trunk_primary: LayerSpecification = {
   id: 'bridge_trunk_primary',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isBridge, ['in', 'type', 'primary', 'trunk']],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_trunk_primary',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#fea',
@@ -253,9 +195,8 @@ const trunk_primary: LayerSpecification = {
 const motorway: LayerSpecification = {
   id: 'bridge_motorway',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', ['==', 'type', 'motorway'], isBridge],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_motorways',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#fc8',
@@ -273,9 +214,8 @@ const motorway: LayerSpecification = {
 const major_rail: LayerSpecification = {
   id: 'bridge_major_rail',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', ['==', 'type', 'rail'], isBridge],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_rail',
   paint: {
     'line-color': '#bbb',
     'line-width': {
@@ -292,9 +232,8 @@ const major_rail: LayerSpecification = {
 const major_rail_hatching: LayerSpecification = {
   id: 'bridge_major_rail_hatching',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', ['==', 'type', 'rail'], isBridge],
+  source: 'osm_cqrs',
+  'source-layer': 'bridge_rail',
   paint: {
     'line-color': '#bbb',
     'line-dasharray': [0.2, 8],
@@ -312,14 +251,12 @@ const major_rail_hatching: LayerSpecification = {
 export const bridges = {
   motorway_link_casing,
   service_track_casing,
-  street_casing,
   path_pedestrian_casing,
   secondary_tertiary_casing,
   trunk_primary_casing,
   motorway_casing,
   motorway_link,
   service_track,
-  street,
   secondary_tertiary,
   trunk_primary,
   motorway,

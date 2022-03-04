@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  tegola:
+    image: gospatial/tegola:edge
+    volumes:
+      - ./:/opt/tegola_config
+    command: ['serve', '--config', '/opt/tegola_config/config.toml']
+    env_file:
+      - ../.env
+    ports:
+      - '8080:8080'
+    networks:
+      - osm_proxy
+
+networks:
+  osm_proxy:
+    name: osm_cqrs_network

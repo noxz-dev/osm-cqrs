@@ -3,8 +3,8 @@ import { LayerSpecification } from 'maplibre-gl';
 const area: LayerSpecification = {
   id: 'building',
   type: 'fill',
-  source: 'martin',
-  'source-layer': 'public.osm_buildings',
+  source: 'osm_cqrs',
+  'source-layer': 'buildings',
   minzoom: 13,
   paint: {
     'fill-color': 'hsl(35, 8%, 85%)',
@@ -23,8 +23,8 @@ const area: LayerSpecification = {
 const threeD: LayerSpecification = {
   id: 'building-3d',
   type: 'fill-extrusion',
-  source: 'martin',
-  'source-layer': 'public.osm_buildings',
+  source: 'osm_cqrs',
+  'source-layer': 'buildings',
   minzoom: 14,
   paint: {
     'fill-extrusion-color': 'hsl(35, 8%, 85%)',

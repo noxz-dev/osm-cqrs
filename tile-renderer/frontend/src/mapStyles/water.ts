@@ -3,9 +3,8 @@ import { LayerSpecification } from 'maplibre-gl';
 const river: LayerSpecification = {
   id: 'waterway_river',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_waterways',
-  filter: ['all', ['==', 'type', 'river']],
+  source: 'osm_cqrs',
+  'source-layer': 'water_river',
   layout: { 'line-cap': 'round' },
   paint: {
     'line-color': '#a0c8f0',
@@ -22,9 +21,8 @@ const river: LayerSpecification = {
 const other: LayerSpecification = {
   id: 'waterway_other',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_waterways',
-  filter: ['all', ['!=', 'type', 'river']],
+  source: 'osm_cqrs',
+  'source-layer': 'water_other',
   layout: { 'line-cap': 'round' },
   paint: {
     'line-color': '#a0c8f0',
@@ -42,8 +40,8 @@ const other: LayerSpecification = {
 const areas: LayerSpecification = {
   id: 'water',
   type: 'fill',
-  source: 'martin',
-  'source-layer': 'public.osm_waterareas',
+  source: 'osm_cqrs',
+  'source-layer': 'water_areas',
   paint: { 'fill-color': 'rgb(158,189,255)' }
 };
 

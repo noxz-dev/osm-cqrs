@@ -1,12 +1,10 @@
 import { LayerSpecification } from 'maplibre-gl';
-import { isTunnel } from './helper';
 
 const motorway_link_casing: LayerSpecification = {
   id: 'tunnel_motorway_link_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', ['==', 'type', 'motorway_link'], isTunnel],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_motorways_link',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#e9ac77',
@@ -26,9 +24,8 @@ const motorway_link_casing: LayerSpecification = {
 const service_track_casing: LayerSpecification = {
   id: 'tunnel_service_track_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'type', 'service', 'track']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_service_track',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#cfcdca',
@@ -47,9 +44,8 @@ const service_track_casing: LayerSpecification = {
 const link_casing: LayerSpecification = {
   id: 'tunnel_link_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'type', 'primary_link', 'motorway_link', 'secondary_link', 'tertiary_link']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_link',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#e9ac77',
@@ -65,39 +61,11 @@ const link_casing: LayerSpecification = {
   }
 };
 
-const street_casing: LayerSpecification = {
-  id: 'tunnel_street_casing',
-  type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'type', 'street', 'street_limited']],
-  layout: { 'line-join': 'round' },
-  paint: {
-    'line-color': '#cfcdca',
-    'line-opacity': {
-      stops: [
-        [12, 0],
-        [12.5, 1]
-      ]
-    },
-    'line-width': {
-      base: 1.2,
-      stops: [
-        [12, 0.5],
-        [13, 1],
-        [14, 4],
-        [20, 15]
-      ]
-    }
-  }
-};
-
 const seconday_tetiary_casing: LayerSpecification = {
   id: 'tunnel_secondary_tertiary_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'type', 'secondary', 'tertiary']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_secondary_tertiary',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#e9ac77',
@@ -114,9 +82,8 @@ const seconday_tetiary_casing: LayerSpecification = {
 const primary_casing: LayerSpecification = {
   id: 'tunnel_trunk_primary_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'type', 'primary', 'trunk']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_trunk_primary',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#e9ac77',
@@ -135,9 +102,8 @@ const primary_casing: LayerSpecification = {
 const motorway_casing: LayerSpecification = {
   id: 'tunnel_motorway_casing',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', ['==', 'type', 'motorway'], isTunnel],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_motorways',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#e9ac77',
@@ -157,9 +123,8 @@ const motorway_casing: LayerSpecification = {
 const path_pedestrian: LayerSpecification = {
   id: 'tunnel_path_pedestrian',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'type', 'path', 'pedestrian']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_pedestrian',
   paint: {
     'line-color': 'hsl(0, 0%, 100%)',
     'line-dasharray': [1, 0.75],
@@ -176,9 +141,8 @@ const path_pedestrian: LayerSpecification = {
 const motorway_link: LayerSpecification = {
   id: 'tunnel_motorway_link',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', ['==', 'type', 'motorway_link'], isTunnel],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_motorways_link',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#fc8',
@@ -197,9 +161,8 @@ const motorway_link: LayerSpecification = {
 const service_track: LayerSpecification = {
   id: 'tunnel_service_track',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'type', 'service', 'track']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_service_track',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#fff',
@@ -217,9 +180,8 @@ const service_track: LayerSpecification = {
 const link: LayerSpecification = {
   id: 'tunnel_link',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'type', 'primary_link', 'motorway_link', 'secondary_link', 'tertiary_link']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_link',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#fff4c6',
@@ -238,9 +200,8 @@ const link: LayerSpecification = {
 const residental: LayerSpecification = {
   id: 'tunnel_minor',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'type', 'residental']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_residential',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#fff',
@@ -258,9 +219,8 @@ const residental: LayerSpecification = {
 const secondary_tertiary: LayerSpecification = {
   id: 'tunnel_secondary_tertiary',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'type', 'secondary', 'tertiary']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_secondary_tertiary',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#fff4c6',
@@ -278,9 +238,8 @@ const secondary_tertiary: LayerSpecification = {
 const trunk_primary: LayerSpecification = {
   id: 'tunnel_trunk_primary',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'tyoe', 'primary', 'trunk']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_trunk_primary',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#fff4c6',
@@ -298,9 +257,8 @@ const trunk_primary: LayerSpecification = {
 const motorway: LayerSpecification = {
   id: 'tunnel_motorway',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', ['==', 'type', 'motorway'], isTunnel],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_motorways',
   layout: { 'line-join': 'round' },
   paint: {
     'line-color': '#ffdaa6',
@@ -318,9 +276,8 @@ const motorway: LayerSpecification = {
 const major_rail: LayerSpecification = {
   id: 'tunnel_major_rail',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['in', 'type', 'rail']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_rail',
   paint: {
     'line-color': '#bbb',
     'line-width': {
@@ -337,9 +294,8 @@ const major_rail: LayerSpecification = {
 const major_rail_hatching: LayerSpecification = {
   id: 'tunnel_major_rail_hatching',
   type: 'line',
-  source: 'martin',
-  'source-layer': 'public.osm_roads',
-  filter: ['all', isTunnel, ['==', 'type', 'rail']],
+  source: 'osm_cqrs',
+  'source-layer': 'tunnel_rail',
   paint: {
     'line-color': '#bbb',
     'line-dasharray': [0.2, 8],
@@ -358,7 +314,6 @@ export const tunnel = {
   motorway_link_casing,
   service_track_casing,
   link_casing,
-  street_casing,
   seconday_tetiary_casing,
   primary_casing,
   motorway_casing,
