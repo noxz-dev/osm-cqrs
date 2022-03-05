@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   routing-postgis:
@@ -7,7 +7,7 @@ services:
       - routing-postgis-data:/var/lib/postgresql
     env_file: .env
     ports:
-      - "35432:5432"
+      - '35432:5432'
     restart: unless-stopped
     networks:
       - osm_proxy
@@ -24,7 +24,8 @@ services:
       - routing-postgis
     networks:
       - osm_proxy
-
+    ports:
+      - '3003:3000'
 volumes:
   routing-postgis-data:
   routing-importer-diff:

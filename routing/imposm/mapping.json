@@ -1,19 +1,13 @@
 {
   "tags": {
     "load_all": true,
-    "exclude": [
-      "created_by",
-      "source*",
-      "tiger:*"
-    ]
+    "exclude": ["created_by", "source*", "tiger:*"]
   },
   "tables": {
     "ways": {
       "type": "linestring",
       "mapping": {
-        "highway": [
-          "__any__"
-        ]
+        "highway": ["__any__"]
       },
       "columns": [
         {
