@@ -89,12 +89,29 @@ func (normalized *OsmChangeNormalized) RemoveDuplicateNodes() {
 }
 
 func (normalized *OsmChangeNormalized) RemoveDuplicateWays() {
-	newestNodeVersion := make(map[int]time.Time, 0)
-	normalized.Delete.getNewestWayVersions(&newestNodeVersion)
-	normalized.Modify.getNewestWayVersions(&newestNodeVersion)
-	normalized.Create.getNewestWayVersions(&newestNodeVersion)
+	newestWayVersion := make(map[int]time.Time, 0)
+	normalized.Delete.getNewestWayVersions(&newestWayVersion)
+	normalized.Modify.getNewestWayVersions(&newestWayVersion)
+	normalized.Create.getNewestWayVersions(&newestWayVersion)
 
-	normalized.Modify.deleteOldWayVersions(&newestNodeVersion)
-	normalized.Delete.deleteOldWayVersions(&newestNodeVersion)
-	normalized.Create.deleteOldWayVersions(&newestNodeVersion)
+	normalized.Modify.deleteOldWayVersions(&newestWayVersion)
+	normalized.Delete.deleteOldWayVersions(&newestWayVersion)
+	normalized.Create.deleteOldWayVersions(&newestWayVersion)
+}
+
+func (normalized *OsmChangeNormalized) RemoveDuplicateRelations() {
+	newestRelationVersion := make(map[int]time.Time, 0)
+	normalized.Delete.getNewestRelationVersions(&newestRelationVersion)
+	normalized.Modify.getNewestRelationVersions(&newestRelationVersion)
+	normalized.Create.getNewestRelationVersions(&newestRelationVersion)
+
+	normalized.Modify.deleteOldRelationVersions(&newestRelationVersion)
+	normalized.Delete.deleteOldRelationVersions(&newestRelationVersion)
+	normalized.Create.deleteOldRelationVersions(&newestRelationVersion)
+}
+
+func (normalized *OsmChangeNormalized) RemoveAllDuplikates() {
+	normalized.RemoveDuplicateNodes()
+	normalized.RemoveDuplicateWays()
+	normalized.RemoveDuplicateRelations()
 }

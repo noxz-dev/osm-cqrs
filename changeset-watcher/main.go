@@ -120,8 +120,7 @@ func main() {
 		}
 
 		osmNormalized := osm.Normalize()
-		osmNormalized.RemoveDuplicateNodes()
-		osmNormalized.RemoveDuplicateWays()
+		osmNormalized.RemoveAllDuplikates()
 
 		reloadNodes(&osmNormalized)
 

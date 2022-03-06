@@ -134,3 +134,34 @@ func (action *Action) deleteOldWayVersions(newestVersionOfWay *map[int]time.Time
 	}
 	action.Ways = newestWay
 }
+
+func (action *Action) getNewestRelationVersions(newestVersionOfRelation *map[int]time.Time) {
+	for _, relation := range action.Relations {
+		creationTime, err := relation.getCreationTime()
+		if err != nil {
+			continue
+		}
+		t, exists := (*newestVersionOfRelation)[relation.Id]
+		if exists && t.After(creationTime) {
+			(*newestVersionOfRelation)[relation.Id] = t
+		} else {
+			(*newestVersionOfRelation)[relation.Id] = creationTime
+		}
+	}
+}
+
+func (action *Action) deleteOldRelationVersions(newestVersionOfRelation *map[int]time.Time) {
+	newestRelations := make([]Relation, 0)
+	for _, relation := range action.Relations {
+		creationTime, err := relation.getCreationTime()
+		if err != nil {
+			continue
+		}
+		newestTime, exists := (*newestVersionOfRelation)[relation.Id]
+
+		if exists && creationTime.Equal(newestTime) {
+			newestRelations = append(newestRelations, relation)
+		}
+	}
+	action.Relations = newestRelations
+}
