@@ -1,6 +1,9 @@
 package types
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 func (way Way) HasTags(tags ...string) bool {
 	for _, tag := range tags {
@@ -21,4 +24,9 @@ func (way Way) GetTag(tagString string) (value string, err error) {
 	}
 	return "", errors.New("Tag " + tagString + " not found")
 
+}
+
+func (way *Way) getCreationTime() (creationTime time.Time, err error) {
+	creationTime, err = time.Parse(time.RFC3339, way.Timestamp)
+	return
 }

@@ -103,3 +103,34 @@ func (action *Action) deleteOldNodeVersions(newestVersionOfNode *map[int]time.Ti
 	}
 	action.Nodes = newestNodes
 }
+
+func (action *Action) getNewestWayVersions(newestVersionOfWay *map[int]time.Time) {
+	for _, way := range action.Ways {
+		creationTime, err := way.getCreationTime()
+		if err != nil {
+			continue
+		}
+		t, exists := (*newestVersionOfWay)[way.Id]
+		if exists && t.After(creationTime) {
+			(*newestVersionOfWay)[way.Id] = t
+		} else {
+			(*newestVersionOfWay)[way.Id] = creationTime
+		}
+	}
+}
+
+func (action *Action) deleteOldWayVersions(newestVersionOfWay *map[int]time.Time) {
+	newestWay := make([]Way, 0)
+	for _, way := range action.Ways {
+		creationTime, err := way.getCreationTime()
+		if err != nil {
+			continue
+		}
+		newestTime, exists := (*newestVersionOfWay)[way.Id]
+
+		if exists && creationTime.Equal(newestTime) {
+			newestWay = append(newestWay, way)
+		}
+	}
+	action.Ways = newestWay
+}

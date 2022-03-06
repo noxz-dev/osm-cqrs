@@ -87,3 +87,14 @@ func (normalized *OsmChangeNormalized) RemoveDuplicateNodes() {
 	normalized.Delete.deleteOldNodeVersions(&newestNodeVersion)
 	normalized.Create.deleteOldNodeVersions(&newestNodeVersion)
 }
+
+func (normalized *OsmChangeNormalized) RemoveDuplicateWays() {
+	newestNodeVersion := make(map[int]time.Time, 0)
+	normalized.Delete.getNewestWayVersions(&newestNodeVersion)
+	normalized.Modify.getNewestWayVersions(&newestNodeVersion)
+	normalized.Create.getNewestWayVersions(&newestNodeVersion)
+
+	normalized.Modify.deleteOldWayVersions(&newestNodeVersion)
+	normalized.Delete.deleteOldWayVersions(&newestNodeVersion)
+	normalized.Create.deleteOldWayVersions(&newestNodeVersion)
+}
