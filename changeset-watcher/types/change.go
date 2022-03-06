@@ -110,7 +110,7 @@ func (normalized *OsmChangeNormalized) RemoveDuplicateRelations() {
 	normalized.Create.deleteOldRelationVersions(&newestRelationVersion)
 }
 
-func (normalized *OsmChangeNormalized) RemoveAllDuplikates() {
+func (normalized *OsmChangeNormalized) RemoveAllDuplicates() {
 	normalized.RemoveDuplicateNodes()
 	normalized.RemoveDuplicateWays()
 	normalized.RemoveDuplicateRelations()

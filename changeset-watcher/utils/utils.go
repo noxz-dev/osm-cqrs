@@ -74,9 +74,9 @@ func WriteObjectToFile(object interface{}, filename string) {
 }
 
 func CalculateCentroid(points *[]types.Node) types.Location {
-	var xSum float32 = 0.0
-	var ySum float32 = 0.0
-	var numberOfNodes float32 = 0
+	var xSum float64 = 0.0
+	var ySum float64 = 0.0
+	var numberOfNodes float64 = 0
 
 	for _, p := range *points {
 		xSum += p.Lat
