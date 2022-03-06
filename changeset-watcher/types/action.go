@@ -1,5 +1,9 @@
 package types
 
+import (
+	"time"
+)
+
 func (action Action) ContainsNodeByRef(ref NodeRef) bool {
 	for _, node := range action.Nodes {
 		if node.Id == ref.Ref {
@@ -67,4 +71,35 @@ func (action Action) UsedNodesByFilter(nodeIDs *map[int]struct{}, filters ...Nod
 		}
 	}
 
+}
+
+func (action *Action) getNewestNodeVersions(newestVersionOfNode *map[int]time.Time) {
+	for _, node := range action.Nodes {
+		creationTime, err := node.getCreationTime()
+		if err != nil {
+			continue
+		}
+		t, exists := (*newestVersionOfNode)[node.Id]
+		if exists && t.After(creationTime) {
+			(*newestVersionOfNode)[node.Id] = t
+		} else {
+			(*newestVersionOfNode)[node.Id] = creationTime
+		}
+	}
+}
+
+func (action *Action) deleteOldNodeVersions(newestVersionOfNode *map[int]time.Time) {
+	newestNodes := make([]Node, 0)
+	for _, node := range action.Nodes {
+		creationTime, err := node.getCreationTime()
+		if err != nil {
+			continue
+		}
+		newestTime, exists := (*newestVersionOfNode)[node.Id]
+
+		if exists && creationTime.Equal(newestTime) {
+			newestNodes = append(newestNodes, node)
+		}
+	}
+	action.Nodes = newestNodes
 }

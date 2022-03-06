@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 func (normalized OsmChangeNormalized) ExtractMissingNodes() (nodeIDs map[int]struct{}, missingNodes int, foundNodes int) {
 	missingNodes = 0
 	foundNodes = 0
@@ -73,4 +75,15 @@ func normalizeActionObject(actions []Action) (normalizedAction Action) {
 		Nodes:     nodes,
 		Relations: relations,
 	}
+}
+
+func (normalized *OsmChangeNormalized) RemoveDuplicateNodes() {
+	newestNodeVersion := make(map[int]time.Time, 0)
+	normalized.Delete.getNewestNodeVersions(&newestNodeVersion)
+	normalized.Modify.getNewestNodeVersions(&newestNodeVersion)
+	normalized.Create.getNewestNodeVersions(&newestNodeVersion)
+
+	normalized.Modify.deleteOldNodeVersions(&newestNodeVersion)
+	normalized.Delete.deleteOldNodeVersions(&newestNodeVersion)
+	normalized.Create.deleteOldNodeVersions(&newestNodeVersion)
 }
