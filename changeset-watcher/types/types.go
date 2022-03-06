@@ -11,10 +11,10 @@ type ChangeSet struct {
 	Id         int     `xml:"id,attr"`
 	CreatedAt  string  `xml:"created_at,attr"`
 	NumChanges int     `xml:"num_changes,attr"`
-	MinLat     float32 `xml:"min_lat,attr"`
-	MaxLat     float32 `xml:"max_lat,attr"`
-	MinLong    float32 `xml:"min_lon,attr"`
-	MaxLong    float32 `xml:"max_lon,attr"`
+	MinLat     float64 `xml:"min_lat,attr"`
+	MaxLat     float64 `xml:"max_lat,attr"`
+	MinLong    float64 `xml:"min_lon,attr"`
+	MaxLong    float64 `xml:"max_lon,attr"`
 
 	Tags []Tag `xml:"tag"`
 }
@@ -53,8 +53,8 @@ type Node struct {
 	Id        int     `xml:"id,attr"`
 	Version   int     `xml:"version,attr"`
 	Timestamp string  `xml:"timestamp,attr"`
-	Lat       float32 `xml:"lat,attr"`
-	Lon       float32 `xml:"lon,attr"`
+	Lat       float64 `xml:"lat,attr"`
+	Lon       float64 `xml:"lon,attr"`
 	Tags      []Tag   `xml:"tag"`
 }
 
@@ -96,8 +96,8 @@ type SearchPoint struct {
 }
 
 type Location struct {
-	Lat float32
-	Lng float32
+	Lat float64
+	Lng float64
 }
 
 type SearchPayload struct {

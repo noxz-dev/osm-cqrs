@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 func (normalized OsmChangeNormalized) ExtractMissingNodes() (nodeIDs map[int]struct{}, missingNodes int, foundNodes int) {
 	missingNodes = 0
 	foundNodes = 0
@@ -73,4 +75,43 @@ func normalizeActionObject(actions []Action) (normalizedAction Action) {
 		Nodes:     nodes,
 		Relations: relations,
 	}
+}
+
+func (normalized *OsmChangeNormalized) RemoveDuplicateNodes() {
+	newestNodeVersion := make(map[int]time.Time, 0)
+	normalized.Delete.getNewestNodeVersions(&newestNodeVersion)
+	normalized.Modify.getNewestNodeVersions(&newestNodeVersion)
+	normalized.Create.getNewestNodeVersions(&newestNodeVersion)
+
+	normalized.Modify.deleteOldNodeVersions(&newestNodeVersion)
+	normalized.Delete.deleteOldNodeVersions(&newestNodeVersion)
+	normalized.Create.deleteOldNodeVersions(&newestNodeVersion)
+}
+
+func (normalized *OsmChangeNormalized) RemoveDuplicateWays() {
+	newestWayVersion := make(map[int]time.Time, 0)
+	normalized.Delete.getNewestWayVersions(&newestWayVersion)
+	normalized.Modify.getNewestWayVersions(&newestWayVersion)
+	normalized.Create.getNewestWayVersions(&newestWayVersion)
+
+	normalized.Modify.deleteOldWayVersions(&newestWayVersion)
+	normalized.Delete.deleteOldWayVersions(&newestWayVersion)
+	normalized.Create.deleteOldWayVersions(&newestWayVersion)
+}
+
+func (normalized *OsmChangeNormalized) RemoveDuplicateRelations() {
+	newestRelationVersion := make(map[int]time.Time, 0)
+	normalized.Delete.getNewestRelationVersions(&newestRelationVersion)
+	normalized.Modify.getNewestRelationVersions(&newestRelationVersion)
+	normalized.Create.getNewestRelationVersions(&newestRelationVersion)
+
+	normalized.Modify.deleteOldRelationVersions(&newestRelationVersion)
+	normalized.Delete.deleteOldRelationVersions(&newestRelationVersion)
+	normalized.Create.deleteOldRelationVersions(&newestRelationVersion)
+}
+
+func (normalized *OsmChangeNormalized) RemoveAllDuplicates() {
+	normalized.RemoveDuplicateNodes()
+	normalized.RemoveDuplicateWays()
+	normalized.RemoveDuplicateRelations()
 }

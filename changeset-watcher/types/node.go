@@ -8,6 +8,7 @@ import (
 	"noxz.dev/changeset-watcher/config"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func (node Node) HasTags(tags ...string) bool {
@@ -60,4 +61,9 @@ func getNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
 	}
 
 	return overpassAnswer.Nodes, nil
+}
+
+func (node *Node) getCreationTime() (creationTime time.Time, err error) {
+	creationTime, err = time.Parse(time.RFC3339, node.Timestamp)
+	return
 }

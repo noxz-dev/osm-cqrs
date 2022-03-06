@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"noxz.dev/changeset-watcher/config"
+	"noxz.dev/changeset-watcher/importer"
 	"noxz.dev/changeset-watcher/statistics"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -55,6 +56,30 @@ func main() {
 		return
 	}
 
+	if os.Args[1] == "--import" {
+		if os.Args[2] == "" {
+			logger.Error("no pbf file specified")
+			return
+		}
+
+		changesets, err := importer.Import(os.Args[2])
+		if err != nil {
+			logger.Fatal("Could not import data", err.Error())
+		}
+
+		for _, changeset := range *changesets {
+			logIfFailing(stat.BeginnColum())
+			wg := new(sync.WaitGroup)
+			wg.Add(3)
+			go SendAllChangesets(nc, changeset, wg)
+			go sendRoutingChangesets(nc, changeset, wg)
+			go sendSearchChangesets(nc, changeset, wg)
+			wg.Wait()
+			logIfFailing(stat.EndColum())
+		}
+		return
+	}
+
 	var oldSeq = 0
 
 	for {
@@ -62,7 +87,7 @@ func main() {
 		resp, err := http.Get(config.OsmMinuteReplicationStateURL)
 
 		if err != nil {
-			fmt.Println(err.Error())
+			logger.Error(err.Error())
 			err = nil
 			logger.Info("try same http request again...")
 			continue
@@ -120,12 +145,13 @@ func main() {
 		}
 
 		osmNormalized := osm.Normalize()
+		osmNormalized.RemoveAllDuplicates()
 
 		reloadNodes(&osmNormalized)
 
 		wg := new(sync.WaitGroup)
 		wg.Add(3)
-		go sendAllChangesets(nc, osmNormalized, wg)
+		go SendAllChangesets(nc, osmNormalized, wg)
 		go sendRoutingChangesets(nc, osmNormalized, wg)
 		go sendSearchChangesets(nc, osmNormalized, wg)
 		wg.Wait()
@@ -199,14 +225,12 @@ func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, 
 
 	zippedBytes := b.Bytes()
 
-	fmt.Println(len(zippedBytes))
-
 	publishEvent(nc, config.RoutingSubject, zippedBytes, "text/plain")
 	logIfFailing(stat.StopTimerAndSetDuration(config.DurationForRoutesFiltering))
 	logIfFailing(stat.SetValue(config.NumberOfPublishedRoutingElements, strconv.Itoa(streets.Size())))
 }
 
-func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
+func SendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	createAction := types.Action{
@@ -243,8 +267,6 @@ func sendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *
 	}
 
 	zippedBytes := b.Bytes()
-
-	fmt.Println(len(zippedBytes))
 
 	publishEvent(nc, config.AllSubject, zippedBytes, "text/plain")
 	logIfFailing(stat.SetValue(config.NumberOfPublishedElements, strconv.Itoa(normalized.Size())))

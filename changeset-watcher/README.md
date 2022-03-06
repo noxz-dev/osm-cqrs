@@ -7,9 +7,24 @@
 
 - run: "go get" inside the changeset-watcher folder
 
-- go run main.go - inside changeset-watcher to startup the process
+```bash
+- go run main.go
+```
 
 ### run the demo subscriber:
 
 - cd subscriber-demo
+
+```bash
 - go run sub.go
+```
+
+## PBF importer
+
+```bash
+go run main.go --import <filepath>
+
+EXAMPLE:
+
+go run main.go --import ./data/Hannover.pbf
+```
