@@ -53,9 +53,10 @@ async function subscribeToEvents() {
       const modify = event.data.Modify as SearchPoint[];
       logger.info(`modify payload size: ${modify.length} elements`);
 
-      for await (const loc of modify) {
-        await insertDocument(loc);
-      }
+      // for await (const loc of modify) {
+      //   await insertDocument(loc);
+      // }
+      await bulkInsertDocument(modify);
     } catch (err) {
       logger.error(err);
     }
