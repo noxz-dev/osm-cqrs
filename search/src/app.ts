@@ -5,7 +5,12 @@ import { logger } from './services/logger';
 import { client } from './services/es';
 import { nc } from './services/nats';
 import { StringCodec } from 'nats';
-import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
+import {
+  BulkOperationContainer,
+  BulkUpdateAction,
+  BulkUpdateOperation,
+  QueryDslQueryContainer,
+} from '@elastic/elasticsearch/lib/api/types';
 
 const app = express();
 const sc = StringCodec();
@@ -46,6 +51,7 @@ async function subscribeToEvents() {
 
     try {
       const modify = event.data.Modify as SearchPoint[];
+      logger.info(`modify payload size: ${modify.length} elements`);
 
       for await (const loc of modify) {
         await insertDocument(loc);
@@ -56,19 +62,23 @@ async function subscribeToEvents() {
 
     try {
       const create = event.data.Create as SearchPoint[];
+      logger.info(`create payload size: ${create.length} elements`);
 
-      for await (const loc of create) {
-        await insertDocument(loc);
-      }
+      // for await (const loc of create) {
+      //   await insertDocument(loc);
+      // }
+
+      await bulkInsertDocument(create);
     } catch (err) {
       logger.error(err);
     }
 
     try {
       const remove = event.data.Delete as SearchPoint[];
+      logger.info(`delete payload size: ${remove.length} elements`);
 
       for await (const loc of remove) {
-        console.log('removing: ', loc.Id);
+        logger.info('removing: ', loc.Id);
         await removeDocument(loc);
       }
     } catch (err) {
@@ -103,7 +113,25 @@ async function insertDocument(sp: SearchPoint) {
       doc_as_upsert: true,
     });
     const endTime = performance.now();
-    logger.info(`insert document took ${(endTime - startTime).toFixed(3)} ms`);
+    // logger.info(`insert document took ${(endTime - startTime).toFixed(3)} ms`);
+  } catch (err: any) {
+    logger.error(err);
+  }
+}
+
+async function bulkInsertDocument(points: SearchPoint[]) {
+  try {
+    const body = points.flatMap((doc) => [
+      { update: { _index: 'osm', _id: doc.Id } },
+      { doc: doc, doc_as_upsert: true },
+    ]);
+
+    if (body.length === 0) return;
+
+    const startTime = performance.now();
+    await client.bulk({ refresh: true, operations: body, index: 'osm' });
+    const endTime = performance.now();
+    // logger.info(`bulk insert took ${(endTime - startTime).toFixed(3)} ms`);
   } catch (err: any) {
     logger.error(err);
   }
