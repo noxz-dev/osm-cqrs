@@ -60,7 +60,7 @@ func (statistic *Statistic) BeginnColum() error {
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
 	case Paused:
-		return errors.New("this operation is not allowed, because this statistic is paused")
+		return nil
 	}
 	statistic.state = Collecting
 	now := time.Now()
@@ -78,7 +78,7 @@ func (statistic *Statistic) SetValue(fieldName string, value string) error {
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
 	case Paused:
-		return errors.New("this operation is not allowed, because this statistic is paused")
+		return nil
 	}
 
 	for i, field := range statistic.fields {
@@ -96,7 +96,7 @@ func (statistic *Statistic) StartTimer(fieldName string) error {
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
 	case Paused:
-		return errors.New("this operation is not allowed, because this statistic is paused")
+		return nil
 	}
 
 	for i, field := range statistic.fields {
@@ -115,7 +115,7 @@ func (statistic *Statistic) StopTimerAndSetDuration(fieldName string) error {
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
 	case Paused:
-		return errors.New("this operation is not allowed, because this statistic is paused")
+		return nil
 	}
 	fields := statistic.fields
 	for i, field := range statistic.fields {
@@ -135,7 +135,7 @@ func (statistic *Statistic) EndColum() error {
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
 	case Paused:
-		return errors.New("this operation is not allowed, because this statistic is paused")
+		return nil
 	}
 	statistic.state = Ready
 
@@ -168,5 +168,15 @@ func (statistic *Statistic) Pause() error {
 		return errors.New("statistic cant be paused, while collecting data. end colum to pause")
 	}
 	statistic.state = Paused
+	return nil
+}
+
+func (statistic *Statistic) Continue() error {
+	switch statistic.state {
+	case Closed:
+		return errors.New("this operation is not allowed, because this statistic is closed")
+	}
+
+	statistic.state = Ready
 	return nil
 }

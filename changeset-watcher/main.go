@@ -39,7 +39,7 @@ var stat = statistics.NewStatistic("watcher.statistics.csv",
 func main() {
 	defer stat.Close()
 	if !config.CollectStatistics {
-		stat.Close()
+		stat.Pause()
 	}
 	var url string
 
