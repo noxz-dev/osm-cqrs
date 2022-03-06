@@ -56,15 +56,15 @@ func main() {
 		return
 	}
 
-	if os.Args[1] == "--import" {
-		if os.Args[2] == "" {
-			logger.Error("no pbf file specified")
+	if len(os.Args) > 1 && os.Args[1] == "--import" {
+		if len(os.Args) != 3 {
+			logger.Error("no pbf filepath specified")
 			return
 		}
 
 		changesets, err := importer.Import(os.Args[2])
 		if err != nil {
-			logger.Fatal("Could not import data", err.Error())
+			logger.Fatal("import failed -", err.Error())
 		}
 
 		for _, changeset := range *changesets {
