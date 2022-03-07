@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/xml"
-	"errors"
 	"io"
 	"net/http"
 	"noxz.dev/changeset-watcher/config"
@@ -13,8 +12,8 @@ import (
 
 func (node Node) HasTags(tags ...string) bool {
 	for _, tag := range tags {
-		_, err := node.GetTag(tag)
-		if err != nil {
+		_, exists := node.GetTag(tag)
+		if !exists {
 			return false
 		}
 	}
@@ -22,13 +21,13 @@ func (node Node) HasTags(tags ...string) bool {
 
 }
 
-func (node Node) GetTag(tagString string) (value string, err error) {
+func (node Node) GetTag(tagString string) (value string, exits bool) {
 	for _, tag := range node.Tags {
 		if tagString == tag.K {
-			return tag.V, nil
+			return tag.V, true
 		}
 	}
-	return "", errors.New("Tag " + tagString + " not found")
+	return "", false
 
 }
 
@@ -66,4 +65,41 @@ func getNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
 func (node *Node) getCreationTime() (creationTime time.Time, err error) {
 	creationTime, err = time.Parse(time.RFC3339, node.Timestamp)
 	return
+}
+
+func (node *Node) GetAddressString() string {
+	sb := strings.Builder{}
+	street, useSeparator := node.GetTag("addr:street")
+	sb.WriteString(street)
+
+	if houseNumber, exists := node.GetTag("addr:housenumber"); exists {
+		sb.WriteString(" " + houseNumber)
+		useSeparator = true
+	}
+
+	if postCode, exists := node.GetTag("addr:postcode"); exists {
+		if useSeparator {
+			sb.WriteString(", ")
+		}
+		sb.WriteString(postCode)
+		useSeparator = true
+	}
+
+	if city, exists := node.GetTag("addr:city"); exists {
+		if useSeparator {
+			sb.WriteString(", ")
+		}
+		sb.WriteString(city)
+		useSeparator = true
+	}
+
+	if country, exists := node.GetTag("addr:country"); exists {
+		if useSeparator {
+			sb.WriteString(", ")
+		}
+		sb.WriteString(country)
+		useSeparator = true
+	}
+
+	return sb.String()
 }
