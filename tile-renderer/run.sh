@@ -13,7 +13,7 @@ if [[ $(psql "$PGCON" -c "$SQL_EXISTS") ]]; then
   echo "Imposm and postgis already set up. Skipping..."
 else
   echo "Initializing imposm an postgis..."
-  imposm import -config /src/imposm/config.json -read /src/imposm/niedersachsen.pbf -write -diff
+  imposm import -config /src/imposm/config.json -read /src/imposm/base.pbf -write -diff
   imposm import -config /src/imposm/config.json -deployproduction
 fi
 

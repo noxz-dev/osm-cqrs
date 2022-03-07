@@ -2,12 +2,10 @@ package main
 
 import (
 	"bytes"
-	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/nats-io/nats.go"
-	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -90,20 +88,4 @@ func RunImposmUpdate() {
 	elapsed := time.Since(start)
 	log.Printf("Running imposm took %s", elapsed)
 
-}
-
-// GzipWrite gzips the given data and writes it to the disk
-func GzipWrite(w io.Writer, data []byte) error {
-	gw, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
-	defer func(gw *gzip.Writer) {
-		err := gw.Close()
-		if err != nil {
-			log.Fatalf(err.Error())
-		}
-	}(gw)
-	_, err = gw.Write(data)
-	if err != nil {
-		return err
-	}
-	return err
 }

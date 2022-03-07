@@ -77,6 +77,7 @@ func main() {
 			wg.Wait()
 			logIfFailing(stat.EndColum())
 		}
+
 		return
 	}
 
@@ -189,7 +190,11 @@ func sendSearchChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, w
 func sendRoutingChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
 	defer wg.Done()
 	logIfFailing(stat.StartTimer(config.DurationForRoutesFiltering))
+
+	logger.Info("Anzahl Nodes vor dem Routing Filter: ", len(normalized.Create.Nodes), len(normalized.Reloaded.Nodes))
 	streets := normalized.Filter([]types.NodeFilter{}, []types.WayFilter{types.NewWayFilter("highway")})
+	logger.Info("Anzahl Nodes nach dem Routing Filter: ", len(streets.Create.Nodes), len(streets.Reloaded.Nodes))
+
 	createAction := types.Action{
 		Nodes:     append(streets.Create.Nodes, streets.Reloaded.Nodes...),
 		Ways:      append(streets.Create.Ways, streets.Reloaded.Ways...),

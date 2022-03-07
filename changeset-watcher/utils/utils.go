@@ -66,7 +66,7 @@ func GenSubject(names ...string) string {
 }
 
 func WriteObjectToFile(object interface{}, filename string) {
-	file, _ := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
+	file, _ := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 	defer file.Close()
 
 	encoder := jsoniter.NewEncoder(file)

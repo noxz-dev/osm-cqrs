@@ -16,7 +16,7 @@ else
   # Import PBF
   echo "Start PBF import"
   psql "${PGCON}" -c "DROP SCHEMA IF EXISTS imposm2pgr CASCADE; DROP SCHEMA IF EXISTS import CASCADE;"
-  /src/imposm/imposm import -config /src/imposm/config.json -read /src/imposm/niedersachsen.pbf -write -diff
+  /src/imposm/imposm import -config /src/imposm/config.json -read /src/imposm/base.pbf -write -diff
   /src/imposm/imposm import -config /src/imposm/config.json -deployproduction
 
   # Import SQL
