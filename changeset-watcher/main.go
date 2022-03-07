@@ -379,13 +379,9 @@ func reduceWaysToSearchPoints(ways []types.Way, nodes []types.Node) []types.Sear
 
 		centroid := utils.CalculateCentroid(&wayNodes)
 
-		name, err := way.GetTag("name")
-		if err != nil {
-			houseNumber, _ := way.GetTag("addr:housenumber")
-			street, _ := way.GetTag("addr:street")
-			city, _ := way.GetTag("addr:city")
-			postcode, _ := way.GetTag("addr:postcode")
-			name = fmt.Sprint(street, " ", houseNumber, ", ", postcode, ", ", city)
+		name, exists := way.GetTag("name")
+		if !exists {
+			name = way.GetAddressString()
 		}
 
 		searchPoints = append(searchPoints, types.SearchPoint{
@@ -402,14 +398,9 @@ func reduceWaysToSearchPoints(ways []types.Way, nodes []types.Node) []types.Sear
 func reduceNodesToSearchPoints(nodes []types.Node) []types.SearchPoint {
 	searchPoints := make([]types.SearchPoint, 0)
 	for _, node := range nodes {
-		name, err := node.GetTag("name")
-		if err != nil {
-			houseNumber, _ := node.GetTag("addr:housenumber")
-			street, _ := node.GetTag("addr:street")
-			city, _ := node.GetTag("addr:city")
-			postcode, _ := node.GetTag("addr:postcode")
-
-			name = fmt.Sprint(street, " ", houseNumber, ", ", postcode, ", ", city)
+		name, exists := node.GetTag("name")
+		if !exists {
+			name = node.GetAddressString()
 		}
 		location := types.Location{
 			Lat: node.Lat,
