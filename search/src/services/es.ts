@@ -11,7 +11,6 @@ try {
         properties: {
           name: {
             type: 'text',
-            search_analyzer: 'whitespace',
           },
           location: {
             type: 'geo_point',

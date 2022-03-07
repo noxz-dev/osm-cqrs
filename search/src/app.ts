@@ -243,7 +243,6 @@ app.get('/searchByName', async (req, res) => {
     if (!name) {
       res.status(400).send('no query specified');
     }
-
     const result = await client.search({
       index: 'osm',
       query: {
@@ -299,7 +298,6 @@ app.get('/searchByAddress', async (req, res) => {
           'tags.V': {
             query: street,
             operator: 'AND',
-            fuziness: 'AUTO',
           },
         },
       });
