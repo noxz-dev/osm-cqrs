@@ -340,9 +340,18 @@ func generateSearchEventPayload(normalized types.OsmChangeNormalized) types.Sear
 			types.NewWayFilter("amenity", "name"),
 			types.NewWayFilter("tourism", "name"),
 		})
-	modifySearchPoints := reduceWaysToSearchPoints(buildings.Modify.Ways, append(buildings.Modify.Nodes, buildings.Reloaded.Nodes...))
-	createSearchPoints := reduceWaysToSearchPoints(buildings.Create.Ways, append(buildings.Create.Nodes, buildings.Reloaded.Nodes...))
-	deleteSearchPoints := reduceWaysToSearchPoints(buildings.Delete.Ways, append(buildings.Delete.Nodes, buildings.Reloaded.Nodes...))
+
+	tmp := append(buildings.Create.Nodes, buildings.Modify.Nodes...)
+	tmp = append(tmp, buildings.Delete.Nodes...)
+	tmp = append(tmp, buildings.Reloaded.Nodes...)
+	
+	// modifySearchPoints := reduceWaysToSearchPoints(buildings.Modify.Ways, append(buildings.Modify.Nodes, buildings.Reloaded.Nodes...))
+	// createSearchPoints := reduceWaysToSearchPoints(buildings.Create.Ways, append(buildings.Create.Nodes, buildings.Reloaded.Nodes...))
+	// deleteSearchPoints := reduceWaysToSearchPoints(buildings.Delete.Ways, append(buildings.Delete.Nodes, buildings.Reloaded.Nodes...))
+
+	modifySearchPoints := reduceWaysToSearchPoints(buildings.Modify.Ways, tmp)
+	createSearchPoints := reduceWaysToSearchPoints(buildings.Create.Ways, tmp)
+	deleteSearchPoints := reduceWaysToSearchPoints(buildings.Delete.Ways, tmp)
 	points := normalized.Filter(
 		[]types.NodeFilter{
 			types.NewNodeFilter("building", "name"),

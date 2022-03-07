@@ -27,7 +27,7 @@ RUN wget https://github.com/omniscale/imposm3/releases/download/v0.11.1/imposm-0
 && rm -rf imposm3.tar.gz
 
 
-ADD data/niedersachsen.pbf .
+ADD data/Hannover.pbf .
 ADD base.pbf .
 ADD imposm .
 

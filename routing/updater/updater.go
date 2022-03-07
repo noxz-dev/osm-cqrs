@@ -33,7 +33,7 @@ func RunUpdate() {
 
 	log.Printf("Connection successful")
 
-	_, err = nc.Subscribe("routing", func(msg *nats.Msg) {
+	_, err = nc.Subscribe("all", func(msg *nats.Msg) {
 		log.Printf("Received message")
 
 		cloudEvent := cloudevents.NewEvent()
