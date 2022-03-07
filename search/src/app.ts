@@ -66,7 +66,7 @@ async function subscribeToEvents() {
       logger.info(`create payload size: ${create.length} elements`);
 
       // for await (const loc of create) {
-      //   await insertDocument(loc);
+      // await insertDocument(loc);
       // }
 
       await bulkInsertDocument(create);
@@ -124,13 +124,23 @@ async function bulkInsertDocument(points: SearchPoint[]) {
   try {
     const body = points.flatMap((doc) => [
       { update: { _index: 'osm', _id: doc.Id } },
-      { doc: doc, doc_as_upsert: true },
+      {
+        doc: {
+          name: doc.Name,
+          location: {
+            lat: doc.Location.Lat,
+            lon: doc.Location.Lng,
+          },
+          tags: doc.Tags || [],
+        },
+        doc_as_upsert: true,
+      },
     ]);
 
     if (body.length === 0) return;
 
     const startTime = performance.now();
-    await client.bulk({ refresh: true, operations: body, index: 'osm' });
+    await client.bulk({ refresh: true, operations: body });
     const endTime = performance.now();
     // logger.info(`bulk insert took ${(endTime - startTime).toFixed(3)} ms`);
   } catch (err: any) {
