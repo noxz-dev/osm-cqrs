@@ -13,7 +13,6 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-
 func RunUpdate() {
 	url := os.Getenv("NATS_IP")
 
@@ -32,10 +31,9 @@ func RunUpdate() {
 
 	defer nc.Close()
 
-
 	log.Printf("Connection successful")
 
-	_, err = nc.Subscribe("routing", func(msg *nats.Msg) {
+	_, err = nc.Subscribe("all", func(msg *nats.Msg) {
 		log.Printf("Received message")
 
 		cloudEvent := cloudevents.NewEvent()
@@ -65,11 +63,9 @@ func RunUpdate() {
 		return
 	}
 
-
 	//block forever
 	select {}
 }
-
 
 // RunImposmUpdate writes the gzip osmChange file to the database via imposm
 func RunImposmUpdate() {

@@ -17,7 +17,7 @@ services:
     image: gospatial/tegola:edge
     volumes:
       - ./tegola:/opt/tegola_config
-    command: ['serve', '--config', '/opt/tegola_config/config.toml']
+    command: [ 'serve', '--config', '/opt/tegola_config/config.toml' ]
     depends_on:
       - renderer-postgis
     env_file:
@@ -29,7 +29,7 @@ services:
 
   importer:
     build:
-      context: backend
+      context: .
     env_file: .env
     volumes:
       - renderer-importer-diff:/src/imposm/diff

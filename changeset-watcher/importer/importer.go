@@ -116,7 +116,8 @@ func Import(filePath string) (*[]types.OsmChangeNormalized, error) {
 
 	now := time.Now()
 
-	changesets := generateChangeSets(&ways, &nodesMap, &relations, 5000)
+	// changesets := generateChangeSetsForRouting(&ways, &nodesMap, &relations, 5000)
+	changesets := generateChangeSetsForRouting(&ways, &nodesMap, &relations, 5000)
 
 	logger.Info("generated", len(*changesets), "changesets, generation took:", time.Since(now), "ms")
 	scanErr := scanner.Err()
@@ -127,28 +128,93 @@ func Import(filePath string) (*[]types.OsmChangeNormalized, error) {
 	return changesets, nil
 }
 
+
+func generateChangeSetsForRouting(ways *[]types.Way, nodes *map[int]types.Node, relations *[]types.Relation, chunkSize int) *[]types.OsmChangeNormalized {
+	changeSets := make([]types.OsmChangeNormalized, 0)
+	changeset := types.OsmChangeNormalized{}
+	nodeCount := 0
+	
+	for _, value := range *nodes {
+		if nodeCount == chunkSize {
+			changeSets = append(changeSets, changeset)
+			changeset = types.OsmChangeNormalized{}
+			nodeCount = 0
+		}
+
+		changeset.Modify.Nodes = append(changeset.Modify.Nodes, value)
+		nodeCount ++;
+	}
+
+	if nodeCount < chunkSize {
+		changeSets = append(changeSets, changeset)
+	}
+
+	for i := 0; i < len(*ways); i += chunkSize {
+		changeset = types.OsmChangeNormalized{}
+		end := i + chunkSize
+		if end > len(*ways) {
+			end = len(*ways)
+		}
+		changeset.Modify.Ways = append(changeset.Modify.Ways, (*ways)[i:end]...)
+		changeSets = append(changeSets, changeset)
+	}
+
+
+	for i := 0; i < len(*relations); i += chunkSize {
+		changeset = types.OsmChangeNormalized{}
+		end := i + chunkSize
+		if end > len(*relations) {
+			end = len(*relations)
+		}
+		changeset.Modify.Relations = append(changeset.Modify.Relations, (*relations)[i:end]...)
+		changeSets = append(changeSets, changeset)
+	}
+
+	return &changeSets;
+}
+
 func generateChangeSets(ways *[]types.Way, nodes *map[int]types.Node, relations *[]types.Relation, chunkSize int) *[]types.OsmChangeNormalized {
 	changeSets := make([]types.OsmChangeNormalized, 0)
 	changeset := types.OsmChangeNormalized{}
 	wayCount := 0
 
+	alreadyCreatedNodes := make(map[int]types.Node, 0)
 	remainingNodes := make([]types.Node, 0)
-	logger.Info("started changeset generation ...")
 
+	logger.Info("started changeset generation ...")
 	for _, way := range *ways {
 		if wayCount == chunkSize {
-			wayCount = 0
 			changeSets = append(changeSets, changeset)
 			changeset = types.OsmChangeNormalized{}
 			wayCount = 0
 		}
 
-		foundNodes, remNodes := getNodesToWay(&way, nodes)
-
-		remainingNodes = append(remainingNodes, *remNodes...)
+		foundNodes := getNodesToWay(&way, nodes, &alreadyCreatedNodes)
 		changeset.Create.Ways = append(changeset.Create.Ways, way)
 		changeset.Create.Nodes = append(changeset.Create.Nodes, *foundNodes...)
 		wayCount++
+	}
+
+	logger.Info("Nodes", len(*nodes))
+	logger.Info("Already created", len(alreadyCreatedNodes))
+
+	//add the changeset to the list, if the waycount is smaller than the chunkSize and all ways are allready processed
+	if wayCount < chunkSize {
+		changeSets = append(changeSets, changeset)
+	}
+
+	allChangesetNodes := make([]types.Node, 0)
+
+	for _, cs := range changeSets {
+		allChangesetNodes = append(allChangesetNodes, cs.Create.Nodes...)
+	}
+
+	remNodes := getAllRemainingNodes(&allChangesetNodes, nodes)
+
+	remainingNodes = append(remainingNodes, *remNodes...)
+		
+	for _, value := range *nodes {
+		remainingNodes = append(remainingNodes, value)
 	}
 
 	for i := 0; i < len(remainingNodes); i += chunkSize {
@@ -157,7 +223,13 @@ func generateChangeSets(ways *[]types.Way, nodes *map[int]types.Node, relations 
 		if end > len(remainingNodes) {
 			end = len(remainingNodes)
 		}
-		changeset.Create.Nodes = append(changeset.Create.Nodes, remainingNodes[i:end]...)
+		
+		remainingSlice := remainingNodes[i:end]
+
+		for _, v  := range remainingSlice {
+			changeset.Create.Nodes = append(changeset.Create.Nodes, v)
+		}
+
 		changeSets = append(changeSets, changeset)
 	}
 
@@ -171,6 +243,7 @@ func generateChangeSets(ways *[]types.Way, nodes *map[int]types.Node, relations 
 		changeSets = append(changeSets, changeset)
 	}
 
+
 	return &changeSets
 }
 
@@ -179,8 +252,6 @@ func chunkSlice(slice []int, chunkSize int) [][]int {
 	for i := 0; i < len(slice); i += chunkSize {
 		end := i + chunkSize
 
-		// necessary check to avoid slicing beyond
-		// slice capacity
 		if end > len(slice) {
 			end = len(slice)
 		}
@@ -191,16 +262,36 @@ func chunkSlice(slice []int, chunkSize int) [][]int {
 	return chunks
 }
 
-func getNodesToWay(way *types.Way, nodes *map[int]types.Node) (*[]types.Node, *[]types.Node) {
-	foundNodes := make([]types.Node, 0)
-	remainingNodes := make([]types.Node, 0)
-	for _, nodeRef := range way.NodeRefs {
+func getAllRemainingNodes(foundNodes *[]types.Node, nodes *map[int]types.Node) *[]types.Node {
+	remainingNodes := make([]types.Node, 0, len(*nodes))
 
-		if node, found := (*nodes)[nodeRef.Ref]; found {
-			foundNodes = append(foundNodes, node)
-		} else {
-			remainingNodes = append(remainingNodes, node)
+	for _, value := range *nodes {
+		found := false
+		for _, node := range *foundNodes {
+			if node.Id == value.Id {
+				found = true
+			}
+		}
+		if !found {
+			remainingNodes = append(remainingNodes, value)
 		}
 	}
-	return &foundNodes, &remainingNodes
+
+	return &remainingNodes
+}
+
+func getNodesToWay(way *types.Way, nodes *map[int]types.Node, alreadyCreatedNodes *map[int]types.Node) *[]types.Node {
+	foundNodes := make([]types.Node, 0)
+	for _, nodeRef := range way.NodeRefs {
+		
+		if node, ok := (*nodes)[nodeRef.Ref]; ok {
+			// if _, ok := (*alreadyCreatedNodes)[nodeRef.Ref]; !ok {
+				
+			// }
+			foundNodes = append(foundNodes, node)
+			(*alreadyCreatedNodes)[node.Id] = node
+		}
+	}
+
+	return &foundNodes
 }
