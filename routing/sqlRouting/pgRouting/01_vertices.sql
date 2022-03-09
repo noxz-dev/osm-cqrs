@@ -1,0 +1,153 @@
+-- https://github.com/makinacorpus/ImpOsm2pgRouting/blob/master/pgRouting/01_vertices.sql
+CREATE SCHEMA IF NOT EXISTS imposm2pgr;
+
+-- Nodes on ways that are on a junction
+DROP TABLE IF EXISTS imposm2pgr.osm_ways_junctions;
+CREATE TABLE imposm2pgr.osm_ways_junctions (
+    id serial PRIMARY KEY,
+    point geometry UNIQUE NOT NULL
+);
+
+-- Spatial index for ways using R-Tree
+CREATE INDEX osm_ways_junctions_idx_point ON imposm2pgr.osm_ways_junctions USING gist(point);
+
+
+-- Function for returning the end of a geometry
+CREATE OR REPLACE FUNCTION imposm2pgr.ends_geom(linestring geometry) RETURNS SETOF geometry AS $$
+DECLARE
+tmp geometry;
+BEGIN
+    tmp = ST_StartPoint(linestring);
+    RETURN NEXT tmp;
+    tmp = ST_EndPoint(linestring);
+    RETURN NEXT tmp;
+    RETURN;
+END
+$$ LANGUAGE plpgsql
+IMMUTABLE PARALLEL SAFE
+RETURNS NULL ON NULL INPUT;
+
+
+-- Returns the points of a linestring as a collection.
+CREATE OR REPLACE FUNCTION imposm2pgr.points_collection(linestring geometry) RETURNS geometry AS $$
+    SELECT
+        ST_Collect(point)
+    FROM
+        (
+            SELECT (ST_DumpPoints(linestring)).geom
+            EXCEPT
+            SELECT ST_StartPoint(linestring)
+            EXCEPT
+            SELECT ST_EndPoint(linestring)
+        ) AS t(point)
+$$
+LANGUAGE SQL IMMUTABLE PARALLEL SAFE;
+
+
+-- Initialize the ways junction table with all end points of all ways
+CREATE OR REPLACE FUNCTION imposm2pgr.initialize_osm_ways_junctions() RETURNS boolean AS $$
+BEGIN
+    RAISE NOTICE '% Clear osm_ways_junctions', timeofday()::timestamp;
+    DELETE FROM imposm2pgr.osm_ways_junctions;
+
+    RAISE NOTICE '% Insert ends of ways into osm_ways_junctions', timeofday()::timestamp;
+    INSERT INTO imposm2pgr.osm_ways_junctions(point)
+    SELECT
+        imposm2pgr.ends_geom(geometry) AS points
+    FROM
+        public.osm_ways
+    ON CONFLICT (point) DO NOTHING
+    ;
+
+    -- From all ways get the points, still grouped by way.
+    -- Better performance than just dumping all nodes.
+    RAISE NOTICE '% Collect ways points', timeofday()::timestamp;
+        -- Does not use TEMP TABLE, so we can plan Parallel Seq Scan on it.
+        CREATE UNLOGGED TABLE junction_points AS
+    SELECT
+        public.osm_ways.osm_id,
+        imposm2pgr.points_collection(geometry) AS points
+    FROM
+        public.osm_ways
+    ;
+
+    CREATE INDEX junction_points_idx_points ON junction_points USING gist(points);
+
+    -- Use spatial index to feet in memory, rather than counting duplicate points.
+    RAISE NOTICE '% Insert duplicate points into osm_ways_junctions', timeofday()::timestamp;
+    INSERT INTO imposm2pgr.osm_ways_junctions(point)
+    SELECT
+        (ST_Dump(ST_intersection(p1.points, p2.points))).geom
+    FROM
+        junction_points AS p1
+        JOIN junction_points AS p2 ON
+        p1.osm_id > p2.osm_id AND
+        ST_intersects(p1.points, p2.points)
+    ON CONFLICT (point) DO NOTHING
+    ;
+
+    DROP TABLE junction_points;
+
+    RAISE NOTICE '% initialize_osm_ways_junctions done', timeofday()::timestamp;
+    RETURN true;
+END
+$$ LANGUAGE plpgsql;
+
+
+-- Update way junctions
+CREATE OR REPLACE FUNCTION imposm2pgr.update_osm_ways_junctions() RETURNS boolean AS $$
+BEGIN
+    RAISE NOTICE 'OLD NEW WAY %', old_new_way
+    RAISE NOTICE 'END GEOMETRY % ', imposm2pgr.ends_geom(new_geometry)
+    INSERT INTO imposm2pgr.osm_ways_junctions(point)
+    SELECT
+        imposm2pgr.ends_geom(new_geometry) AS points
+    FROM
+        old_new_way
+    WHERE
+        new_geometry IS NOT NULL
+    ON CONFLICT (point) DO NOTHING
+    ;
+
+    -- Get group of points from new ways and existing ways intersecting new ways.
+    RAISE NOTICE 'POINT COLLECTION % ', imposm2pgr.points_collection(new_geometry)
+    CREATE TEMP TABLE junction_points AS
+    SELECT
+        old_new_way.osm_id,
+        imposm2pgr.points_collection(new_geometry) AS points
+    FROM
+        old_new_way
+    WHERE
+        new_geometry IS NOT NULL
+
+    UNION
+
+    SELECT
+        public.osm_ways.osm_id,
+        imposm2pgr.points_collection(geometry) AS points
+    FROM
+        public.osm_ways
+        JOIN old_new_way ON
+            new_geometry && geometry
+    WHERE
+        new_geometry IS NOT NULL
+    ;
+
+    CREATE INDEX junction_points_idx_points ON junction_points USING gist(points);
+
+    INSERT INTO imposm2pgr.osm_ways_junctions(point)
+    SELECT
+        (ST_Dump(ST_intersection(p1.points, p2.points))).geom
+    FROM
+        junction_points AS p1
+        JOIN junction_points AS p2 ON
+            p1.osm_id > p2.osm_id AND
+            ST_intersects(p1.points, p2.points)
+    ON CONFLICT (point) DO NOTHING
+    ;
+
+    DROP TABLE junction_points;
+
+    RETURN true;
+END
+$$ LANGUAGE plpgsql;

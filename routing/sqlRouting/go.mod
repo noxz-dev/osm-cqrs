@@ -4,13 +4,12 @@ go 1.17
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.8.0
-	github.com/klauspost/pgzip v1.2.5
 	github.com/nats-io/nats.go v1.13.1-0.20220121202836-972a071d373d
+	github.com/withmandala/go-log v0.1.0
 )
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.11.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
@@ -19,20 +18,18 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/pgtype v1.10.0 // indirect
 	github.com/jackc/puddle v1.2.1 // indirect
-	github.com/lightstep/tracecontext.go v0.0.0-20181129014701-1757c391b1ac // indirect
-	github.com/pkg/errors v0.9.1 // indirect
+	github.com/smartystreets/goconvey v1.7.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.33.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	go.opencensus.io v0.22.0 // indirect
 	golang.org/x/lint v0.0.0-20190930215403-16217165b5de // indirect
 	golang.org/x/sys v0.0.0-20220111092808-5a964db01320 // indirect
+	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.0.0-20200103221440-774c71fcf114 // indirect
 )
 
 require (
-	github.com/cloudevents/sdk-go v1.2.0
 	github.com/gofiber/fiber/v2 v2.28.0
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.5 // indirect

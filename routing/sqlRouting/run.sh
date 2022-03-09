@@ -18,7 +18,6 @@ else
   psql "${PGCON}" -c "DROP SCHEMA IF EXISTS imposm2pgr CASCADE; DROP SCHEMA IF EXISTS import CASCADE;"
   /src/imposm/imposm import -config /src/imposm/config.json -read /src/imposm/base.pbf -write -diff
   /src/imposm/imposm import -config /src/imposm/config.json -deployproduction
-
   # Import SQL
   echo "Load ImpOsm2pgRouting into database"
   echo "-- 00_init.sql"
@@ -34,5 +33,7 @@ else
   echo "Load custom SQL"
   psql "${PGCON}" </src/pgRouting/10_network.sql
 fi
+
+#/src/imposm/imposm run -config /src/imposm/config.json
 
 /src/routing

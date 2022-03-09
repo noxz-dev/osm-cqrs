@@ -14,12 +14,13 @@ services:
 
   routing:
     build:
-      context: .
+      context: ..
     env_file: .env
     restart: unless-stopped
     volumes:
       - routing-importer-diff:/src/imposm/diff
       - routing-importer-cache:/src/imposm/cache
+      - ./out-files:/src/out-files
     depends_on:
       - routing-postgis
     networks:

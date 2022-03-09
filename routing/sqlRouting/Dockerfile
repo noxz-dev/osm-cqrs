@@ -7,7 +7,7 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-COPY . .
+COPY .. .
 
 RUN go build -o /routing
 
@@ -28,6 +28,7 @@ RUN wget https://github.com/omniscale/imposm3/releases/download/v0.11.1/imposm-0
 
 
 ADD data/Hannover.pbf .
+ADD data/niedersachsen.pbf .
 ADD base.pbf .
 ADD imposm .
 
@@ -40,4 +41,5 @@ WORKDIR /src
 #COPY test-data/create.xml .
 #COPY test-data/update.xml .
 COPY run.sh .
+RUN mkdir -p /src/out-files
 ENTRYPOINT ["/src/run.sh"]
