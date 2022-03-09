@@ -1,16 +1,11 @@
-import express from 'express';
+import express, { Request } from 'express';
 import 'dotenv/config';
 import { PORT } from './config';
 import { logger } from './services/logger';
 import { client } from './services/es';
 import { nc } from './services/nats';
 import { StringCodec } from 'nats';
-import {
-  BulkOperationContainer,
-  BulkUpdateAction,
-  BulkUpdateOperation,
-  QueryDslQueryContainer,
-} from '@elastic/elasticsearch/lib/api/types';
+import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 
 const app = express();
 const sc = StringCodec();
@@ -181,44 +176,45 @@ async function demoInsert() {
   await client.indices.refresh({ index: 'osm' });
 }
 
-interface SearchByDistanceBody {
-  location: {
-    lat: number;
-    lon: number;
-  };
+interface SearchByDistanceQuery {
+  lat: number;
+  lon: number;
   distance: string;
 }
 
-app.get('/searchByDistance', async (req, res) => {
-  const {
-    location = { lat: 52.353683, lon: 9.72422 },
-    distance = '1000km',
-  }: SearchByDistanceBody = req.body;
+app.get(
+  '/searchByDistance',
+  async (req: Request<{}, {}, {}, SearchByDistanceQuery>, res) => {
+    const { lat = 52.353683, lon = 9.72422, distance = '1000km' } = req.query;
 
-  if (!location) {
-    res.status(400).send('no location specified');
-  }
+    if (!lat || !lon) {
+      res.status(400).send('no location specified');
+    }
 
-  if (!distance) {
-    res.status(400).send('no distance specified');
-  }
+    if (!distance) {
+      res.status(400).send('no distance specified');
+    }
 
-  const result = await client.search({
-    index: 'osm',
-    query: {
-      bool: {
-        filter: {
-          geo_distance: {
-            distance: distance,
-            location: location,
+    const result = await client.search({
+      index: 'osm',
+      query: {
+        bool: {
+          filter: {
+            geo_distance: {
+              distance: distance,
+              location: {
+                lat,
+                lon,
+              },
+            },
           },
         },
       },
-    },
-  });
+    });
 
-  res.send(result.hits.hits);
-});
+    res.send(result.hits.hits);
+  }
+);
 
 app.get('/all', async (req, res) => {
   try {
@@ -239,7 +235,7 @@ app.get('/all', async (req, res) => {
 
 app.get('/searchByName', async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name } = req.query;
     if (!name) {
       res.status(400).send('no query specified');
     }
@@ -248,7 +244,7 @@ app.get('/searchByName', async (req, res) => {
       query: {
         match: {
           name: {
-            query: name,
+            query: name as string,
             fuzziness: 'AUTO',
             operator: 'AND',
           },
@@ -262,92 +258,76 @@ app.get('/searchByName', async (req, res) => {
   }
 });
 
-app.get('/searchByAddress', async (req, res) => {
-  try {
-    const {
-      city,
-      housenumber,
-      street,
-      amenity,
-    }: { city: string; housenumber: string; street: string; amenity: string } =
-      req.body;
+interface AddressQuery {
+  city: string;
+  housenumber: string;
+  street: string;
+  amenity: string;
+}
 
-    const query = [];
+app.get(
+  '/searchByAddress',
+  async (req: Request<{}, {}, {}, AddressQuery>, res) => {
+    try {
+      const { city, housenumber, street, amenity } = req.query;
 
-    if (city && city.length > 1) {
-      query.push({ match: { 'tags.K': 'addr:city' } });
-      query.push({
-        match: {
-          'tags.V': {
-            query: city,
-            operator: 'AND',
+      const query = [];
+
+      if (city && city.length > 1) {
+        query.push({ match: { 'tags.K': 'addr:city' } });
+        query.push({
+          match: {
+            'tags.V': {
+              query: city,
+              operator: 'AND',
+            },
+          },
+        });
+      }
+
+      if (housenumber && housenumber.length > 1) {
+        query.push({ match: { 'tags.K': 'addr:housenumber' } });
+        query.push({ match: { 'tags.V': housenumber } });
+      }
+
+      if (street && street.length > 1) {
+        query.push({ match: { 'tags.K': 'addr:street' } });
+        query.push({
+          match: {
+            'tags.V': {
+              query: street,
+              operator: 'AND',
+            },
+          },
+        });
+      }
+
+      if (amenity && amenity.length > 1) {
+        query.push({ match: { 'tags.K': 'amenity' } });
+        query.push({ match: { 'tags.V': amenity } });
+      }
+
+      if (query.length === 0) {
+        res.send([]);
+        return;
+      }
+
+      const result = await client.search({
+        index: 'osm',
+        query: {
+          bool: {
+            must: query as QueryDslQueryContainer[],
           },
         },
       });
+
+      res.send(result.hits.hits);
+    } catch (err) {
+      logger.error(err);
+      res.status(400).send();
     }
-
-    if (housenumber && housenumber.length > 1) {
-      query.push({ match: { 'tags.K': 'addr:housenumber' } });
-      query.push({ match: { 'tags.V': housenumber } });
-    }
-
-    if (street && street.length > 1) {
-      query.push({ match: { 'tags.K': 'addr:street' } });
-      query.push({
-        match: {
-          'tags.V': {
-            query: street,
-            operator: 'AND',
-          },
-        },
-      });
-    }
-
-    if (amenity && amenity.length > 1) {
-      query.push({ match: { 'tags.K': 'amenity' } });
-      query.push({ match: { 'tags.V': amenity } });
-    }
-
-    if (query.length === 0) {
-      res.send([]);
-      return;
-    }
-
-    const result = await client.search({
-      index: 'osm',
-      query: {
-        bool: {
-          must: query as QueryDslQueryContainer[],
-        },
-      },
-    });
-
-    res.send(result.hits.hits);
-  } catch (err) {
-    logger.error(err);
-    res.status(400).send();
   }
-});
-
-// app.get('/searchByNameFuzzy', async (req, res) => {
-//   const { name } = req.body;
-//   if (!name) {
-//     res.status(400).send('no query specified');
-//   }
-
-//   const result = await client.search({
-//     index: 'osm',
-//     query: {
-//       multi_match: {
-//         fuzziness: 'AUTO',
-//         fields: ['name'],
-//         query: name,
-//       },
-//     },
-//   });
-
-//   res.send(result.hits.hits);
-// });
+);
 
 app.get('/rawQuery', async (req, res) => {
   try {
