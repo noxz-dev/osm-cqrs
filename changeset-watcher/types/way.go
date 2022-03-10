@@ -27,7 +27,7 @@ func (way Way) GetTag(tagString string) (value string, exists bool) {
 }
 
 func (way *Way) getCreationTime() (creationTime time.Time, err error) {
-	creationTime, err = time.Parse(time.RFC3339, way.Timestamp)
+	creationTime, err = time.Parse(time.RFC3339, way.Timestamp.String())
 	return
 }
 

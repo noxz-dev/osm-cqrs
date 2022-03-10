@@ -245,9 +245,10 @@ func SendAllChangesets(nc *nats.Conn, normalized types.OsmChangeNormalized, wg *
 	}
 
 	xmlContent := types.OsmChangeNormalizedXML{
-		Create: createAction,
-		Modify: normalized.Modify,
-		Delete: normalized.Delete,
+		Version: "0.6",
+		Create:  createAction,
+		Modify:  normalized.Modify,
+		Delete:  normalized.Delete,
 	}
 
 	xmlData, err := xml.MarshalIndent(xmlContent, " ", "    ")
@@ -344,7 +345,7 @@ func generateSearchEventPayload(normalized types.OsmChangeNormalized) types.Sear
 	tmp := append(buildings.Create.Nodes, buildings.Modify.Nodes...)
 	tmp = append(tmp, buildings.Delete.Nodes...)
 	tmp = append(tmp, buildings.Reloaded.Nodes...)
-	
+
 	// modifySearchPoints := reduceWaysToSearchPoints(buildings.Modify.Ways, append(buildings.Modify.Nodes, buildings.Reloaded.Nodes...))
 	// createSearchPoints := reduceWaysToSearchPoints(buildings.Create.Ways, append(buildings.Create.Nodes, buildings.Reloaded.Nodes...))
 	// deleteSearchPoints := reduceWaysToSearchPoints(buildings.Delete.Ways, append(buildings.Delete.Nodes, buildings.Reloaded.Nodes...))

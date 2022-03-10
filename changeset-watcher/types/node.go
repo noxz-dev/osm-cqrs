@@ -63,7 +63,7 @@ func getNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
 }
 
 func (node *Node) getCreationTime() (creationTime time.Time, err error) {
-	creationTime, err = time.Parse(time.RFC3339, node.Timestamp)
+	creationTime, err = time.Parse(time.RFC3339, node.Timestamp.String())
 	return
 }
 

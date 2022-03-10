@@ -1,6 +1,9 @@
 package types
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"time"
+)
 
 type Osm struct {
 	Version   string      `xml:"version"`
@@ -32,6 +35,7 @@ type OsmChange struct {
 
 type OsmChangeNormalizedXML struct {
 	XMLName xml.Name `xml:"osmChange"`
+	Version string   `xml:"version,attr"`
 	Create  Action   `xml:"create"`
 	Modify  Action   `xml:"modify"`
 	Delete  Action   `xml:"delete"`
@@ -50,18 +54,18 @@ type Action struct {
 }
 
 type Node struct {
-	Id        int     `xml:"id,attr"`
-	Version   int     `xml:"version,attr"`
-	Timestamp string  `xml:"timestamp,attr"`
-	Lat       float64 `xml:"lat,attr"`
-	Lon       float64 `xml:"lon,attr"`
-	Tags      []Tag   `xml:"tag"`
+	Id        int       `xml:"id,attr"`
+	Version   int       `xml:"version,attr"`
+	Timestamp time.Time `xml:"timestamp,attr"`
+	Lat       float64   `xml:"lat,attr"`
+	Lon       float64   `xml:"lon,attr"`
+	Tags      []Tag     `xml:"tag"`
 }
 
 type Way struct {
 	Id        int       `xml:"id,attr"`
 	Version   int       `xml:"version,attr"`
-	Timestamp string    `xml:"timestamp,attr"`
+	Timestamp time.Time `xml:"timestamp,attr"`
 	NodeRefs  []NodeRef `xml:"nd"`
 	Tags      []Tag     `xml:"tag"`
 }
@@ -71,11 +75,11 @@ type NodeRef struct {
 }
 
 type Relation struct {
-	Id        int      `xml:"id,attr"`
-	Version   int      `xml:"version,attr"`
-	Timestamp string   `xml:"timestamp,attr"`
-	Member    []Member `xml:"member"`
-	Tags      []Tag    `xml:"tag"`
+	Id        int       `xml:"id,attr"`
+	Version   int       `xml:"version,attr"`
+	Timestamp time.Time `xml:"timestamp,attr"`
+	Member    []Member  `xml:"member"`
+	Tags      []Tag     `xml:"tag"`
 }
 
 type Member struct {
