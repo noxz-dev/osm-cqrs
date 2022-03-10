@@ -69,12 +69,7 @@ func main() {
 
 		for _, changeset := range *changesets {
 			logIfFailing(stat.BeginnColum())
-			wg := new(sync.WaitGroup)
-			wg.Add(3)
-			go SendAllChangesets(nc, changeset, wg)
-			go sendRoutingChangesets(nc, changeset, wg)
-			go sendSearchChangesets(nc, changeset, wg)
-			wg.Wait()
+			logIfFailing(filterFromConfig(nc, config.PathOfFilterConfig, &changeset))
 			logIfFailing(stat.EndColum())
 		}
 
@@ -152,7 +147,7 @@ func main() {
 
 		logIfFailing(stat.EndColum())
 		logger.Info("READ FROM FILTER CONFIG")
-		logIfFailing(filterFromConfig(nc, "config/filter-config.json", &osmNormalized))
+		logIfFailing(filterFromConfig(nc, config.PathOfFilterConfig, &osmNormalized))
 	}
 }
 
