@@ -150,14 +150,112 @@ func main() {
 
 		reloadNodes(&osmNormalized)
 
-		wg := new(sync.WaitGroup)
-		wg.Add(3)
-		go SendAllChangesets(nc, osmNormalized, wg)
-		go sendRoutingChangesets(nc, osmNormalized, wg)
-		go sendSearchChangesets(nc, osmNormalized, wg)
-		wg.Wait()
 		logIfFailing(stat.EndColum())
+		logger.Info("READ FROM FILTER CONFIG")
+		logIfFailing(filterFromConfig(nc, "config/filter-config.json", &osmNormalized))
 	}
+}
+
+func filterFromConfig(nc *nats.Conn, filename string, normalized *types.OsmChangeNormalized) error {
+	file, err := os.OpenFile(filename, os.O_RDONLY, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	jsonDecoder := json.NewDecoder(file)
+	filterConfig := new(types.FilterConfig)
+	err = jsonDecoder.Decode(filterConfig)
+	if err != nil {
+		return err
+	}
+	subjectCount := len(filterConfig.Subjects)
+	wg := new(sync.WaitGroup)
+	wg.Add(subjectCount)
+	for _, subject := range filterConfig.Subjects {
+		if subject.ReduceToPoints {
+			go applyFilterReduceAndSend(nc, subject, *normalized, wg)
+		} else {
+			go applyFilterAndSend(nc, subject, *normalized, wg)
+		}
+	}
+	wg.Wait()
+	return nil
+}
+
+func applyFilterReduceAndSend(nc *nats.Conn, subject types.Subject, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
+	defer wg.Done()
+	//Filtering
+	payload := reduceToSearchPoints(normalized, subject.NodeFilters, subject.WayFilters)
+	//Sending
+	if subject.Compress {
+		payloadBytes, _ := json.Marshal(&payload)
+		zippedBytes, _ := utils.Compress(payloadBytes)
+		publishEvent(nc, subject.Name, zippedBytes, "application/gzip")
+	} else {
+		publishEvent(nc, subject.Name, payload, cloudevents.ApplicationJSON)
+	}
+}
+
+func applyFilterAndSend(nc *nats.Conn, subject types.Subject, normalized types.OsmChangeNormalized, group *sync.WaitGroup) {
+	defer group.Done()
+	//Filtering
+	filtered := normalized.Filter(subject.NodeFilters, subject.WayFilters)
+
+	//Generating Bytes
+	var payloadBytes []byte
+	var err error
+	var contentTyp string
+
+	switch subject.Format {
+	case types.FormatXML:
+		payloadBytes, err = filtered.ToXML()
+		contentTyp = cloudevents.ApplicationXML
+	case types.FormatJSON:
+		fallthrough
+	default:
+		payloadBytes, err = filtered.ToJSON()
+		contentTyp = cloudevents.ApplicationJSON
+	}
+
+	if err != nil {
+		logger.Error(err.Error())
+		return
+	}
+	//Sending
+	if subject.Compress {
+		zippedBytes, _ := utils.Compress(payloadBytes)
+		publishEvent(nc, subject.Name, zippedBytes, "application/gzip")
+	} else if subject.Format == types.FormatJSON || subject.Format == "" {
+		publishEvent(nc, subject.Name, filtered, cloudevents.ApplicationJSON)
+	} else {
+		publishEvent(nc, subject.Name, payloadBytes, contentTyp)
+	}
+
+}
+
+func reduceToSearchPoints(t types.OsmChangeNormalized, nodeFilters []types.NodeFilter, wayFilters []types.WayFilter) types.SearchPayload {
+	filteredWays := t.Filter(nil, wayFilters)
+
+	tmp := append(filteredWays.Create.Nodes, filteredWays.Modify.Nodes...)
+	tmp = append(tmp, filteredWays.Delete.Nodes...)
+	tmp = append(tmp, filteredWays.Reloaded.Nodes...)
+
+	modifySearchPoints := reduceWaysToSearchPoints(filteredWays.Modify.Ways, tmp)
+	createSearchPoints := reduceWaysToSearchPoints(filteredWays.Create.Ways, tmp)
+	deleteSearchPoints := reduceWaysToSearchPoints(filteredWays.Delete.Ways, tmp)
+
+	filteredNodes := t.Filter(nodeFilters, []types.WayFilter{})
+
+	modifySearchPoints = append(modifySearchPoints, reduceNodesToSearchPoints(filteredNodes.Modify.Nodes)...)
+	createSearchPoints = append(createSearchPoints, reduceNodesToSearchPoints(filteredNodes.Create.Nodes)...)
+	deleteSearchPoints = append(deleteSearchPoints, reduceNodesToSearchPoints(filteredNodes.Delete.Nodes)...)
+
+	payload := types.SearchPayload{
+		Modify: modifySearchPoints,
+		Create: createSearchPoints,
+		Delete: deleteSearchPoints,
+	}
+	return payload
+
 }
 
 func reloadNodes(osmNormalized *types.OsmChangeNormalized) {
@@ -285,6 +383,8 @@ func publishEvent(nc *nats.Conn, subject string, payload interface{}, contentTyp
 		return
 	}
 	bytes, err := json.Marshal(event)
+	filename := subject + ":" + time.Now().Format(time.StampMicro)
+	utils.WriteObjectToFile(&bytes, filename)
 
 	if err != nil {
 		logger.Error("Event could not be serialized", err.Error())
@@ -344,7 +444,7 @@ func generateSearchEventPayload(normalized types.OsmChangeNormalized) types.Sear
 	tmp := append(buildings.Create.Nodes, buildings.Modify.Nodes...)
 	tmp = append(tmp, buildings.Delete.Nodes...)
 	tmp = append(tmp, buildings.Reloaded.Nodes...)
-	
+
 	// modifySearchPoints := reduceWaysToSearchPoints(buildings.Modify.Ways, append(buildings.Modify.Nodes, buildings.Reloaded.Nodes...))
 	// createSearchPoints := reduceWaysToSearchPoints(buildings.Create.Ways, append(buildings.Create.Nodes, buildings.Reloaded.Nodes...))
 	// deleteSearchPoints := reduceWaysToSearchPoints(buildings.Delete.Ways, append(buildings.Delete.Nodes, buildings.Reloaded.Nodes...))

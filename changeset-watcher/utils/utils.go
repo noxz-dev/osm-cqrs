@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
+	gzip "github.com/klauspost/pgzip"
 	"os"
 	"regexp"
 	"strconv"
@@ -87,6 +89,22 @@ func CalculateCentroid(points *[]types.Node) types.Location {
 	centroid := types.Location{Lat: xSum / numberOfNodes, Lng: ySum / numberOfNodes}
 
 	return centroid
+}
+
+func Compress(data []byte) (compressedBytes []byte, err error) {
+
+	var buffer bytes.Buffer
+	w := gzip.NewWriter(&buffer)
+	_, err = w.Write(data)
+	if err != nil {
+		return
+	}
+
+	err = w.Close()
+	if err != nil {
+		return
+	}
+	return buffer.Bytes(), nil
 }
 
 // func GeneratePointsFromNodes(nodes *[]types.Node) []Point {

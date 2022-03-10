@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "Subjects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "NodeFilters": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "TagKeys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "TagKeys"
+              ]
+            }
+          },
+          "WayFilters": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "TagKeys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "TagKeys"
+              ]
+            }
+          },
+          "Compress": {
+            "type": "boolean"
+          },
+          "ReduceToPoints": {
+            "type": "boolean"
+          },
+          "Format": {
+            "type": "string",
+            "enum": [
+              "XML",
+              "JSON"
+            ]
+          }
+        },
+        "required": [
+          "Name"
+        ]
+      }
+    }
+  },
+  "required": [
+    "Subjects"
+  ]
+}
+
