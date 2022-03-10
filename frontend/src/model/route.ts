@@ -1,7 +1,4 @@
-export interface Coordinate {
-  Lat: number;
-  Lng: number;
-}
+import { Coordinate } from './coordinate';
 
 export interface Route {
   routePoints: Coordinate[];
