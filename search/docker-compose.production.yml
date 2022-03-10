@@ -26,7 +26,7 @@ services:
   search-backend:
     build: ./search
     ports:
-      - 6000:6000
+      - 12000:6000
     environment:
       - PORT=6000
       - NATS_IP=nats
