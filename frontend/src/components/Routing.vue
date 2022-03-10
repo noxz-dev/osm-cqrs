@@ -16,6 +16,12 @@ const toResults = ref<SearchResultModel[]>();
 
 type LastChangedType = 'from' | 'to';
 
+enum Profile {
+  CAR = 'Car',
+  BICYCLE = 'Bicycle',
+  FOOT = 'Foot'
+}
+
 const lastChanged = ref<LastChangedType>();
 
 const toSearchString = debounceRef('', 300);
@@ -23,6 +29,8 @@ const toSearchString = debounceRef('', 300);
 const fromLoading = ref(false);
 
 const toLoading = ref(false);
+
+const selectedProfile = ref<Profile>(Profile.CAR);
 
 watch(
   () => fromSearchString.value,
@@ -80,7 +88,14 @@ async function calculteRoute() {
   const fromResults = await SearchService.getPositionByName(fromSearchString.value);
   const toResults = await SearchService.getPositionByName(toSearchString.value);
 
-  const route = await RoutingService.getRoute(fromResults[0].location, toResults[0].location);
+  let route;
+  if (selectedProfile.value === Profile.CAR) {
+    route = await RoutingService.getCarRoute(fromResults[0].location, toResults[0].location);
+  } else if (selectedProfile.value === Profile.BICYCLE) {
+    route = await RoutingService.getBycicleRoute(fromResults[0].location, toResults[0].location);
+  } else {
+    route = await RoutingService.getFootRoute(fromResults[0].location, toResults[0].location);
+  }
 
   mapStore.route = route;
 }
@@ -109,6 +124,16 @@ function selectResult(eventPayload: { index: number; result: SearchResultModel }
       <div class="flex justify-center items-center gap-2 text-right">
         <span class="text-slate-600 font-semibold text-sm w-12">To: </span>
         <InputField class="w-full" v-model="toSearchString" placeholder="Leibniz Universität"></InputField>
+      </div>
+      <div class="flex w-full justify-evenly my-2">
+        <div
+          :class="selectedProfile === profile && 'ring-2 ring-green-500 bg-green-200 '"
+          class="px-2 py-0.5 rounded-3xl cursor-pointer"
+          v-for="profile in Profile"
+          @click="selectedProfile = profile"
+        >
+          {{ profile }}
+        </div>
       </div>
       <button type="submit" @click="calculteRoute" class="bg-green-500 p-2 w-full rounded-lg text-white">
         Calculate Route

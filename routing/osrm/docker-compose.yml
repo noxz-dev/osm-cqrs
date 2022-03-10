@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  routing:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - ./data:/src/data
+    ports:
+      - "5000:5000"
+      - "5001:5000"
+      - "5002:5002"
+    networks:
+      - osm_proxy
+networks:
+  osm_proxy:
+    name: osm_cqrs_network
