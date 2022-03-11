@@ -5,40 +5,42 @@ services:
     image: kartoza/postgis:14-3.1
     volumes:
       - renderer-postgis-data:/var/lib/postgresql
-    env_file: ./tile-renderer/backend/.env
+    env_file: ./renderer/.env
     ports:
       - "25432:5432"
     restart: unless-stopped
     networks:
       - osm_proxy
+    shm_size: 1g
 
-  martin:
-    image: urbica/martin
-    environment:
-      - DATABASE_URL=postgres://renderer:password@renderer-postgis:5432/gis
-      - DANGER_ACCEPT_INVALID_CERTS=true
-      - WATCH_MODE=true
-    ports:
-      - "3000:3000"
+  tegola:
+    image: gospatial/tegola:edge
+    volumes:
+      - ./renderer/tegola:/opt/tegola_config
+    command: [ 'serve', '--config', '/opt/tegola_config/config.toml' ]
     depends_on:
-      - postgis
-      - importer
+      - renderer-postgis
+    env_file:
+      - .env
+    ports:
+      - '8080:8080'
     networks:
       - osm_proxy
 
   importer:
     build:
-      context: ./tile-renderer/backend
-    env_file: ./tile-renderer/backend/.env
+      context: ./renderer
+    env_file: ./renderer/.env
     volumes:
       - renderer-importer-diff:/src/imposm/diff
       - renderer-importer-cache:/src/imposm/cache
+      - ./renderer/data:/src/data
     depends_on:
       - postgis
     networks:
       - osm_proxy
     environment:
-      - NATS_IP=nats
+      - NATS_IP=${NATS_IP}
 
 volumes:
   renderer-postgis-data:

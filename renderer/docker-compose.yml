@@ -34,12 +34,13 @@ services:
     volumes:
       - renderer-importer-diff:/src/imposm/diff
       - renderer-importer-cache:/src/imposm/cache
+      - ./data:/src/data
     depends_on:
       - postgis
     networks:
       - osm_proxy
     environment:
-      - NATS_IP=nats
+      - NATS_IP=${NATS_IP}
 
 volumes:
   renderer-postgis-data:

@@ -5,7 +5,7 @@ services:
     image: gospatial/tegola:edge
     volumes:
       - ./:/opt/tegola_config
-    command: ['serve', '--config', '/opt/tegola_config/config.toml']
+    command: [ 'serve', '--config', '/opt/tegola_config/config.toml' ]
     env_file:
       - ../.env
     ports:

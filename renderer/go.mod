@@ -1,10 +1,11 @@
-module noxz.dev/tile-renderer/backend
+module noxz.dev/tile-renderer
 
 go 1.17
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.8.0
 	github.com/nats-io/nats.go v1.13.1-0.20220121202836-972a071d373d
+	github.com/withmandala/go-log v0.1.0
 )
 
 require (
@@ -17,9 +18,13 @@ require (
 	github.com/nats-io/nats-server/v2 v2.7.2 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
+	github.com/smartystreets/goconvey v1.7.2 // indirect
 	go.uber.org/atomic v1.4.0 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.10.0 // indirect
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce // indirect
+	golang.org/x/sys v0.0.0-20220111092808-5a964db01320 // indirect
+	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
+	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 )
