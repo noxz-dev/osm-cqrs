@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/cloudevents/sdk-go/v2 v2.8.0
 	github.com/nats-io/nats.go v1.13.1-0.20220121202836-972a071d373d
+	github.com/robfig/cron v1.2.0
 	github.com/withmandala/go-log v0.1.0
 )
 

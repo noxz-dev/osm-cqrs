@@ -91,8 +91,9 @@ COPY --from=osrm_build /opt /src/osrm
 COPY --from=routing_updater_build /routing-updater /usr/bin/routing-updater
 COPY --from=osmium_build /var/install/osmium-tool/build/src/osmium /usr/bin/osmium
 
-COPY base.pbf /src/data/data/map/map.pbf
-COPY data/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+ADD map.pbf /src/map.pbf
 
 ADD scripts/ /src/scripts/
 RUN /src/scripts/initialize-osrm-backend.sh

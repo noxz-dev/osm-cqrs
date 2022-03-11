@@ -193,10 +193,7 @@ func generateChangeSets(ways *[]types.Way, nodes *map[int]types.Node, relations 
 		wayCount++
 	}
 
-	logger.Info("Nodes:", len(*nodes))
-	logger.Info("Nodes in way:", len(alreadyCreatedNodes))
-
-	//add the changeset to the list, if the waycount is smaller than the chunkSize and all ways are allready processed
+	// add the changeset to the list, if the waycount is smaller than the chunkSize and all ways are allready processed
 	if wayCount < chunkSize {
 		changeSets = append(changeSets, changeset)
 	}
@@ -208,8 +205,6 @@ func generateChangeSets(ways *[]types.Way, nodes *map[int]types.Node, relations 
 	}
 
 	remNodes := getAllRemainingNodes(&alreadyCreatedNodes, nodes)
-
-	logger.Info("Remaining nodes:", *remNodes)
 
 	remainingNodes = append(remainingNodes, *remNodes...)
 

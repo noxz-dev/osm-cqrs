@@ -7,7 +7,12 @@ function delete_temp() {
 
 function run_osrm_backend_generation() {
   osrm-extract "${osrmFolder}"/"${1}"-temp/map-"${1}".pbf -p /src/osrm/"${1}".lua
-
+  if [ $? -eq 0 ]; then
+      echo "Routing data extraction finished for ${1}"
+    else
+      echo "Routing data extraction failed for ${1}"
+      return
+  fi
   osrmFile="${osrmFolder}"/"${1}"-temp/map-"${1}".osrm
   osrm-partition "$osrmFile"
   osrm-customize "$osrmFile"
@@ -20,7 +25,7 @@ function run_osrm_backend_generation() {
 }
 
 function restart_osrm_backend() {
-  supervisorctl stop osrm-routing-"${1}"
+  supervisorctl stop osrm-"${1}"
   rm -rf ${osrmFolder:?}/"${1}"/*
   pattern="map-${1}.osrm*"
   find ${osrmFolder}/"${1}"-temp/ -type f -name "$pattern" -exec mv -i {} ${osrmFolder}/"${1}"/ \;

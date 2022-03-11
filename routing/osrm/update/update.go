@@ -2,17 +2,22 @@ package update
 
 import (
 	"bytes"
+	"github.com/withmandala/go-log"
 	"noxz.dev/routing/osrm/config"
 	"os"
 	"os/exec"
+	"strconv"
 	"time"
-
-	"github.com/withmandala/go-log"
 )
 
 var logger = log.New(os.Stderr)
 
+var isMapUpdating = false
+var isRoutingUpdating = false
+
+// RunLocalMapUpdate updates the local state of the OSM map with the current changeset
 func RunLocalMapUpdate() {
+	isMapUpdating = true
 	osmium := "osmium"
 	osmiumCommand := "apply-changes"
 	currentMap := config.MapDir + "map.pbf"
@@ -32,6 +37,8 @@ func RunLocalMapUpdate() {
 
 	logger.Info("Updating local map")
 
+	config.LogIfFailing(config.MapUpdateStat.StartTimer(config.MapUpdateDuration))
+
 	err := cmd.Run()
 
 	if err != nil {
@@ -40,7 +47,6 @@ func RunLocalMapUpdate() {
 	}
 
 	logger.Info(out.String())
-	elapsed := time.Since(start)
 
 	err = os.Remove(config.MapDir + "map.pbf")
 	if err != nil {
@@ -53,23 +59,37 @@ func RunLocalMapUpdate() {
 		logger.Infof("Error while renaming map: %s", err.Error())
 		return
 	}
+
+	elapsed := time.Since(start)
 	logger.Infof("Updated map in %s", elapsed)
+	config.LogIfFailing(config.MapUpdateStat.StopTimerAndSetDuration(config.MapUpdateDuration))
+
+	if config.CollectStatistics {
+		fi, err := os.Stat(config.MapDir + "map.pbf")
+		if err != nil {
+			config.Logger.Errorf("Error while loading file stats %s: ", err.Error())
+		}
+		config.LogIfFailing(config.MapUpdateStat.SetValue(config.MapSize, strconv.FormatInt(fi.Size(), 10)))
+	}
+
+	isMapUpdating = false
 }
 
-func RunRoutingServersUpdate() {
-	RunCarRoutingServerUpdate()
-}
+// RunRoutingServerUpdate updates the routing servers for all profiles
+func RunRoutingServerUpdate() {
+	for isRoutingUpdating {
+		logger.Info("Routing database is already updating. Skipping...")
+		return
+	}
 
-func RunCarRoutingServerUpdate() {
-	filename := "map.osrm"
-	RunOsrmExtract(&filename)
-	RunOsrmPartition(&filename)
-	RunOsrmCustomize(&filename)
-	RestartOsrmServer(&filename)
-}
+	for isMapUpdating {
+		logger.Info("The map is currently updating. Waiting...")
+		time.Sleep(1)
+	}
 
-func RunOsrmExtract(filename *string) {
-	cmd := exec.Command("osrm-extract", config.OsrmDir+*filename)
+	isRoutingUpdating = true
+
+	cmd := exec.Command("/src/scripts/update-osrm-backend.sh")
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
@@ -78,119 +98,26 @@ func RunOsrmExtract(filename *string) {
 
 	start := time.Now()
 
-	logger.Infof("Pre-process %s for OSRM", *filename)
+	logger.Info("Updating routing database")
+
+	config.LogIfFailing(config.RoutingUpdateStat.BeginnColum())
+
+	config.LogIfFailing(config.RoutingUpdateStat.StartTimer(config.RoutingServerUpdateDuration))
 
 	err := cmd.Run()
 
+	config.LogIfFailing(config.RoutingUpdateStat.StopTimerAndSetDuration(config.RoutingServerUpdateDuration))
+
 	if err != nil {
-		logger.Errorf("Error occurred while running osrm-extract: %s", stderr.String())
+		logger.Errorf("Error occurred while updating the routing database: %s", stderr.String())
 		return
 	}
 
 	logger.Info(out.String())
-
 	elapsed := time.Since(start)
-	logger.Infof("Pre-processed done in %s", elapsed)
-}
+	logger.Infof("Updated routing database in %s", elapsed)
 
-func RunOsrmPartition(filename *string) {
-	cmd := exec.Command("osrm-partition", config.OsrmDir+*filename)
+	config.LogIfFailing(config.RoutingUpdateStat.EndColum())
 
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-
-	start := time.Now()
-
-	logger.Infof("Partition %s for OSRM", *filename)
-
-	err := cmd.Run()
-
-	if err != nil {
-		logger.Errorf("Error occurred while running osrm-partition: %s", stderr.String())
-		return
-	}
-
-	logger.Info(out.String())
-
-	elapsed := time.Since(start)
-	logger.Infof("Partition done in %s", elapsed)
-}
-
-func RunOsrmCustomize(filename *string) {
-	cmd := exec.Command("osrm-customize", config.OsrmDir+*filename)
-
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-
-	start := time.Now()
-
-	logger.Infof("Customize %s for OSRM", *filename)
-
-	err := cmd.Run()
-
-	if err != nil {
-		logger.Errorf("Error occurred while running osrm-customize: %s", stderr.String())
-		return
-	}
-
-	logger.Info(out.String())
-
-	elapsed := time.Since(start)
-	logger.Infof("Partition done in %s", elapsed)
-}
-
-func RestartOsrmServer(filename *string) {
-	StopOsrmServer()
-
-	cmd := exec.Command("osrm-routed", "--algorithm", "mld", config.OsrmDir+*filename)
-
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-
-	start := time.Now()
-
-	logger.Infof("Restarting OSRM server for %s ", *filename)
-
-	err := cmd.Run()
-
-	if err != nil {
-		logger.Errorf("Error occurred while running osrm-routed: %s", stderr.String())
-		return
-	}
-
-	logger.Info(out.String())
-
-	elapsed := time.Since(start)
-	logger.Infof("Partition done in %s", elapsed)
-}
-
-func StopOsrmServer() {
-	cmd := exec.Command("kill", `ps -e | grep osrm | egrep -v grep | awk '{print $1}'`)
-
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-
-	start := time.Now()
-
-	logger.Infof("Stopping OSRM server ")
-
-	err := cmd.Run()
-
-	if err != nil {
-		logger.Errorf("Error occurred while stopping osrm-server: %s", stderr.String())
-		return
-	}
-
-	logger.Info(out.String())
-
-	elapsed := time.Since(start)
-	logger.Infof("Stopping done in %s", elapsed)
+	isRoutingUpdating = false
 }
