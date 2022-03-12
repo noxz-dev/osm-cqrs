@@ -1,4 +1,3 @@
-
 [[providers]]
 name = "postgis"
 type = "mvt_postgis"
@@ -9,658 +8,714 @@ user = "${POSTGRES_USER}"
 password = "${POSTGRES_PASS}"
 srid = 3857
 
-    ####### Landuse ######## 
+####### Landuse ########
 
-    [[providers.layers]]
-    name = "landuse_park"
-    tablename = "public.osm_landusages"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE  type='park') as landuse_park WHERE geometry && !BBOX!"
+[[providers.layers]]
+name = "landuse_park"
+tablename = "public.osm_landusages"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE  type='park') as landuse_park WHERE geometry && !BBOX!"
 
-    [[providers.layers]]
-    name = "landuse_residential"
-    tablename = "public.osm_landusages"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE  type='residential') as landuse_residential WHERE geometry && !BBOX!"
-      
-    [[providers.layers]]
-    name = "landuse_wood"
-    tablename = "public.osm_landusages"
-    geometry_fieldname = "geometry"
-    id_fieldname = "osm_id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, osm_id FROM (SELECT osm_id, geometry, type FROM osm_landusages WHERE  type in ('wood', 'forest')) as landuse_wood WHERE geometry && !BBOX!"
+[[providers.layers]]
+name = "landuse_residential"
+tablename = "public.osm_landusages"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE  type='residential') as landuse_residential WHERE geometry && !BBOX!"
 
-    [[providers.layers]]
-    name = "landuse_grass"
-    tablename = "public.osm_landusages"
-    geometry_fieldname = "geometry"
-    id_fieldname = "osm_id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, osm_id FROM (SELECT osm_id, geometry, type FROM osm_landusages WHERE  type in ('grass', 'garden', 'meadow', 'pitch', 'common', 'recreation_ground')) as landuse_grass WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "landuse_cemetery"
-    tablename = "public.osm_landusages"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE  type in ('cemetery')) as landuse_cementry WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "landuse_hospital"
-    tablename = "public.osm_landusages"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE  type in ('hospital')) as landuse_hospital WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "landuse_school"
-    tablename = "public.osm_landusages"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE  type in ('school')) as landuse_school WHERE geometry && !BBOX!"
-
-    ####### Aeroways ########
-
-    [[providers.layers]]
-    name = "aeroway_fill"
-    tablename = "public.osm_landusages"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE type = 'aeroway') as aeroway_fill  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "aeroway_runway"
-    tablename = "public.osm_landusages"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_aeroways WHERE type = 'runway') as aeroway_runway  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "aeroway_taxiway"
-    tablename = "public.osm_landusages"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_aeroways WHERE type = 'taxiway') as aeroway_taxiway  WHERE geometry && !BBOX!"
-    
-    ####### Roads ######## 
-
-    [[providers.layers]]
-    name = "roads_motorways"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE type='motorway' and bridge=0 and tunnel=0) as roads_motorways  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "roads_motorways_link"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='motorway_link' and bridge=0 and tunnel=0) as roads_motorways  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "roads_residential"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='residential' and bridge=0 and tunnel=0) as roads_residential  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "roads_service_track"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('track', 'service') and bridge=0 and tunnel=0) as roads_service_track  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "roads_secondary_tertiary"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('secondary', 'tertiary') and bridge=0 and tunnel=0) as roads_secondary_tertiary  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "roads_trunk_primary"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary', 'trunk') and bridge=0 and tunnel=0) as roads_trunk_primary  WHERE geometry && !BBOX!"
-
-    
-    [[providers.layers]]
-    name = "roads_pedestrian"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('path', 'pedestrian') and bridge=0 and tunnel=0) as roads_trunk_primary  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "major_rail"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type = 'rail' and bridge=0 and tunnel=0) as roads_link  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "roads_link"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary_link', 'secondary_link', 'tertiary_link') and bridge=0 and tunnel=0) as roads_link  WHERE geometry && !BBOX!"
-
-    ####### Tunnel ########
-
-    [[providers.layers]]
-    name = "tunnel_motorways"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE type='motorway' and tunnel=1) as tunnel_motorways  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "tunnel_motorways_link"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='motorway_link' and tunnel=1) as tunnel_motorways_link  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "tunnel_residential"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='residential' and tunnel=1) as tunnel_residential  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "tunnel_service_track"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('track', 'service') and tunnel=1) as tunnel_service_track  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "tunnel_secondary_tertiary"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('secondary', 'tertiary') and tunnel=1) as tunnel_secondary_tertiary  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "tunnel_trunk_primary"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary', 'trunk') and tunnel=1) as tunnel_trunk_primary  WHERE geometry && !BBOX!"
-
-    
-    [[providers.layers]]
-    name = "tunnel_pedestrian"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('path', 'pedestrian') and tunnel=1) as tunnel_pedestrian  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "tunnel_rail"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type = 'rail' and tunnel=1) as tunnel_rail  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "tunnel_link"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary_link', 'secondary_link', 'tertiary_link') and tunnel=1) as tunnel_link  WHERE geometry && !BBOX!"
-    
-    ####### Bridges ########
-
-    [[providers.layers]]
-    name = "bridge_motorways"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE type='motorway' and bridge=1) as bridge_motorways  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "bridge_motorways_link"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='motorway_link' and bridge=1) as bridge_motorways_link  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "bridge_residential"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='residential' and bridge=1) as bridge_residential  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "bridge_service_track"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('track', 'service') and bridge=1) as bridge_service_track  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "bridge_secondary_tertiary"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('secondary', 'tertiary') and bridge=1) as bridge_secondary_tertiary  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "bridge_trunk_primary"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary', 'trunk') and bridge=1) as bridge_trunk_primary  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "bridge_pedestrian"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('path', 'pedestrian') and bridge=1) as bridge_pedestrian  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "bridge_rail"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type = 'rail' and bridge=1) as bridge_rail  WHERE geometry && !BBOX!"
-
-    [[providers.layers]]
-    name = "bridge_link"
-    tablename = "public.osm_roads"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary_link', 'secondary_link', 'tertiary_link') and bridge=0 and tunnel=1) as bridge_link  WHERE geometry && !BBOX!"
-
-    ####### Water ########
-
-    [[providers.layers]]
-    name = "water_river"
-    tablename = "public.osm_waterways"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_waterways WHERE  type = 'river') as water_river WHERE geometry && !BBOX!"
+[[providers.layers]]
+name = "landuse_wood"
+tablename = "public.osm_landusages"
+geometry_fieldname = "geometry"
+id_fieldname = "osm_id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, osm_id FROM (SELECT osm_id, geometry, type FROM osm_landusages WHERE  type in ('wood', 'forest')) as landuse_wood WHERE geometry && !BBOX!"
 
 
-    [[providers.layers]]
-    name = "water_other"
-    tablename = "public.osm_waterways"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="linestring"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_waterways WHERE  type != 'river') as water_river WHERE geometry && !BBOX!"
+[[providers.layers]]
+name = "landuse_wood_z_9_13"
+tablename = "public.osm_landusages_z_9_13"
+geometry_fieldname = "geometry"
+id_fieldname = "osm_id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, osm_id FROM (SELECT osm_id, geometry, type FROM osm_landusages_z_9_13 WHERE  type in ('wood', 'forest')) as landuse_wood WHERE geometry && !BBOX!"
 
-    [[providers.layers]]
-    name = "water_areas"
-    tablename = "public.osm_waterareas"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM osm_waterareas WHERE geometry && !BBOX!"
+[[providers.layers]]
+name = "landuse_wood_z_7_9"
+tablename = "public.osm_landusages_z_7_9"
+geometry_fieldname = "geometry"
+id_fieldname = "osm_id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, osm_id FROM (SELECT osm_id, geometry, type FROM osm_landusages_z_7_9 WHERE  type in ('wood', 'forest')) as landuse_wood WHERE geometry && !BBOX!"
 
-    ####### Buildings ######## 
-    
-    [[providers.layers]]
-    name = "buildings"
-    tablename = "public.osm_buildings"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM osm_buildings WHERE geometry && !BBOX!"
+[[providers.layers]]
+name = "landuse_wood_z_2_7"
+tablename = "public.osm_landusages_z_2_7"
+geometry_fieldname = "geometry"
+id_fieldname = "osm_id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, osm_id FROM (SELECT osm_id, geometry, type FROM osm_landusages_z_2_7 WHERE  type in ('wood', 'forest')) as landuse_wood WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "landuse_grass"
+tablename = "public.osm_landusages"
+geometry_fieldname = "geometry"
+id_fieldname = "osm_id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, osm_id FROM (SELECT osm_id, geometry, type FROM osm_landusages WHERE  type in ('grass', 'garden', 'meadow', 'pitch', 'common', 'recreation_ground')) as landuse_grass WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "landuse_grass_gen1"
+tablename = "public.osm_landusages_gen1"
+geometry_fieldname = "geometry"
+id_fieldname = "osm_id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, osm_id FROM (SELECT osm_id, geometry, type FROM osm_landusages_gen1 WHERE  type in ('grass', 'garden', 'meadow', 'pitch', 'common', 'recreation_ground')) as landuse_grass WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "landuse_cemetery"
+tablename = "public.osm_landusages"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE  type in ('cemetery')) as landuse_cementry WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "landuse_hospital"
+tablename = "public.osm_landusages"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE  type in ('hospital')) as landuse_hospital WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "landuse_school"
+tablename = "public.osm_landusages"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE  type in ('school')) as landuse_school WHERE geometry && !BBOX!"
+
+####### Aeroways ########
+
+[[providers.layers]]
+name = "aeroway_fill"
+tablename = "public.osm_landusages"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE type = 'aeroway') as aeroway_fill  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "aeroway_runway"
+tablename = "public.osm_landusages"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_aeroways WHERE type = 'runway') as aeroway_runway  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "aeroway_taxiway"
+tablename = "public.osm_landusages"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_aeroways WHERE type = 'taxiway') as aeroway_taxiway  WHERE geometry && !BBOX!"
+
+####### Roads ########
+
+[[providers.layers]]
+name = "roads_motorways"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE type='motorway' and bridge=0 and tunnel=0) as roads_motorways  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "roads_motorways_link"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='motorway_link' and bridge=0 and tunnel=0) as roads_motorways  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "roads_residential"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='residential' and bridge=0 and tunnel=0) as roads_residential  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "roads_service_track"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('track', 'service') and bridge=0 and tunnel=0) as roads_service_track  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "roads_secondary_tertiary"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('secondary', 'tertiary') and bridge=0 and tunnel=0) as roads_secondary_tertiary  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "roads_trunk_primary"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary', 'trunk') and bridge=0 and tunnel=0) as roads_trunk_primary  WHERE geometry && !BBOX!"
 
 
-    ####### Boundaries ######## 
+[[providers.layers]]
+name = "roads_pedestrian"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('path', 'pedestrian') and bridge=0 and tunnel=0) as roads_trunk_primary  WHERE geometry && !BBOX!"
 
-    [[providers.layers]]
-    name = "boundaries_1_2"
-    tablename = "public.osm_buildings"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_admin WHERE admin_level in (1, 2)) as boundaries_1_2 WHERE geometry && !BBOX!"
+[[providers.layers]]
+name = "major_rail"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type = 'rail' and bridge=0 and tunnel=0) as roads_link  WHERE geometry && !BBOX!"
 
-    [[providers.layers]]
-    name = "boundaries_3_4"
-    tablename = "public.osm_buildings"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_admin WHERE admin_level in (3, 4)) as boundaries_3_4 WHERE geometry && !BBOX!"
+[[providers.layers]]
+name = "roads_link"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary_link', 'secondary_link', 'tertiary_link') and bridge=0 and tunnel=0) as roads_link  WHERE geometry && !BBOX!"
 
-    [[providers.layers]]
-    name = "boundaries_5_6"
-    tablename = "public.osm_buildings"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_admin WHERE admin_level in (5, 6)) as boundaries_5_6 WHERE geometry && !BBOX!"
+####### Tunnel ########
 
-    [[providers.layers]]
-    name = "boundaries_7_8"
-    tablename = "public.osm_buildings"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_admin WHERE admin_level in (7, 8)) as boundaries_7_8 WHERE geometry && !BBOX!"
+[[providers.layers]]
+name = "tunnel_motorways"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE type='motorway' and tunnel=1) as tunnel_motorways  WHERE geometry && !BBOX!"
 
-    [[providers.layers]]
-    name = "boundaries_9_10"
-    tablename = "public.osm_buildings"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_admin WHERE admin_level in (9, 10)) as boundaries_9_10 WHERE geometry && !BBOX!"
+[[providers.layers]]
+name = "tunnel_motorways_link"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='motorway_link' and tunnel=1) as tunnel_motorways_link  WHERE geometry && !BBOX!"
 
-    ####### Amenities ########
+[[providers.layers]]
+name = "tunnel_residential"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='residential' and tunnel=1) as tunnel_residential  WHERE geometry && !BBOX!"
 
-    [[providers.layers]]
-    name = "amenities"
-    tablename = "public.osm_amenities"
-    geometry_fieldname = "geometry"
-    id_fieldname = "id"
-    geometry_type="polygon"
-    sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, name, type, id FROM (SELECT geometry, type, id, name FROM osm_amenities WHERE type in ('type', 'park', 'sports_centre', 'stadium', 'grass', 'grassland','garden', 'village_green', 'recreation_ground', 'picnic_site', 'camp_site','playground')) as amenities WHERE geometry && !BBOX!"
+[[providers.layers]]
+name = "tunnel_service_track"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('track', 'service') and tunnel=1) as tunnel_service_track  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "tunnel_secondary_tertiary"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('secondary', 'tertiary') and tunnel=1) as tunnel_secondary_tertiary  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "tunnel_trunk_primary"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary', 'trunk') and tunnel=1) as tunnel_trunk_primary  WHERE geometry && !BBOX!"
+
+
+[[providers.layers]]
+name = "tunnel_pedestrian"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('path', 'pedestrian') and tunnel=1) as tunnel_pedestrian  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "tunnel_rail"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type = 'rail' and tunnel=1) as tunnel_rail  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "tunnel_link"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary_link', 'secondary_link', 'tertiary_link') and tunnel=1) as tunnel_link  WHERE geometry && !BBOX!"
+
+####### Bridges ########
+
+[[providers.layers]]
+name = "bridge_motorways"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE type='motorway' and bridge=1) as bridge_motorways  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "bridge_motorways_link"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='motorway_link' and bridge=1) as bridge_motorways_link  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "bridge_residential"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='residential' and bridge=1) as bridge_residential  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "bridge_service_track"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('track', 'service') and bridge=1) as bridge_service_track  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "bridge_secondary_tertiary"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('secondary', 'tertiary') and bridge=1) as bridge_secondary_tertiary  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "bridge_trunk_primary"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary', 'trunk') and bridge=1) as bridge_trunk_primary  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "bridge_pedestrian"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('path', 'pedestrian') and bridge=1) as bridge_pedestrian  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "bridge_rail"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type = 'rail' and bridge=1) as bridge_rail  WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "bridge_link"
+tablename = "public.osm_roads"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary_link', 'secondary_link', 'tertiary_link') and bridge=0 and tunnel=1) as bridge_link  WHERE geometry && !BBOX!"
+
+####### Water ########
+
+[[providers.layers]]
+name = "water_river"
+tablename = "public.osm_waterways"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_waterways WHERE  type = 'river') as water_river WHERE geometry && !BBOX!"
+
+
+[[providers.layers]]
+name = "water_other"
+tablename = "public.osm_waterways"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "linestring"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_waterways WHERE  type != 'river') as water_river WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "water_areas"
+tablename = "public.osm_waterareas"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM osm_waterareas WHERE geometry && !BBOX!"
+
+####### Buildings ########
+
+[[providers.layers]]
+name = "buildings"
+tablename = "public.osm_buildings"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, coalesce((building_levels * 3), 10) as height, coalesce((building_min_levels * 3), 0) as min_height FROM osm_buildings WHERE geometry && !BBOX!"
+
+
+####### Boundaries ########
+
+[[providers.layers]]
+name = "boundaries_1_2"
+tablename = "public.osm_buildings"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_admin WHERE admin_level in (1, 2)) as boundaries_1_2 WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "boundaries_3_4"
+tablename = "public.osm_buildings"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_admin WHERE admin_level in (3, 4)) as boundaries_3_4 WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "boundaries_5_6"
+tablename = "public.osm_buildings"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_admin WHERE admin_level in (5, 6)) as boundaries_5_6 WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "boundaries_7_8"
+tablename = "public.osm_buildings"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_admin WHERE admin_level in (7, 8)) as boundaries_7_8 WHERE geometry && !BBOX!"
+
+[[providers.layers]]
+name = "boundaries_9_10"
+tablename = "public.osm_buildings"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_admin WHERE admin_level in (9, 10)) as boundaries_9_10 WHERE geometry && !BBOX!"
+
+####### Amenities ########
+
+[[providers.layers]]
+name = "amenities"
+tablename = "public.osm_amenities"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, name, type, id FROM (SELECT geometry, type, id, name FROM osm_amenities WHERE type in ('type', 'park', 'sports_centre', 'stadium', 'grass', 'grassland','garden', 'village_green', 'recreation_ground', 'picnic_site', 'camp_site','playground')) as amenities WHERE geometry && !BBOX!"
 
 [[maps]]
 name = "osm_cqrs"
 
 
-    ####### Landuse ######## 
+####### Landuse ########
 
-    [[maps.layers]]
-    name = "landuse_park"
-    provider_layer = "postgis.landuse_park"
-    min_zoom = 13
-    
-    [[maps.layers]]
-    name = "landuse_residential"
-    provider_layer = "postgis.landuse_residential"
-    min_zoom = 13
+[[maps.layers]]
+name = "landuse_park"
+provider_layer = "postgis.landuse_park"
+min_zoom = 13
 
-    [[maps.layers]]
-    name = "landuse_wood"
-    provider_layer = "postgis.landuse_wood"
-    
-    [[maps.layers]]
-    name = "landuse_grass"
-    provider_layer = "postgis.landuse_grass"
+[[maps.layers]]
+name = "landuse_residential"
+provider_layer = "postgis.landuse_residential"
+min_zoom = 13
 
-    [[maps.layers]]
-    name = "landuse_cemetery"
-    provider_layer = "postgis.landuse_cemetery"
-    min_zoom = 12
+[[maps.layers]]
+name = "landuse_wood"
+provider_layer = "postgis.landuse_wood"
+min_zoom = 13
 
-    [[maps.layers]]
-    name = "landuse_hospital"
-    provider_layer = "postgis.landuse_hospital"
-    min_zoom = 12
+[[maps.layers]]
+name = "landuse_wood_z_9_13"
+provider_layer = "postgis.landuse_wood_z_9_13"
+min_zoom = 9
+max_zoom = 13
 
-    [[maps.layers]]
-    name = "landuse_school"
-    provider_layer = "postgis.landuse_school"
-    min_zoom = 12
-        
-    ####### Water ######## 
+[[maps.layers]]
+name = "landuse_wood_z_7_9"
+provider_layer = "postgis.landuse_wood_z_7_9"
+min_zoom = 7
+max_zoom = 9
 
-    [[maps.layers]]
-    name = "water_river"
-    provider_layer = "postgis.water_river"
-    min_zoom = 8
+[[maps.layers]]
+name = "landuse_wood_z_2_7"
+provider_layer = "postgis.landuse_wood_z_2_7"
+min_zoom = 2
+max_zoom = 7
 
-    [[maps.layers]]
-    name = "water_other"
-    provider_layer = "postgis.water_other"
-    min_zoom = 11
+[[maps.layers]]
+name = "landuse_grass"
+provider_layer = "postgis.landuse_grass"
 
-    [[maps.layers]]
-    name = "water_areas"
-    provider_layer = "postgis.water_areas"
-    min_zoom = 6
+#[[maps.layers]]
+#name = "landuse_grass_gen1"
+#provider_layer = "postgis.landuse_grass_gen1"
 
-    ####### Aeroway ######## 
+[[maps.layers]]
+name = "landuse_cemetery"
+provider_layer = "postgis.landuse_cemetery"
+min_zoom = 12
 
-    [[maps.layers]]
-    name = "aeroway_fill"
-    provider_layer = "postgis.aeroway_fill"
-    min_zoom = 11
+[[maps.layers]]
+name = "landuse_hospital"
+provider_layer = "postgis.landuse_hospital"
+min_zoom = 12
 
-    [[maps.layers]]
-    name = "aeroway_runway"
-    provider_layer = "postgis.aeroway_runway"
-    min_zoom = 11
+[[maps.layers]]
+name = "landuse_school"
+provider_layer = "postgis.landuse_school"
+min_zoom = 12
 
-    [[maps.layers]]
-    name = "aeroway_taxiway"
-    provider_layer = "postgis.aeroway_taxiway"
-    min_zoom = 11
-    
-    ####### Tunnel ########
-    
-    [[maps.layers]]
-    name = "tunnel_motorways"
-    provider_layer = "postgis.tunnel_motorways"
-    min_zoom = 8
+####### Water ########
 
-    [[maps.layers]]
-    name = "tunnel_motorways_link"
-    provider_layer = "postgis.tunnel_motorways_link"
-    min_zoom = 8
-     
-    [[maps.layers]]
-    name = "tunnel_trunk_primary"
-    provider_layer = "postgis.tunnel_trunk_primary"
-    min_zoom = 10
+[[maps.layers]]
+name = "water_river"
+provider_layer = "postgis.water_river"
+min_zoom = 8
 
-    [[maps.layers]]
-    name = "tunnel_secondary_tertiary"
-    provider_layer = "postgis.tunnel_secondary_tertiary"
-    min_zoom = 10
+[[maps.layers]]
+name = "water_other"
+provider_layer = "postgis.water_other"
+min_zoom = 11
 
-    [[maps.layers]]
-    name = "tunnel_service_track"
-    provider_layer = "postgis.tunnel_service_track"
-    min_zoom = 13
-        
-    [[maps.layers]]
-    name = "tunnel_pedestrian"
-    provider_layer = "postgis.tunnel_pedestrian"
-    min_zoom = 13
+[[maps.layers]]
+name = "water_areas"
+provider_layer = "postgis.water_areas"
+min_zoom = 6
 
-    [[maps.layers]]
-    name = "tunnel_residential"
-    provider_layer = "postgis.tunnel_residential"
-    min_zoom = 12
+####### Aeroway ########
 
-    [[maps.layers]]
-    name = "tunnel_link"
-    provider_layer = "postgis.tunnel_link"
-    min_zoom = 10
+[[maps.layers]]
+name = "aeroway_fill"
+provider_layer = "postgis.aeroway_fill"
+min_zoom = 11
 
-    [[maps.layers]]
-    name = "tunnel_rail"
-    provider_layer = "postgis.tunnel_rail"
-    min_zoom = 10
-    
-    ####### Roads ######## 
+[[maps.layers]]
+name = "aeroway_runway"
+provider_layer = "postgis.aeroway_runway"
+min_zoom = 11
 
-    [[maps.layers]]
-    name = "roads_motorways"
-    provider_layer = "postgis.roads_motorways"
-    min_zoom = 8
+[[maps.layers]]
+name = "aeroway_taxiway"
+provider_layer = "postgis.aeroway_taxiway"
+min_zoom = 11
 
-    [[maps.layers]]
-    name = "roads_motorways_link"
-    provider_layer = "postgis.roads_motorways_link"
-    min_zoom = 8
-     
-    [[maps.layers]]
-    name = "roads_trunk_primary"
-    provider_layer = "postgis.roads_trunk_primary"
-    min_zoom = 10
+####### Tunnel ########
 
-    [[maps.layers]]
-    name = "roads_secondary_tertiary"
-    provider_layer = "postgis.roads_secondary_tertiary"
-    min_zoom = 10
+[[maps.layers]]
+name = "tunnel_motorways"
+provider_layer = "postgis.tunnel_motorways"
+min_zoom = 8
 
-    [[maps.layers]]
-    name = "roads_service_track"
-    provider_layer = "postgis.roads_service_track"
-    min_zoom = 13
-        
-    [[maps.layers]]
-    name = "roads_pedestrian"
-    provider_layer = "postgis.roads_pedestrian"
-    min_zoom = 13
+[[maps.layers]]
+name = "tunnel_motorways_link"
+provider_layer = "postgis.tunnel_motorways_link"
+min_zoom = 8
 
-    [[maps.layers]]
-    name = "roads_residential"
-    provider_layer = "postgis.roads_residential"
-    min_zoom = 12
+[[maps.layers]]
+name = "tunnel_trunk_primary"
+provider_layer = "postgis.tunnel_trunk_primary"
+min_zoom = 10
 
-    [[maps.layers]]
-    name = "roads_link"
-    provider_layer = "postgis.roads_link"
-    min_zoom = 10
+[[maps.layers]]
+name = "tunnel_secondary_tertiary"
+provider_layer = "postgis.tunnel_secondary_tertiary"
+min_zoom = 10
 
-    [[maps.layers]]
-    name = "major_rail"
-    provider_layer = "postgis.major_rail"
-    min_zoom = 10
+[[maps.layers]]
+name = "tunnel_service_track"
+provider_layer = "postgis.tunnel_service_track"
+min_zoom = 13
 
-    ####### Bridge ######## 
+[[maps.layers]]
+name = "tunnel_pedestrian"
+provider_layer = "postgis.tunnel_pedestrian"
+min_zoom = 13
 
-    [[maps.layers]]
-    name = "bridge_motorways"
-    provider_layer = "postgis.bridge_motorways"
-    min_zoom = 8
+[[maps.layers]]
+name = "tunnel_residential"
+provider_layer = "postgis.tunnel_residential"
+min_zoom = 12
 
-    [[maps.layers]]
-    name = "bridge_motorways_link"
-    provider_layer = "postgis.bridge_motorways_link"
-    min_zoom = 8
-     
-    [[maps.layers]]
-    name = "bridge_trunk_primary"
-    provider_layer = "postgis.bridge_trunk_primary"
-    min_zoom = 10
+[[maps.layers]]
+name = "tunnel_link"
+provider_layer = "postgis.tunnel_link"
+min_zoom = 10
 
-    [[maps.layers]]
-    name = "bridge_secondary_tertiary"
-    provider_layer = "postgis.bridge_secondary_tertiary"
-    min_zoom = 10
+[[maps.layers]]
+name = "tunnel_rail"
+provider_layer = "postgis.tunnel_rail"
+min_zoom = 10
 
-    [[maps.layers]]
-    name = "bridge_service_track"
-    provider_layer = "postgis.bridge_service_track"
-    min_zoom = 13
-        
-    [[maps.layers]]
-    name = "bridge_pedestrian"
-    provider_layer = "postgis.bridge_pedestrian"
-    min_zoom = 13
+####### Roads ########
 
-    [[maps.layers]]
-    name = "bridge_residential"
-    provider_layer = "postgis.bridge_residential"
-    min_zoom = 12
+[[maps.layers]]
+name = "roads_motorways"
+provider_layer = "postgis.roads_motorways"
+min_zoom = 8
 
-    [[maps.layers]]
-    name = "bridge_link"
-    provider_layer = "postgis.bridge_link"
-    min_zoom = 10
+[[maps.layers]]
+name = "roads_motorways_link"
+provider_layer = "postgis.roads_motorways_link"
+min_zoom = 8
 
-    [[maps.layers]]
-    name = "bridge_rail"
-    provider_layer = "postgis.bridge_rail"
-    min_zoom = 10
-    
-    ####### Buildings ######## 
-    
-    [[maps.layers]]
-    name = "buildings"
-    provider_layer = "postgis.buildings"
-    min_zoom = 13
+[[maps.layers]]
+name = "roads_trunk_primary"
+provider_layer = "postgis.roads_trunk_primary"
+min_zoom = 10
 
-    ####### Boundaries ######## 
+[[maps.layers]]
+name = "roads_secondary_tertiary"
+provider_layer = "postgis.roads_secondary_tertiary"
+min_zoom = 10
 
-    [[maps.layers]]
-    name = "boundaries_1_2"
-    provider_layer = "postgis.boundaries_1_2"
-    min_zoom = 5
-    max_zoom = 8
+[[maps.layers]]
+name = "roads_service_track"
+provider_layer = "postgis.roads_service_track"
+min_zoom = 13
 
-    [[maps.layers]]
-    name = "boundaries_3_4"
-    provider_layer = "postgis.boundaries_3_4"
-    min_zoom = 8
-    max_zoom = 11
-    
-    [[maps.layers]]
-    name = "boundaries_5_6"
-    provider_layer = "postgis.boundaries_5_6"
-    min_zoom = 11
-    max_zoom = 12
-    
-    [[maps.layers]]
-    name = "boundaries_7_8"
-    provider_layer = "postgis.boundaries_7_8"
-    min_zoom = 11
-    max_zoom = 12
+[[maps.layers]]
+name = "roads_pedestrian"
+provider_layer = "postgis.roads_pedestrian"
+min_zoom = 13
 
-    [[maps.layers]]
-    name = "boundaries_9_10"
-    provider_layer = "postgis.boundaries_9_10"
-    min_zoom = 12
+[[maps.layers]]
+name = "roads_residential"
+provider_layer = "postgis.roads_residential"
+min_zoom = 12
 
-    ####### Amenities ########
+[[maps.layers]]
+name = "roads_link"
+provider_layer = "postgis.roads_link"
+min_zoom = 10
 
-    [[maps.layers]]
-    name = "amenities"
-    provider_layer = "postgis.amenities"
+[[maps.layers]]
+name = "major_rail"
+provider_layer = "postgis.major_rail"
+min_zoom = 10
+
+####### Bridge ########
+
+[[maps.layers]]
+name = "bridge_motorways"
+provider_layer = "postgis.bridge_motorways"
+min_zoom = 8
+
+[[maps.layers]]
+name = "bridge_motorways_link"
+provider_layer = "postgis.bridge_motorways_link"
+min_zoom = 8
+
+[[maps.layers]]
+name = "bridge_trunk_primary"
+provider_layer = "postgis.bridge_trunk_primary"
+min_zoom = 10
+
+[[maps.layers]]
+name = "bridge_secondary_tertiary"
+provider_layer = "postgis.bridge_secondary_tertiary"
+min_zoom = 10
+
+[[maps.layers]]
+name = "bridge_service_track"
+provider_layer = "postgis.bridge_service_track"
+min_zoom = 13
+
+[[maps.layers]]
+name = "bridge_pedestrian"
+provider_layer = "postgis.bridge_pedestrian"
+min_zoom = 13
+
+[[maps.layers]]
+name = "bridge_residential"
+provider_layer = "postgis.bridge_residential"
+min_zoom = 12
+
+[[maps.layers]]
+name = "bridge_link"
+provider_layer = "postgis.bridge_link"
+min_zoom = 10
+
+[[maps.layers]]
+name = "bridge_rail"
+provider_layer = "postgis.bridge_rail"
+min_zoom = 10
+
+####### Buildings ########
+
+[[maps.layers]]
+name = "buildings"
+provider_layer = "postgis.buildings"
+min_zoom = 13
+
+####### Boundaries ########
+
+[[maps.layers]]
+name = "boundaries_1_2"
+provider_layer = "postgis.boundaries_1_2"
+min_zoom = 5
+max_zoom = 8
+
+[[maps.layers]]
+name = "boundaries_3_4"
+provider_layer = "postgis.boundaries_3_4"
+min_zoom = 8
+max_zoom = 11
+
+[[maps.layers]]
+name = "boundaries_5_6"
+provider_layer = "postgis.boundaries_5_6"
+min_zoom = 11
+max_zoom = 12
+
+[[maps.layers]]
+name = "boundaries_7_8"
+provider_layer = "postgis.boundaries_7_8"
+min_zoom = 11
+max_zoom = 12
+
+[[maps.layers]]
+name = "boundaries_9_10"
+provider_layer = "postgis.boundaries_9_10"
+min_zoom = 12
+
+####### Amenities ########
+
+[[maps.layers]]
+name = "amenities"
+provider_layer = "postgis.amenities"

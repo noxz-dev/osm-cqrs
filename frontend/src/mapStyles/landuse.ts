@@ -40,8 +40,50 @@ const residential: LayerSpecification = {
   }
 };
 
-const wood: LayerSpecification = {
-  id: 'landcover_wood',
+const wood_z_2_7: LayerSpecification = {
+  id: 'landcover_wood_z_2_7',
+  type: 'fill',
+  source: 'osm_cqrs',
+  'source-layer': 'landuse_wood_z_2_7',
+  paint: {
+    'fill-antialias': false,
+    'fill-color': 'hsla(98, 61%, 72%, 0.7)',
+    'fill-opacity': 0.4
+  },
+  minzoom: 2,
+  maxzoom: 7
+};
+
+const wood_z_7_9: LayerSpecification = {
+  id: 'landcover_wood_z_7_9',
+  type: 'fill',
+  source: 'osm_cqrs',
+  'source-layer': 'landuse_wood_z_7_9',
+  paint: {
+    'fill-antialias': false,
+    'fill-color': 'hsla(98, 61%, 72%, 0.7)',
+    'fill-opacity': 0.4
+  },
+  minzoom: 7,
+  maxzoom: 9
+};
+
+const wood_z_9_13: LayerSpecification = {
+  id: 'landcover_wood_z_9_13',
+  type: 'fill',
+  source: 'osm_cqrs',
+  'source-layer': 'landuse_wood_z_9_13',
+  paint: {
+    'fill-antialias': false,
+    'fill-color': 'hsla(98, 61%, 72%, 0.7)',
+    'fill-opacity': 0.4
+  },
+  minzoom: 9,
+  maxzoom: 13
+};
+
+const wood_z_13_22: LayerSpecification = {
+  id: 'landcover_wood_z_13_22',
   type: 'fill',
   source: 'osm_cqrs',
   'source-layer': 'landuse_wood',
@@ -49,7 +91,9 @@ const wood: LayerSpecification = {
     'fill-antialias': false,
     'fill-color': 'hsla(98, 61%, 72%, 0.7)',
     'fill-opacity': 0.4
-  }
+  },
+  minzoom: 13,
+  maxzoom: 22
 };
 
 const grass: LayerSpecification = {
@@ -92,7 +136,10 @@ export const landuse = {
   park_base,
   park_outline,
   residential,
-  wood,
+  wood_z_2_7,
+  wood_z_7_9,
+  wood_z_9_13,
+  wood_z_13_22,
   grass,
   cementry,
   hospital,

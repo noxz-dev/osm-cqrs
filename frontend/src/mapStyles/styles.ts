@@ -20,7 +20,10 @@ export const layers: LayerSpecification[] = [
   landuse.park_base,
   landuse.park_outline,
   landuse.residential,
-  landuse.wood,
+  landuse.wood_z_2_7,
+  landuse.wood_z_7_9,
+  landuse.wood_z_9_13,
+  landuse.wood_z_13_22,
   landuse.grass,
   landuse.cementry,
   landuse.hospital,
@@ -84,6 +87,7 @@ export const layers: LayerSpecification[] = [
   bridges.major_rail_hatching,
 
   building.area,
+  building.threeD,
 
   boundaries._1_2,
   boundaries._3_4,

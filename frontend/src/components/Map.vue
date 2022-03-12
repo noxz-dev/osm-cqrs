@@ -58,8 +58,8 @@ watch(
 onMounted(async () => {
   map.value = new Map({
     container: 'map',
-    center: [9.7255, 52.36643],
-    zoom: 15,
+    center: [9.724391386801031, 52.353106612757465],
+    zoom: 17,
     style: {
       version: 8,
       sources: {

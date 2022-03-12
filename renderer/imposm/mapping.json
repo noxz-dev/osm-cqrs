@@ -13,45 +13,52 @@
     ]
   },
   "generalized_tables": {
-    "waterareas_gen1": {
+    "landusages_z_9_13": {
+      "source": "landusages",
+      "sql_filter": "type in ('wood', 'forest', 'grass', 'garden', 'meadow', 'pitch', 'common', 'recreation_ground') and ST_Area(geometry)>500000.000000",
+      "tolerance": 100.0
+    },
+    "landusages_z_7_9": {
+      "source": "landusages_z_9_13",
+      "sql_filter": "type in ('wood', 'forest', 'grass', 'garden', 'meadow', 'pitch', 'common', 'recreation_ground') and ST_Area(geometry)>1000000.000000",
+      "tolerance": 1000.0
+    },
+    "landusages_z_2_7": {
+      "source": "landusages_z_7_9",
+      "sql_filter": "type in ('wood', 'forest', 'grass', 'garden', 'meadow', 'pitch', 'common', 'recreation_ground') and ST_Area(geometry)>50000000.000000",
+      "tolerance": 2000.0
+    },
+
+    "waterareas_z_9_13": {
       "source": "waterareas",
       "sql_filter": "ST_Area(geometry)>50000.000000",
-      "tolerance": 50.0
+      "tolerance": 100.0
     },
-    "waterareas_gen0": {
-      "source": "waterareas_gen1",
+    "waterareas_z_7_9": {
+      "source": "waterareas_z_9_13",
       "sql_filter": "ST_Area(geometry)>500000.000000",
-      "tolerance": 200.0
+      "tolerance": 500.0
     },
-    "roads_gen0": {
-      "source": "roads_gen1",
-      "sql_filter": null,
-      "tolerance": 200.0
+    "waterareas_z_2_7": {
+      "source": "waterareas_z_7_9",
+      "sql_filter": "ST_Area(geometry)>10000000.000000",
+      "tolerance": 1000.0
     },
-    "roads_gen1": {
-      "source": "roads",
-      "sql_filter": "type IN ('motorway', 'motorway_link', 'trunk', 'trunk_link', 'primary', 'primary_link', 'secondary', 'secondary_link', 'tertiary', 'tertiary_link') OR class IN('railway')",
-      "tolerance": 50.0
-    },
-    "waterways_gen0": {
-      "source": "waterways_gen1",
-      "sql_filter": null,
-      "tolerance": 200
-    },
-    "waterways_gen1": {
+
+    "waterways_z_9_13": {
       "source": "waterways",
       "sql_filter": null,
-      "tolerance": 50.0
+      "tolerance": 100
     },
-    "landusages_gen1": {
-      "source": "landusages",
-      "sql_filter": "ST_Area(geometry)>50000.000000",
-      "tolerance": 50.0
+    "waterways_z_7_9": {
+      "source": "waterways_z_9_13",
+      "sql_filter": null,
+      "tolerance": 500.0
     },
-    "landusages_gen0": {
-      "source": "landusages_gen1",
-      "sql_filter": "ST_Area(geometry)>500000.000000",
-      "tolerance": 200.0
+    "waterways_z_2_7": {
+      "source": "waterways_z_7_9",
+      "sql_filter": null,
+      "tolerance": 1000.0
     }
   },
   "tables": {
@@ -232,6 +239,26 @@
           "type": "string",
           "name": "name",
           "key": "name"
+        },
+        {
+          "type": "string",
+          "name": "height",
+          "key": "height"
+        },
+        {
+          "type": "string",
+          "name": "min_height",
+          "key":  "min_height"
+        },
+        {
+          "type": "integer",
+          "name": "building_levels",
+          "key": "building:levels"
+        },
+        {
+          "type": "integer",
+          "name": "building_min_levels",
+          "key": "building:min_level"
         },
         {
           "type": "mapping_value",

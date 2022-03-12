@@ -26,6 +26,7 @@ RUN wget https://github.com/omniscale/imposm3/releases/download/v0.11.1/imposm-0
 && rm -rf imposm3.tar.gz
 
 COPY base.pbf ./base.pbf
+COPY data/niedersachsen.pbf ./niedersachsen.pbf
 COPY imposm/config.json ./config.json
 COPY imposm/mapping.json ./mapping.json
 

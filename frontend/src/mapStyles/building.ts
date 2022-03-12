@@ -26,18 +26,38 @@ const threeD: LayerSpecification = {
   source: 'osm_cqrs',
   'source-layer': 'buildings',
   minzoom: 14,
+  // paint: {
+  //   'fill-extrusion-color': 'hsl(35, 8%, 85%)',
+  //   'fill-extrusion-height': {
+  //     property: 'building_levels',
+  //     type: 'identity'
+  //   },
+  //   'fill-extrusion-base': {
+  //     property: 'building_min_levels',
+  //     type: 'identity'
+  //   },
+  //   'fill-extrusion-opacity': 0.8
+  // },
+
   paint: {
     'fill-extrusion-color': 'hsl(35, 8%, 85%)',
-    'fill-extrusion-height': {
-      property: 'render_height',
-      type: 'identity'
-    },
-    'fill-extrusion-base': {
-      property: 'render_min_height',
-      type: 'identity'
-    },
-    'fill-extrusion-opacity': 0.8
+
+    // use an 'interpolate' expression to add a smooth transition effect to the
+    // buildings as the user zooms in
+    'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'height']],
+    'fill-extrusion-base': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'min_height']],
+    'fill-extrusion-opacity': 0.6
   }
+
+  // paint: {
+  //   'fill-extrusion-color': '#aaa',
+
+  //   // use an 'interpolate' expression to add a smooth transition effect to the
+  //   // buildings as the user zooms in
+  //   'fill-extrusion-height': 12,
+  //   'fill-extrusion-base': 0,
+  //   'fill-extrusion-opacity': 0.6
+  // }
 };
 
 export const building = {
