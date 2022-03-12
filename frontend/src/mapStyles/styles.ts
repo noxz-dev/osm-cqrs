@@ -93,9 +93,17 @@ export const layers: LayerSpecification[] = [
   boundaries._3_4,
   boundaries._5_6,
   boundaries._7_8,
-  // boundaries._9_10,
+  boundaries._9_10,
 
-  road_labels.z14,
-  water_labels.areas_z15,
+  road_labels.z14_motorway,
+  road_labels.z14_trunk,
+  road_labels.z14_residential,
+  road_labels.z14_roads_secondary_tertiary,
+  road_labels.z14_service_track,
+  road_labels.z14_roads_trunk_primary,
+  road_labels.z14_roads_pedestrian,
+  water_labels.areas_z13,
+  water_labels.ways_z13,
+  water_labels.others_z13,
   amenities.park
 ];

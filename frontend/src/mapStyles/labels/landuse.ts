@@ -1,7 +1,7 @@
 import { LayerSpecification } from 'maplibre-gl';
 
 const park: LayerSpecification = {
-  minzoom: 14,
+  minzoom: 13,
   layout: {
     'text-field': '{name}',
     'text-size': 11
@@ -15,7 +15,7 @@ const park: LayerSpecification = {
     'text-halo-color': 'rgba(228, 235, 209, 1)',
     'text-halo-width': 1
   },
-  'source-layer': 'amenities'
+  'source-layer': 'landuse_park'
 };
 
 export const amenities = {

@@ -16,7 +16,7 @@ tablename = "public.osm_landusages"
 geometry_fieldname = "geometry"
 id_fieldname = "id"
 geometry_type = "polygon"
-sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_landusages WHERE  type='park') as landuse_park WHERE geometry && !BBOX!"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_landusages WHERE  type='park') as landuse_park WHERE geometry && !BBOX!"
 
 [[providers.layers]]
 name = "landuse_residential"
@@ -149,7 +149,7 @@ tablename = "public.osm_roads"
 geometry_fieldname = "geometry"
 id_fieldname = "id"
 geometry_type = "linestring"
-sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type='residential' and bridge=0 and tunnel=0) as roads_residential  WHERE geometry && !BBOX!"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE type='residential' and bridge=0 and tunnel=0) as roads_residential  WHERE geometry && !BBOX!"
 
 [[providers.layers]]
 name = "roads_service_track"
@@ -157,7 +157,7 @@ tablename = "public.osm_roads"
 geometry_fieldname = "geometry"
 id_fieldname = "id"
 geometry_type = "linestring"
-sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('track', 'service') and bridge=0 and tunnel=0) as roads_service_track  WHERE geometry && !BBOX!"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE type in ('track', 'service') and bridge=0 and tunnel=0) as roads_service_track  WHERE geometry && !BBOX!"
 
 [[providers.layers]]
 name = "roads_secondary_tertiary"
@@ -165,7 +165,7 @@ tablename = "public.osm_roads"
 geometry_fieldname = "geometry"
 id_fieldname = "id"
 geometry_type = "linestring"
-sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE type in ('secondary', 'tertiary') and bridge=0 and tunnel=0) as roads_secondary_tertiary  WHERE geometry && !BBOX!"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE type in ('secondary', 'tertiary') and bridge=0 and tunnel=0) as roads_secondary_tertiary  WHERE geometry && !BBOX!"
 
 [[providers.layers]]
 name = "roads_trunk_primary"
@@ -173,7 +173,7 @@ tablename = "public.osm_roads"
 geometry_fieldname = "geometry"
 id_fieldname = "id"
 geometry_type = "linestring"
-sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('primary', 'trunk') and bridge=0 and tunnel=0) as roads_trunk_primary  WHERE geometry && !BBOX!"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE  type in ('primary', 'trunk') and bridge=0 and tunnel=0) as roads_trunk_primary  WHERE geometry && !BBOX!"
 
 
 [[providers.layers]]
@@ -182,7 +182,7 @@ tablename = "public.osm_roads"
 geometry_fieldname = "geometry"
 id_fieldname = "id"
 geometry_type = "linestring"
-sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type in ('path', 'pedestrian') and bridge=0 and tunnel=0) as roads_trunk_primary  WHERE geometry && !BBOX!"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE  type in ('path', 'pedestrian') and bridge=0 and tunnel=0) as roads_trunk_primary  WHERE geometry && !BBOX!"
 
 [[providers.layers]]
 name = "major_rail"
@@ -190,7 +190,7 @@ tablename = "public.osm_roads"
 geometry_fieldname = "geometry"
 id_fieldname = "id"
 geometry_type = "linestring"
-sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_roads WHERE  type = 'rail' and bridge=0 and tunnel=0) as roads_link  WHERE geometry && !BBOX!"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_roads WHERE  type = 'rail' and bridge=0 and tunnel=0) as roads_link  WHERE geometry && !BBOX!"
 
 [[providers.layers]]
 name = "roads_link"
@@ -357,7 +357,7 @@ tablename = "public.osm_waterways"
 geometry_fieldname = "geometry"
 id_fieldname = "id"
 geometry_type = "linestring"
-sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_waterways WHERE  type = 'river') as water_river WHERE geometry && !BBOX!"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_waterways WHERE  type = 'river') as water_river WHERE geometry && !BBOX!"
 
 
 [[providers.layers]]
@@ -366,7 +366,7 @@ tablename = "public.osm_waterways"
 geometry_fieldname = "geometry"
 id_fieldname = "id"
 geometry_type = "linestring"
-sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id FROM (SELECT id, geometry, type FROM osm_waterways WHERE  type != 'river') as water_river WHERE geometry && !BBOX!"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!) AS geometry, id, name FROM (SELECT id, geometry, type, name FROM osm_waterways WHERE  type != 'river') as water_river WHERE geometry && !BBOX!"
 
 [[providers.layers]]
 name = "water_areas"

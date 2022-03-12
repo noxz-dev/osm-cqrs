@@ -38,5 +38,5 @@ const amenity: LayerSpecification = {
     'text-halo-width': 0.5,
     'text-halo-blur': 1
   },
-  'source-layer': 'amenity_areas'
+  'source-layer': 'amenities'
 };
