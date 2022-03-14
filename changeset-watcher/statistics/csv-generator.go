@@ -35,7 +35,11 @@ func NewStatistic(filename string, fieldNames ...string) Statistic {
 		field := Field{fieldName, "", time.Now()}
 		fields = append(fields, field)
 	}
-	file, _ := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
+	if err != nil {
+		println(err.Error())
+		return Statistic{state: Closed}
+	}
 	fileInfo, _ := file.Stat()
 	if fileInfo.Size() == 0 {
 		sb := strings.Builder{}

@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"noxz.dev/changeset-watcher/importer"
 	"os"
 	"strconv"
 	"sync"
 	"time"
 
 	"noxz.dev/changeset-watcher/config"
-	"noxz.dev/changeset-watcher/importer"
 	"noxz.dev/changeset-watcher/statistics"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
@@ -25,7 +25,7 @@ import (
 )
 
 var logger = log.New(os.Stderr)
-var stat = statistics.NewStatistic("watcher.statistics.csv",
+var stat = statistics.NewStatistic("/watcher-config/watcher.statistics.csv",
 	config.NumberOfIncomingElements,
 	config.DurationChangSetDownload,
 	config.DurationNodesReloading,
@@ -43,10 +43,9 @@ func main() {
 	}
 	var url string
 
-	if url := os.Getenv("NATS_IP"); url == "" {
+	if url = os.Getenv("NATS_IP"); url == "" {
 		url = nats.DefaultURL
 	}
-
 	nc, err := nats.Connect(url)
 	defer nc.Close()
 
