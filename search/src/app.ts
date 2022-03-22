@@ -48,9 +48,6 @@ async function subscribeToEvents() {
       const modify = event.data.Modify as SearchPoint[];
       logger.info(`modify payload size: ${modify.length} elements`);
 
-      // for await (const loc of modify) {
-      //   await insertDocument(loc);
-      // }
       await bulkInsertDocument(modify);
     } catch (err) {
       logger.error(err);
@@ -59,10 +56,6 @@ async function subscribeToEvents() {
     try {
       const create = event.data.Create as SearchPoint[];
       logger.info(`create payload size: ${create.length} elements`);
-
-      // for await (const loc of create) {
-      // await insertDocument(loc);
-      // }
 
       await bulkInsertDocument(create);
     } catch (err) {
@@ -94,7 +87,6 @@ async function subscribeToEvents() {
 
 async function insertDocument(sp: SearchPoint) {
   try {
-    const startTime = performance.now();
     await client.update({
       index: 'osm',
       id: sp.Id,
@@ -108,8 +100,6 @@ async function insertDocument(sp: SearchPoint) {
       },
       doc_as_upsert: true,
     });
-    const endTime = performance.now();
-    // logger.info(`insert document took ${(endTime - startTime).toFixed(3)} ms`);
   } catch (err: any) {
     logger.error(err);
   }
@@ -134,10 +124,7 @@ async function bulkInsertDocument(points: SearchPoint[]) {
 
     if (body.length === 0) return;
 
-    const startTime = performance.now();
     await client.bulk({ refresh: true, operations: body });
-    const endTime = performance.now();
-    // logger.info(`bulk insert took ${(endTime - startTime).toFixed(3)} ms`);
   } catch (err: any) {
     logger.error(err);
   }

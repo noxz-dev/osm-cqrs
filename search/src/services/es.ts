@@ -3,6 +3,7 @@ import { ES_IP } from '../config';
 import { logger } from './logger';
 export const client = new Client({ node: ES_IP });
 
+// create the base schema for the index
 try {
   const resp = await client.indices.create(
     {
