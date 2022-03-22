@@ -10,7 +10,13 @@
     },
     {
       "Name": "routing",
-      "NodeFilters": null,
+      "NodeFilters": [
+        {
+          "TagKeys": [
+            "highway"
+          ]
+        }
+      ],
       "WayFilters": [
         {
           "TagKeys": [

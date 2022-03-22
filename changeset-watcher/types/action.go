@@ -75,10 +75,7 @@ func (action Action) UsedNodesByFilter(nodeIDs *map[int]struct{}, filters ...Nod
 
 func (action *Action) getNewestNodeVersions(newestVersionOfNode *map[int]time.Time) {
 	for _, node := range action.Nodes {
-		creationTime, err := node.getCreationTime()
-		if err != nil {
-			continue
-		}
+		creationTime := node.Timestamp
 		t, exists := (*newestVersionOfNode)[node.Id]
 		if exists && t.After(creationTime) {
 			(*newestVersionOfNode)[node.Id] = t
@@ -91,13 +88,10 @@ func (action *Action) getNewestNodeVersions(newestVersionOfNode *map[int]time.Ti
 func (action *Action) deleteOldNodeVersions(newestVersionOfNode *map[int]time.Time) {
 	newestNodes := make([]Node, 0)
 	for _, node := range action.Nodes {
-		creationTime, err := node.getCreationTime()
-		if err != nil {
-			continue
-		}
+
 		newestTime, exists := (*newestVersionOfNode)[node.Id]
 
-		if exists && creationTime.Equal(newestTime) {
+		if exists && node.Timestamp.Equal(newestTime) {
 			newestNodes = append(newestNodes, node)
 		}
 	}
@@ -106,10 +100,8 @@ func (action *Action) deleteOldNodeVersions(newestVersionOfNode *map[int]time.Ti
 
 func (action *Action) getNewestWayVersions(newestVersionOfWay *map[int]time.Time) {
 	for _, way := range action.Ways {
-		creationTime, err := way.getCreationTime()
-		if err != nil {
-			continue
-		}
+		creationTime := way.Timestamp
+
 		t, exists := (*newestVersionOfWay)[way.Id]
 		if exists && t.After(creationTime) {
 			(*newestVersionOfWay)[way.Id] = t
@@ -122,13 +114,10 @@ func (action *Action) getNewestWayVersions(newestVersionOfWay *map[int]time.Time
 func (action *Action) deleteOldWayVersions(newestVersionOfWay *map[int]time.Time) {
 	newestWay := make([]Way, 0)
 	for _, way := range action.Ways {
-		creationTime, err := way.getCreationTime()
-		if err != nil {
-			continue
-		}
+
 		newestTime, exists := (*newestVersionOfWay)[way.Id]
 
-		if exists && creationTime.Equal(newestTime) {
+		if exists && way.Timestamp.Equal(newestTime) {
 			newestWay = append(newestWay, way)
 		}
 	}
@@ -137,12 +126,9 @@ func (action *Action) deleteOldWayVersions(newestVersionOfWay *map[int]time.Time
 
 func (action *Action) getNewestRelationVersions(newestVersionOfRelation *map[int]time.Time) {
 	for _, relation := range action.Relations {
-		creationTime, err := relation.getCreationTime()
-		if err != nil {
-			continue
-		}
+		creationTime := relation.Timestamp
 		t, exists := (*newestVersionOfRelation)[relation.Id]
-		if exists && t.After(creationTime) {
+		if exists && t.After(relation.Timestamp) {
 			(*newestVersionOfRelation)[relation.Id] = t
 		} else {
 			(*newestVersionOfRelation)[relation.Id] = creationTime
@@ -153,13 +139,9 @@ func (action *Action) getNewestRelationVersions(newestVersionOfRelation *map[int
 func (action *Action) deleteOldRelationVersions(newestVersionOfRelation *map[int]time.Time) {
 	newestRelations := make([]Relation, 0)
 	for _, relation := range action.Relations {
-		creationTime, err := relation.getCreationTime()
-		if err != nil {
-			continue
-		}
 		newestTime, exists := (*newestVersionOfRelation)[relation.Id]
 
-		if exists && creationTime.Equal(newestTime) {
+		if exists && relation.Timestamp.Equal(newestTime) {
 			newestRelations = append(newestRelations, relation)
 		}
 	}

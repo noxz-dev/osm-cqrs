@@ -816,7 +816,8 @@
               "living_street",
               "unclassified",
               "residential",
-              "raceway"
+              "raceway",
+              "construction"
             ]
           }
         }
