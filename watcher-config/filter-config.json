@@ -9,7 +9,7 @@
       "Format": "XML"
     },
     {
-      "Name": "routing2",
+      "Name": "routing",
       "NodeFilters": null,
       "WayFilters": [
         {
