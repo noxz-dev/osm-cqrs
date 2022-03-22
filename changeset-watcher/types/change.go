@@ -136,6 +136,7 @@ func (normalized *OsmChangeNormalized) ToXML() ([]byte, error) {
 		Delete: normalized.Delete,
 		Modify: normalized.Modify,
 	}
+	xmlContent.Version = "0.6"
 	xmlData, err := xml.MarshalIndent(xmlContent, " ", "    ")
 	if err != nil {
 		return xmlData, err

@@ -2,7 +2,6 @@ package types
 
 import (
 	"strings"
-	"time"
 )
 
 func (way Way) HasTags(tags ...string) bool {
@@ -24,11 +23,6 @@ func (way Way) GetTag(tagString string) (value string, exists bool) {
 	}
 	return "", false
 
-}
-
-func (way *Way) getCreationTime() (creationTime time.Time, err error) {
-	creationTime, err = time.Parse(time.RFC3339, way.Timestamp.String())
-	return
 }
 
 func (way *Way) GetAddressString() string {

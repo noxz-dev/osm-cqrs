@@ -36,7 +36,7 @@ services:
       - renderer-importer-cache:/src/imposm/cache
       - ./data:/src/data
     depends_on:
-      - postgis
+      - renderer-postgis
     networks:
       - osm_proxy
     environment:

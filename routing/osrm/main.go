@@ -61,7 +61,7 @@ func main() {
 
 	config.Logger.Info("Connection successful")
 
-	_, err = nc.Subscribe("all", func(msg *nats.Msg) {
+	_, err = nc.Subscribe("routing", func(msg *nats.Msg) {
 		config.LogIfFailing(config.MapUpdateStat.BeginnColum())
 
 		config.Logger.Info("Received message")
@@ -108,7 +108,7 @@ func main() {
 // StartCronForRoutingServerUpdate starts a cron job that updates the routing servers every 5 minutes
 func StartCronForRoutingServerUpdate() {
 	c := cron.New()
-	err := c.AddFunc("@every 5m", update.RunRoutingServerUpdate)
+	err := c.AddFunc("@every 1m", update.RunRoutingServerUpdate)
 	if err != nil {
 		config.Logger.Infof("Could not start cron job %s", err.Error())
 		return
