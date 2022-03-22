@@ -5,8 +5,7 @@
 FROM golang:1.17-buster AS build
 
 WORKDIR /app
-RUN find / -name "*.pc"
-RUN ls /lib64/..
+
 COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
