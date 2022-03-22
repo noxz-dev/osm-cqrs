@@ -1,0 +1,94 @@
+{
+  "Subjects": [
+    {
+      "Name": "all",
+      "NodeFilters": null,
+      "WayFilters": null,
+      "Compress": true,
+      "ReduceToPoints": false,
+      "Format": "XML"
+    },
+    {
+      "Name": "routing",
+      "NodeFilters": null,
+      "WayFilters": [
+        {
+          "TagKeys": [
+            "highway"
+          ]
+        }
+      ],
+      "Compress": true,
+      "ReduceToPoints": false,
+      "Format": "XML"
+    },
+    {
+      "Name": "search",
+      "NodeFilters": [
+        {
+          "TagKeys": [
+            "building",
+            "name"
+          ]
+        },
+        {
+          "TagKeys": [
+            "addr:housenumber"
+          ]
+        },
+        {
+          "TagKeys": [
+            "addr:street"
+          ]
+        },
+        {
+          "TagKeys": [
+            "amenity",
+            "name"
+          ]
+        },
+        {
+          "TagKeys": [
+            "tourism",
+            "name"
+          ]
+        }
+      ],
+      "WayFilters": [
+        {
+          "TagKeys": [
+            "building",
+            "name"
+          ]
+        },
+        {
+          "TagKeys": [
+            "building",
+            "addr:street"
+          ]
+        },
+        {
+          "TagKeys": [
+            "building",
+            "addr:housenumber"
+          ]
+        },
+        {
+          "TagKeys": [
+            "amenity",
+            "name"
+          ]
+        },
+        {
+          "TagKeys": [
+            "tourism",
+            "name"
+          ]
+        }
+      ],
+      "Compress": false,
+      "ReduceToPoints": true,
+      "Format": "JSON"
+    }
+  ]
+}

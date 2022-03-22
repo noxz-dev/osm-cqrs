@@ -5,7 +5,8 @@
 FROM golang:1.17-buster AS build
 
 WORKDIR /app
-
+RUN find / -name "*.pc"
+RUN ls /lib64/..
 COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
@@ -18,12 +19,12 @@ RUN go build -o /changeset-watcher
 ## Deploy
 ##
 
-FROM gcr.io/distroless/base-debian10
+FROM debian:stable-slim
 
 WORKDIR /
 
 COPY --from=build /changeset-watcher /changeset-watcher
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-USER nonroot:nonroot
 
 ENTRYPOINT ["/changeset-watcher"]

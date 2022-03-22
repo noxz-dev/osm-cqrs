@@ -1,6 +1,10 @@
 package types
 
-import "time"
+import (
+	"encoding/json"
+	"encoding/xml"
+	"time"
+)
 
 func (normalized OsmChangeNormalized) ExtractMissingNodes() (nodeIDs map[int]struct{}, missingNodes int, foundNodes int) {
 	missingNodes = 0
@@ -24,20 +28,25 @@ func (normalized *OsmChangeNormalized) Reload() (reloaded int, err error) {
 }
 
 func (normalized OsmChangeNormalized) Filter(nodeFilters []NodeFilter, wayFilters []WayFilter) OsmChangeNormalized {
+	if wayFilters == nil && nodeFilters == nil {
+		return normalized
+	}
 	usedNodes := make(map[int]struct{}, 0)
-	normalized.Create.FilterWays(wayFilters...)
-	normalized.Modify.FilterWays(wayFilters...)
-	normalized.Delete.FilterWays(wayFilters...)
+	if wayFilters != nil {
+		normalized.Create.FilterWays(wayFilters...)
+		normalized.Modify.FilterWays(wayFilters...)
+		normalized.Delete.FilterWays(wayFilters...)
 
-	normalized.Create.UsedNodes(&usedNodes)
-	normalized.Delete.UsedNodes(&usedNodes)
-	normalized.Modify.UsedNodes(&usedNodes)
-
-	normalized.Modify.UsedNodesByFilter(&usedNodes, nodeFilters...)
-	normalized.Delete.UsedNodesByFilter(&usedNodes, nodeFilters...)
-	normalized.Reloaded.UsedNodesByFilter(&usedNodes, nodeFilters...)
-	normalized.Create.UsedNodesByFilter(&usedNodes, nodeFilters...)
-
+		normalized.Create.UsedNodes(&usedNodes)
+		normalized.Delete.UsedNodes(&usedNodes)
+		normalized.Modify.UsedNodes(&usedNodes)
+	}
+	if nodeFilters != nil {
+		normalized.Modify.UsedNodesByFilter(&usedNodes, nodeFilters...)
+		normalized.Delete.UsedNodesByFilter(&usedNodes, nodeFilters...)
+		normalized.Reloaded.UsedNodesByFilter(&usedNodes, nodeFilters...)
+		normalized.Create.UsedNodesByFilter(&usedNodes, nodeFilters...)
+	}
 	normalized.Create.DeleteAllNodesExcept(usedNodes)
 	normalized.Delete.DeleteAllNodesExcept(usedNodes)
 	normalized.Modify.DeleteAllNodesExcept(usedNodes)
@@ -114,4 +123,26 @@ func (normalized *OsmChangeNormalized) RemoveAllDuplicates() {
 	normalized.RemoveDuplicateNodes()
 	normalized.RemoveDuplicateWays()
 	normalized.RemoveDuplicateRelations()
+}
+
+func (normalized *OsmChangeNormalized) ToXML() ([]byte, error) {
+	createAction := Action{
+		Nodes:     append(normalized.Create.Nodes, normalized.Reloaded.Nodes...),
+		Ways:      append(normalized.Create.Ways, normalized.Reloaded.Ways...),
+		Relations: append(normalized.Create.Relations, normalized.Reloaded.Relations...),
+	}
+	xmlContent := OsmChangeNormalizedXML{
+		Create: createAction,
+		Delete: normalized.Delete,
+		Modify: normalized.Modify,
+	}
+	xmlData, err := xml.MarshalIndent(xmlContent, " ", "    ")
+	if err != nil {
+		return xmlData, err
+	}
+	return []byte(xml.Header + string(xmlData)), err
+}
+
+func (normalized *OsmChangeNormalized) ToJSON() ([]byte, error) {
+	return json.Marshal(normalized)
 }
