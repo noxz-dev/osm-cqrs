@@ -96,6 +96,6 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 ADD map.pbf /src/map.pbf
 
 ADD scripts/ /src/scripts/
-RUN /src/scripts/initialize-osrm-backend.sh
+# RUN /src/scripts/initialize-osrm-backend.sh
 
 CMD ["/src/scripts/run.sh"]

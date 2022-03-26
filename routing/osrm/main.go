@@ -108,7 +108,7 @@ func main() {
 // StartCronForRoutingServerUpdate starts a cron job that updates the routing servers every 5 minutes
 func StartCronForRoutingServerUpdate() {
 	c := cron.New()
-	err := c.AddFunc("@every 1m", update.RunRoutingServerUpdate)
+	err := c.AddFunc("@every 5m", update.RunRoutingServerUpdate)
 	if err != nil {
 		config.Logger.Infof("Could not start cron job %s", err.Error())
 		return

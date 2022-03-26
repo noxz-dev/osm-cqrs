@@ -89,7 +89,7 @@ services:
     ports:
       - '8080:8080'
 
-  importer:
+  renderer-importer:
     build:
       context: ./renderer
     env_file: ./renderer/.env
@@ -98,7 +98,7 @@ services:
       - renderer-importer-cache:/src/imposm/cache
       - ./renderer/data:/src/data
     depends_on:
-      - postgis
+      - renderer-postgis
     environment:
       - NATS_IP=nats
 
