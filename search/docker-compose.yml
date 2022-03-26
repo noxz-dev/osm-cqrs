@@ -23,18 +23,6 @@ services:
     networks:
       - proxynet
 
-  kibana:
-    container_name: kibana
-    image: docker.elastic.co/kibana/kibana:8.0.0
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - 5601:5601
-    depends_on:
-      - elasticsearch
-    networks:
-      - proxynet
-
 volumes:
   elasticsearch-data:
     driver: local

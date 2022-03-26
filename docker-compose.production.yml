@@ -9,16 +9,7 @@ services:
     command: "-c /etc/nats/nats.conf"
     volumes:
       - ./nats-config/:/etc/nats
-  # redis:
-  #   image: redis:latest
-  #   volumes:
-  #     - './volumes/redis:/data'
-  #   ports:
-  #     - '6379:6379'
-  #   command: ['redis-server', '--appendonly', 'yes']
-  #   networks:
-  #     - proxynet
-
+      
   watcher:
     build: ./changeset-watcher
     depends_on:
