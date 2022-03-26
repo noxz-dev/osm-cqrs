@@ -84,7 +84,7 @@ func RunRoutingServerUpdate() {
 
 	for isMapUpdating {
 		logger.Info("The map is currently updating. Waiting...")
-		time.Sleep(1)
+		time.Sleep(time.Second)
 	}
 
 	isRoutingUpdating = true

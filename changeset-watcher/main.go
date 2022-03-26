@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"noxz.dev/changeset-watcher/importer"
 	"os"
 	"strconv"
 	"sync"
@@ -52,28 +53,28 @@ func main() {
 		logger.Fatalf("Failed to connect to the NATS-Server: \n%s \n", err.Error())
 		return
 	}
-	/*
-		if len(os.Args) > 1 && os.Args[1] == "--import" {
-			if len(os.Args) != 3 {
-				logger.Error("no pbf filepath specified")
-				return
-			}
 
-			changesets, err := importer.Import(os.Args[2])
-			if err != nil {
-				logger.Fatal("import failed -", err.Error())
-			}
-
-			for _, changeset := range *changesets {
-				logIfFailing(stat.BeginnColum())
-				logIfFailing(filterFromConfig(nc, config.PathOfFilterConfig, &changeset))
-				logIfFailing(stat.EndColum())
-			}
-
+	if len(os.Args) > 1 && os.Args[1] == "--import" {
+		if len(os.Args) != 3 {
+			logger.Error("no pbf filepath specified")
 			return
 		}
 
-	*/
+		changesets, err := importer.Import(os.Args[2])
+		if err != nil {
+			logger.Fatal("import failed -", err.Error())
+		}
+
+		for _, changeset := range *changesets {
+			//logIfFailing(stat.BeginnColum())
+			logIfFailing(filterFromConfig(nc, config.PathOfFilterConfig, &changeset))
+			//logIfFailing(stat.EndColum())
+			logger.Info("Waiting for 3 seconds..")
+			time.Sleep(time.Second * 3)
+		}
+
+		return
+	}
 
 	var oldSeq = 0
 
