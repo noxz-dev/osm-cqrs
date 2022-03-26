@@ -6,6 +6,8 @@ FROM golang:1.17-buster AS build
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install pkg-config
+
 COPY go.mod ./
 COPY go.sum ./
 RUN go mod download

@@ -1,0 +1,119 @@
+version: '3.9'
+services:
+
+  # ------ Events -------
+  nats:
+    image: nats
+    ports:
+      - '4222:4222'
+    command: "-c /etc/nats/nats.conf"
+    volumes:
+      - ./nats-config/:/etc/nats
+      
+  watcher:
+    build: ./changeset-watcher
+    depends_on:
+      - nats
+    environment:
+      - NATS_IP=nats
+    restart: unless-stopped
+    volumes:
+      - ./watcher-config/:/watcher-config
+
+  # ------ SEARCH -------
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.0.0
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  search-backend:
+    build: ./search
+    ports:
+      - 12000:12000
+    environment:
+      - PORT=12000
+      - NATS_IP=nats
+      - ES_IP=http://elasticsearch:9200
+    restart: unless-stopped
+
+  # ------ ROUTING -------
+
+  routing:
+    build: ./routing/osrm
+    env_file:
+      - ./routing/osrm/.env
+    volumes:
+      - ./data:/src/data
+    ports:
+      - "5004:5000"
+      - "5001:5000"
+      - "5002:5002"
+
+  # ------ RENDERER -------
+
+  renderer-postgis:
+    image: kartoza/postgis:14-3.1
+    volumes:
+      - renderer-postgis-data:/var/lib/postgresql
+    env_file: ./renderer/.env
+    ports:
+      - "25432:5432"
+    restart: unless-stopped
+    shm_size: 1g
+
+  tegola:
+    image: gospatial/tegola:edge
+    volumes:
+      - ./renderer/tegola:/opt/tegola_config
+    command: [ 'serve', '--config', '/opt/tegola_config/config.toml' ]
+    depends_on:
+      - renderer-postgis
+    env_file:
+      - ./renderer/.env
+    ports:
+      - '8080:8080'
+
+  importer:
+    build:
+      context: ./renderer
+    env_file: ./renderer/.env
+    volumes:
+      - renderer-importer-diff:/src/imposm/diff
+      - renderer-importer-cache:/src/imposm/cache
+      - ./renderer/data:/src/data
+    depends_on:
+      - postgis
+    environment:
+      - NATS_IP=nats
+
+  frontend:
+    build: './frontend/'
+    ports:
+      - 8000:80
+
+volumes:
+  elasticsearch-data:
+    driver: local
+  renderer-postgis-data:
+  renderer-importer-diff:
+  renderer-importer-cache:
+
+networks:
+  proxynet:
+    name: osm_cqrs_network
