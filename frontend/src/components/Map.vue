@@ -66,6 +66,7 @@ onMounted(async () => {
         osm_cqrs: {
           type: 'vector',
           url: 'http://localhost:8080/capabilities/osm_cqrs.json'
+          // url: 'https://osm.noxz.dev/renderer/capabilities/osm_cqrs.json'
         }
       },
       sprite: 'https://go-spatial.github.io/carto-assets/spritesets/osm_tegola_spritesheet',
@@ -98,9 +99,9 @@ onMounted(async () => {
 });
 
 function updateRoute() {
-  if (mapStore.route) {
+  if (mapStore.route && mapStore.route.statistic.distance > 0) {
     // const coordinates = mapRouteCoordinates(mapStore.route);
-    geojsonRoute.geometry = mapStore.route;
+    geojsonRoute.geometry = mapStore.route.geometry;
     map.value?.getSource('route')?.setData(geojsonRoute);
 
     const coordinates = geojsonRoute.geometry.coordinates;

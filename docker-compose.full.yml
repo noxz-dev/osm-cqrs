@@ -5,11 +5,11 @@ services:
   nats:
     image: nats
     ports:
-      - '4222:4222'
+      - '127.0.0.1:4222:4222'
     command: "-c /etc/nats/nats.conf"
     volumes:
       - ./nats-config/:/etc/nats
-      
+
   watcher:
     build: ./changeset-watcher
     depends_on:
@@ -39,13 +39,13 @@ services:
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
-      - 9200:9200
-      - 9300:9300
+      - "127.0.0.1:9200:9200"
+      - "127.0.0.1:9300:9300"
 
   search-backend:
     build: ./search
     ports:
-      - 12000:12000
+      - "127.0.0.1:12000:12000"
     environment:
       - PORT=12000
       - NATS_IP=nats
@@ -61,9 +61,9 @@ services:
     volumes:
       - ./data:/src/data
     ports:
-      - "5004:5000"
-      - "5001:5000"
-      - "5002:5002"
+      - "127.0.0.1:5004:5000"
+      - "127.0.0.1:5001:5000"
+      - "127.0.0.1:5002:5002"
 
   # ------ RENDERER -------
 
@@ -73,7 +73,7 @@ services:
       - renderer-postgis-data:/var/lib/postgresql
     env_file: ./renderer/.env
     ports:
-      - "25432:5432"
+      - "127.0.0.1:25432:5432"
     restart: unless-stopped
     shm_size: 1g
 
@@ -87,7 +87,7 @@ services:
     env_file:
       - ./renderer/.env
     ports:
-      - '8080:8080'
+      - '127.0.0.1:8080:8080'
 
   renderer-importer:
     build:
@@ -105,7 +105,7 @@ services:
   frontend:
     build: './frontend/'
     ports:
-      - 8000:80
+      - "127.0.0.1:8000:80"
 
 volumes:
   elasticsearch-data:

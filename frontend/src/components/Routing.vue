@@ -35,6 +35,7 @@ const selectedProfile = ref<Profile>(Profile.CAR);
 watch(
   () => fromSearchString.value,
   () => {
+    mapStore.routeError = false;
     fromResult.value = undefined;
     lastChanged.value = 'from';
     if (fromSearchString.value != '') {
@@ -46,6 +47,7 @@ watch(
 watch(
   () => toSearchString.value,
   () => {
+    mapStore.routeError = false;
     lastChanged.value = 'to';
     toResult.value = undefined;
     if (toSearchString.value != '') {
@@ -83,18 +85,36 @@ async function searchToPosition() {
 }
 
 async function calculteRoute() {
-  if (!fromSearchString.value || !toSearchString.value) return;
+  if (!fromResult.value || !toResult.value) return;
 
-  const fromResults = await SearchService.getPositionByName(fromSearchString.value);
-  const toResults = await SearchService.getPositionByName(toSearchString.value);
-
+  const fromCoordinates = fromResult.value?.location;
+  const toCoordinates = toResult.value?.location;
+  mapStore.routeError = false;
   let route;
   if (selectedProfile.value === Profile.CAR) {
-    route = await RoutingService.getCarRoute(fromResults[0].location, toResults[0].location);
+    try {
+      route = await RoutingService.getCarRoute(fromCoordinates, toCoordinates);
+    } catch (error: any) {
+      if (error.response.status === 400) {
+        mapStore.routeError = true;
+      }
+    }
   } else if (selectedProfile.value === Profile.BICYCLE) {
-    route = await RoutingService.getBycicleRoute(fromResults[0].location, toResults[0].location);
+    try {
+      route = await RoutingService.getBycicleRoute(fromCoordinates, toCoordinates);
+    } catch (error: any) {
+      if (error.response.status === 400) {
+        mapStore.routeError = true;
+      }
+    }
   } else {
-    route = await RoutingService.getFootRoute(fromResults[0].location, toResults[0].location);
+    try {
+      route = await RoutingService.getFootRoute(fromCoordinates, toCoordinates);
+    } catch (error: any) {
+      if (error.response.status === 400) {
+        mapStore.routeError = true;
+      }
+    }
   }
 
   mapStore.route = route;
@@ -110,6 +130,19 @@ function selectResult(eventPayload: { index: number; result: SearchResultModel }
     toResult.value = eventPayload.result;
     toResults.value = [];
   }
+}
+
+function secondsToHoursMinuteSecondsString(totalSeconds: number) {
+  const hours = totalSeconds / 3600;
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${hours >= 1 ? `${hours}h` : ''}${minutes >= 1 ? `${minutes}min` : ''} ${Number(seconds).toFixed(0)}s`;
+}
+
+function metersToKilometersMeters(totalMeters: number) {
+  const kilometers = Math.floor(totalMeters / 1000);
+  return `${kilometers >= 1.0 ? `${kilometers}km` : ''} ${Number(totalMeters % 1000).toFixed(0)}m`;
 }
 </script>
 
@@ -269,5 +302,185 @@ function selectResult(eventPayload: { index: number; result: SearchResultModel }
       :search-result="item"
       @result-selected="selectResult"
     />
+  </div>
+
+  <div v-if="mapStore.route?.statistic || mapStore.routeError">
+    <div
+      v-if="mapStore.routeError || mapStore.route?.statistic.distance === 0 || mapStore.route?.statistic.duration === 0"
+      class="flex gap-2 mt-6 p-2 shadow-xl border-2 border-red-800 rounded-lg justify-center items-center bg-red-50"
+    >
+      <div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="30"
+          height="30"
+          class="stroke-red-800 fill-red-800"
+          viewBox="0 0 256 256"
+        >
+          <circle cx="128" cy="128" r="96" fill="none" stroke-miterlimit="10" stroke-width="16"></circle>
+          <circle cx="92" cy="108" r="12"></circle>
+          <circle cx="164" cy="108" r="12"></circle>
+          <circle cx="92" cy="108" r="12"></circle>
+          <circle cx="164" cy="108" r="12"></circle>
+          <path
+            d="M169.6,176a48.1,48.1,0,0,0-83.2,0"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="16"
+          ></path>
+        </svg>
+      </div>
+      <div class="text-red-800 font-semibold">Oh no! There is no route available</div>
+    </div>
+    <div
+      v-if="
+        !mapStore.routeError &&
+        mapStore.route?.statistic &&
+        mapStore.route?.statistic.distance > 0 &&
+        mapStore.route?.statistic.duration > 0
+      "
+      class="flex gap-4 justify-evenly bg-white rounded-lg mt-6 p-2 shadow-xl border-2 border-slate-300"
+    >
+      <div class="flex items-center justify-center gap-1">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="stroke-slate-500" viewBox="0 0 256 256">
+            <circle cx="128" cy="128" r="96" fill="none" stroke-miterlimit="10" stroke-width="16"></circle>
+            <polyline
+              points="128 72 128 128 184 128"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></polyline>
+          </svg>
+        </div>
+        <div>{{ secondsToHoursMinuteSecondsString(mapStore.route.statistic.duration) }}</div>
+      </div>
+
+      <div class="flex items-center justify-center gap-1">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="stroke-slate-500" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none"></rect>
+            <rect
+              x="26.2"
+              y="82.7"
+              width="203.6"
+              height="90.51"
+              rx="8"
+              transform="translate(-53 128) rotate(-45)"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></rect>
+            <line
+              x1="132"
+              y1="60"
+              x2="164"
+              y2="92"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></line>
+            <line
+              x1="96"
+              y1="96"
+              x2="128"
+              y2="128"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></line>
+            <line
+              x1="60"
+              y1="132"
+              x2="92"
+              y2="164"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></line>
+          </svg>
+        </div>
+        <div>{{ metersToKilometersMeters(mapStore.route.statistic.distance) }}</div>
+      </div>
+      <div class="flex items-center justify-center gap-1">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="stroke-slate-500" viewBox="0 0 256 256">
+            <circle
+              cx="40"
+              cy="200"
+              r="24"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></circle>
+            <circle
+              cx="96"
+              cy="96"
+              r="24"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></circle>
+            <circle
+              cx="160"
+              cy="160"
+              r="24"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></circle>
+            <circle
+              cx="216"
+              cy="56"
+              r="24"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></circle>
+            <line
+              x1="84.6"
+              y1="117.1"
+              x2="51.4"
+              y2="178.9"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></line>
+            <line
+              x1="143"
+              y1="143"
+              x2="113"
+              y2="113"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></line>
+            <line
+              x1="204.6"
+              y1="77.1"
+              x2="171.4"
+              y2="138.9"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="16"
+            ></line>
+          </svg>
+        </div>
+        <div>{{ mapStore.route.statistic.steps.length }} Steps</div>
+      </div>
+    </div>
   </div>
 </template>

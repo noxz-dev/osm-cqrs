@@ -3,11 +3,13 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import Map from './components/Map.vue';
 import Navigation from './components/Navigation.vue';
+import SearchItemCountBadge from './components/SearchItemCountBadge.vue';
 </script>
 
 <template>
   <Navigation></Navigation>
   <Map></Map>
+  <SearchItemCountBadge></SearchItemCountBadge>
 </template>
 
 <style>

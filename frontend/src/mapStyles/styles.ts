@@ -54,17 +54,19 @@ export const layers: LayerSpecification[] = [
   tunnel.major_rail,
   tunnel.major_rail_hatching,
 
+  roads.service_track_casing,
+  roads.service_track,
   roads.residential_casting,
   roads.residential_base,
   roads.motorway_link_casing,
-  roads.service_track_casing,
+
   roads.link_casing,
   roads.secondary_tertiary_casing,
   roads.trunk_primary_casing,
   roads.motorway_casing,
   roads.path_pedestrian,
   roads.motorway_link,
-  roads.service_track,
+
   roads.link,
   roads.seconday_tetiary,
   roads.trunk_primary,
