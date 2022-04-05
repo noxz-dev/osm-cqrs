@@ -159,13 +159,15 @@ func filterFromConfig(nc *nats.Conn, filename string, normalized *types.OsmChang
 func startAsyncSpecificProcessing(nc *nats.Conn, subject types.Subject, normalized *types.OsmChangeNormalized, wg *sync.WaitGroup, startTime time.Time) {
 	defer wg.Done()
 	var subjectStat = statistics.NewStatistic("/watcher-config/"+subject.Name+".statistics.csv",
-		config.DurationForFiltering,
-		config.NumberOfPublishedElements,
 		config.NumberOfIncomingElements,
-		config.DurationTotal)
+		config.NumberOfReloadedNodes,
+		config.DurationTotal,
+		config.NumberOfPublishedElements,
+		config.DurationForFiltering)
 	defer subjectStat.Close()
 	logIfFailing(subjectStat.BeginnColum())
 	logIfFailing(subjectStat.SetValue(config.NumberOfIncomingElements, strconv.Itoa(normalized.Size())))
+	logIfFailing(subjectStat.SetValue(config.NumberOfReloadedNodes, strconv.Itoa(normalized.Reloaded.Size())))
 	logIfFailing(subjectStat.StartTimer(config.DurationForFiltering))
 	publishedElementsCount := startSpecificProcessing(nc, subject, normalized)
 	logIfFailing(subjectStat.SetValue(config.NumberOfPublishedElements, strconv.Itoa(publishedElementsCount)))
