@@ -2,6 +2,7 @@ package statistics
 
 import (
 	"errors"
+	"noxz.dev/changeset-watcher/config"
 	"os"
 	"strconv"
 	"strings"
@@ -27,33 +28,42 @@ const (
 	Ready
 	Closed
 	Paused
+	MutedClosed
 )
 
 func NewStatistic(filename string, fieldNames ...string) Statistic {
-	fields := make([]Field, 0)
-	for _, fieldName := range fieldNames {
-		field := Field{fieldName, "", time.Now()}
-		fields = append(fields, field)
-	}
-	file, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
-	if err != nil {
-		println(err.Error())
-		return Statistic{state: Closed}
-	}
-	fileInfo, _ := file.Stat()
-	if fileInfo.Size() == 0 {
-		sb := strings.Builder{}
-		sb.WriteString("ID")
+	if config.CollectStatistics {
+		fields := make([]Field, 0)
 		for _, fieldName := range fieldNames {
-			sb.WriteString("," + fieldName)
+			field := Field{fieldName, "", time.Now()}
+			fields = append(fields, field)
 		}
-		sb.WriteString("\n")
-		file.WriteString(sb.String())
-	}
-	return Statistic{
-		fields:  fields,
-		state:   Ready,
-		csvFile: file,
+		file, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, os.ModePerm)
+		if err != nil {
+			println(err.Error())
+			return Statistic{state: Closed}
+		}
+		fileInfo, _ := file.Stat()
+		if fileInfo.Size() == 0 {
+			sb := strings.Builder{}
+			sb.WriteString("ID")
+			for _, fieldName := range fieldNames {
+				sb.WriteString("," + fieldName)
+			}
+			sb.WriteString("\n")
+			file.WriteString(sb.String())
+		}
+		return Statistic{
+			fields:  fields,
+			state:   Ready,
+			csvFile: file,
+		}
+	} else {
+		return Statistic{
+			fields:  nil,
+			state:   MutedClosed,
+			csvFile: nil,
+		}
 	}
 }
 
@@ -63,7 +73,7 @@ func (statistic *Statistic) BeginnColum() error {
 		return errors.New("colum has to be ended before beginning a new one")
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
-	case Paused:
+	case Paused, MutedClosed:
 		return nil
 	}
 	statistic.state = Collecting
@@ -81,7 +91,7 @@ func (statistic *Statistic) SetValue(fieldName string, value string) error {
 		return errors.New("start new colum before setting a value")
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
-	case Paused:
+	case Paused, MutedClosed:
 		return nil
 	}
 
@@ -99,7 +109,7 @@ func (statistic *Statistic) StartTimer(fieldName string) error {
 		return errors.New("start new colum before starting a timer")
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
-	case Paused:
+	case Paused, MutedClosed:
 		return nil
 	}
 
@@ -118,7 +128,7 @@ func (statistic *Statistic) StopTimerAndSetDuration(fieldName string) error {
 		return errors.New("start new colum before stopping a timer")
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
-	case Paused:
+	case Paused, MutedClosed:
 		return nil
 	}
 	fields := statistic.fields
@@ -138,7 +148,7 @@ func (statistic *Statistic) EndColum() error {
 		return errors.New("start new colum before ending a colum")
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
-	case Paused:
+	case Paused, MutedClosed:
 		return nil
 	}
 	statistic.state = Ready
@@ -155,6 +165,9 @@ func (statistic *Statistic) EndColum() error {
 }
 
 func (statistic *Statistic) Close() error {
+	if statistic.state == MutedClosed {
+		return nil
+	}
 	if statistic.state == Closed {
 		return errors.New("this statistic is already closed")
 	}
@@ -170,6 +183,8 @@ func (statistic *Statistic) Pause() error {
 		return errors.New("this operation is not allowed, because this statistic is paused")
 	case Collecting:
 		return errors.New("statistic cant be paused, while collecting data. end colum to pause")
+	case MutedClosed:
+		return nil
 	}
 	statistic.state = Paused
 	return nil
@@ -179,6 +194,9 @@ func (statistic *Statistic) Continue() error {
 	switch statistic.state {
 	case Closed:
 		return errors.New("this operation is not allowed, because this statistic is closed")
+
+	case MutedClosed:
+		return nil
 	}
 
 	statistic.state = Ready

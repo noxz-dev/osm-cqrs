@@ -24,22 +24,8 @@ import (
 )
 
 var logger = log.New(os.Stderr)
-var stat = statistics.NewStatistic("/watcher-config/watcher.statistics.csv",
-	config.NumberOfIncomingElements,
-	config.DurationChangSetDownload,
-	config.DurationNodesReloading,
-	config.NumberOfReloadedNodes,
-	config.NumberOfPublishedElements,
-	config.NumberOfPublishedRoutingElements,
-	config.DurationForRoutesFiltering,
-	config.NumberOfPublishedSearchElements,
-	config.DurationForSearchFiltering)
 
 func main() {
-	defer stat.Close()
-	if !config.CollectStatistics {
-		stat.Pause()
-	}
 	var url string
 
 	if url = os.Getenv("NATS_IP"); url == "" {
@@ -100,7 +86,6 @@ func main() {
 			time.Sleep(config.SequenceNumberPollingInterval * time.Second)
 			continue
 		}
-		logIfFailing(stat.BeginnColum())
 		oldSeq = seq
 
 		logger.Info("new sequence number:" + fmt.Sprint(seq) + " parsing....")
@@ -108,7 +93,7 @@ func main() {
 		url := utils.BuildChangeSetUrl(seq)
 
 		logger.Info("fetching " + url)
-		logIfFailing(stat.StartTimer(config.DurationChangSetDownload))
+		startTime := time.Now()
 		resp, err = http.Get(url)
 
 		if err != nil {
@@ -132,7 +117,6 @@ func main() {
 
 		body, _ = io.ReadAll(reader)
 		resp.Body.Close()
-		logIfFailing(stat.StopTimerAndSetDuration(config.DurationChangSetDownload))
 		logger.Info("parsing xml ...")
 		osm := types.OsmChange{}
 		err = xml.Unmarshal(body, &osm)
@@ -146,13 +130,12 @@ func main() {
 
 		reloadNodes(&osmNormalized)
 
-		logIfFailing(stat.EndColum())
 		logger.Info("READ FROM FILTER CONFIG")
-		logIfFailing(filterFromConfig(nc, config.PathOfFilterConfig, &osmNormalized))
+		logIfFailing(filterFromConfig(nc, config.PathOfFilterConfig, &osmNormalized, startTime))
 	}
 }
 
-func filterFromConfig(nc *nats.Conn, filename string, normalized *types.OsmChangeNormalized) error {
+func filterFromConfig(nc *nats.Conn, filename string, normalized *types.OsmChangeNormalized, startTime time.Time) error {
 	file, err := os.OpenFile(filename, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		return err
@@ -167,18 +150,41 @@ func filterFromConfig(nc *nats.Conn, filename string, normalized *types.OsmChang
 	wg := new(sync.WaitGroup)
 	wg.Add(subjectCount)
 	for _, subject := range filterConfig.Subjects {
-		if subject.ReduceToPoints {
-			go applyFilterReduceAndSend(nc, subject, *normalized, wg)
-		} else {
-			go applyFilterAndSend(nc, subject, *normalized, wg)
-		}
+		go startAsyncSpecificProcessing(nc, subject, normalized, wg, startTime)
 	}
 	wg.Wait()
 	return nil
 }
 
-func applyFilterReduceAndSend(nc *nats.Conn, subject types.Subject, normalized types.OsmChangeNormalized, wg *sync.WaitGroup) {
+func startAsyncSpecificProcessing(nc *nats.Conn, subject types.Subject, normalized *types.OsmChangeNormalized, wg *sync.WaitGroup, startTime time.Time) {
 	defer wg.Done()
+	var subjectStat = statistics.NewStatistic("/watcher-config/"+subject.Name+".statistics.csv",
+		config.DurationForFiltering,
+		config.NumberOfPublishedElements,
+		config.NumberOfIncomingElements,
+		config.DurationTotal)
+	defer subjectStat.Close()
+	logIfFailing(subjectStat.BeginnColum())
+	logIfFailing(subjectStat.SetValue(config.NumberOfIncomingElements, strconv.Itoa(normalized.Size())))
+	logIfFailing(subjectStat.StartTimer(config.DurationForFiltering))
+	publishedElementsCount := startSpecificProcessing(nc, subject, normalized)
+	logIfFailing(subjectStat.SetValue(config.NumberOfPublishedElements, strconv.Itoa(publishedElementsCount)))
+	logIfFailing(subjectStat.StopTimerAndSetDuration(config.DurationForFiltering))
+	duration := time.Since(startTime)
+	logIfFailing(subjectStat.SetValue(config.DurationTotal, strconv.FormatInt(duration.Milliseconds(), 10)))
+	logIfFailing(subjectStat.EndColum())
+}
+
+func startSpecificProcessing(nc *nats.Conn, subject types.Subject, normalized *types.OsmChangeNormalized) (elementCount int) {
+	if subject.ReduceToPoints {
+		elementCount = applyFilterReduceAndSend(nc, subject, *normalized)
+	} else {
+		elementCount = applyFilterAndSend(nc, subject, *normalized)
+	}
+	return
+}
+
+func applyFilterReduceAndSend(nc *nats.Conn, subject types.Subject, normalized types.OsmChangeNormalized) int {
 	//Filtering
 	payload := reduceToSearchPoints(normalized, subject.NodeFilters, subject.WayFilters)
 	//Sending
@@ -189,10 +195,10 @@ func applyFilterReduceAndSend(nc *nats.Conn, subject types.Subject, normalized t
 	} else {
 		publishEvent(nc, subject.Name, payload, cloudevents.ApplicationJSON)
 	}
+	return payload.Size()
 }
 
-func applyFilterAndSend(nc *nats.Conn, subject types.Subject, normalized types.OsmChangeNormalized, group *sync.WaitGroup) {
-	defer group.Done()
+func applyFilterAndSend(nc *nats.Conn, subject types.Subject, normalized types.OsmChangeNormalized) int {
 	//Filtering
 	filtered := normalized.Filter(subject.NodeFilters, subject.WayFilters)
 
@@ -214,7 +220,7 @@ func applyFilterAndSend(nc *nats.Conn, subject types.Subject, normalized types.O
 
 	if err != nil {
 		logger.Error(err.Error())
-		return
+		return 0
 	}
 	//Sending
 	if subject.Compress {
@@ -225,7 +231,7 @@ func applyFilterAndSend(nc *nats.Conn, subject types.Subject, normalized types.O
 	} else {
 		publishEvent(nc, subject.Name, payloadBytes, contentTyp)
 	}
-
+	return filtered.Size()
 }
 
 func reduceToSearchPoints(t types.OsmChangeNormalized, nodeFilters []types.NodeFilter, wayFilters []types.WayFilter) types.SearchPayload {
@@ -255,12 +261,8 @@ func reduceToSearchPoints(t types.OsmChangeNormalized, nodeFilters []types.NodeF
 }
 
 func reloadNodes(osmNormalized *types.OsmChangeNormalized) {
-	logIfFailing(stat.SetValue(config.NumberOfIncomingElements, strconv.Itoa(osmNormalized.Size())))
 	logger.Info("reloading missing nodes referenced by ways...")
-	logIfFailing(stat.StartTimer(config.DurationNodesReloading))
-	reloaded, err := osmNormalized.Reload()
-	logIfFailing(stat.StopTimerAndSetDuration(config.DurationNodesReloading))
-	logIfFailing(stat.SetValue(config.NumberOfReloadedNodes, strconv.Itoa(reloaded)))
+	_, err := osmNormalized.Reload()
 	if err != nil {
 		logger.Error("error while reloading missing nodes: ", err.Error())
 		return
