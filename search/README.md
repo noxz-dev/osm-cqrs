@@ -1,37 +1,62 @@
-## Setup ElasticSearch
+# Search - dev environment
 
-```bash
-docker-compose up --build
+## Setup API
 
-docker-compose up --build --attach search-backend
+```vim
+pnpm install
+pnpm dev
 ```
 
-## setup the schema
+## Setup ElasticSearch
 
-```bash
+```vim
+docker-compose up -d
+```
+
+## setup the schema (gets automatically applied at startup of the api)
+
+```vim
 curl -XPUT "http://localhost:9200/osm" -H 'Content-Type: application/json' -d'
 {
-  "mappings": {
-    "properties": {
-      "name": {
-        "type": "text",
-        "search_analyzer": "whitespace"
+  index: 'osm',
+  settings: {
+    max_ngram_diff: 20,
+    analysis: {
+      filter: {
+        ngram_filter: {
+          type: 'ngram',
+          min_gram: 2,
+          max_gram: 20,
+        },
       },
-      "location": {
-        "type": "geo_point"
-      }
-    }
-  }
+      analyzer: {
+        ngram_analyzer: {
+          type: 'custom',
+          tokenizer: 'standard',
+          filter: ['lowercase', 'ngram_filter'],
+        },
+      },
+    },
+  },
+  mappings: {
+    properties: {
+      name: {
+        type: 'text',
+        term_vector: 'yes',
+        analyzer: 'ngram_analyzer',
+        search_analyzer: 'standard',
+      },
+      location: {
+        type: 'geo_point',
+      },
+    },
+  },
 }'
 ```
 
-## test the setup:
+## find all items
 
-- https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started.html
-
-### find everything
-
-```bash
+```vim
 curl -XGET "http://localhost:9200/_search" -H 'Content-Type: application/json' -d'
 {
   "query": {
@@ -40,8 +65,14 @@ curl -XGET "http://localhost:9200/_search" -H 'Content-Type: application/json' -
 }'
 ```
 
-### delete the index
+## delete the index
 
-```bash
+```vim
 curl -XDELETE "http://localhost:9200/osm"
+```
+
+or
+
+```vim
+./deleteIndex
 ```

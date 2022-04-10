@@ -1,5 +1,8 @@
 # change-set watcher
 
+Changeset Watcher watches the changesets from Open Street Maps to create events from newly added data each minute.
+This module is the core of the pipeline, as it is responsible for supplying the read projections with data
+
 ## setup
 
 - install go
@@ -7,7 +10,7 @@
 
 - run: "go get" inside the changeset-watcher folder
 
-```bash
+```vim
 - go run main.go
 ```
 
@@ -15,13 +18,13 @@
 
 - cd subscriber-demo
 
-```bash
+```vim
 - go run sub.go
 ```
 
 ## PBF importer
 
-```bash
+```vim
 go run main.go --import <filepath>
 
 EXAMPLE:
