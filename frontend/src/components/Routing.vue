@@ -137,7 +137,9 @@ function secondsToHoursMinuteSecondsString(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
 
-  return `${hours >= 1 ? `${hours}h` : ''}${minutes >= 1 ? `${minutes}min` : ''} ${Number(seconds).toFixed(0)}s`;
+  return `${hours >= 1 ? `${Number(hours).toFixed(0)}h` : ''}${minutes >= 1 ? `${minutes}min` : ''} ${Number(
+    seconds
+  ).toFixed(0)}s`;
 }
 
 function metersToKilometersMeters(totalMeters: number) {
