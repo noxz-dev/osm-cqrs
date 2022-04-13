@@ -30,6 +30,8 @@ func (node Node) GetTag(tagString string) (value string, exits bool) {
 
 }
 
+//getNodesByID requests for every given nodeID the corresponding Node.
+// Nodes are requested over the network./**
 func getNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
 	nodes = make([]Node, 0)
 	var overpassAnswer OverPassAnswer
@@ -61,6 +63,8 @@ func getNodesByID(nodeIDs map[int]struct{}) (nodes []Node, err error) {
 	return overpassAnswer.Nodes, nil
 }
 
+// GetAddressString returns an address in following format:
+// [street name] [house number], [postcode], [city name], [country tag]/**
 func (node *Node) GetAddressString() string {
 	sb := strings.Builder{}
 	street, useSeparator := node.GetTag("addr:street")

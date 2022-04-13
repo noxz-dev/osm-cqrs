@@ -25,6 +25,8 @@ func (way Way) GetTag(tagString string) (value string, exists bool) {
 
 }
 
+// GetAddressString returns a address in following format:
+// [street name] [house number], [postcode], [city name], [country tag]/**
 func (way *Way) GetAddressString() string {
 	sb := strings.Builder{}
 	street, useSeparator := way.GetTag("addr:street")

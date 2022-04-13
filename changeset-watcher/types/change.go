@@ -27,6 +27,7 @@ func (normalized *OsmChangeNormalized) Reload() (reloaded int, err error) {
 	return len(reloadedNodes), nil
 }
 
+// Filter returns an filtered OsmChangeNormalized object.
 func (normalized OsmChangeNormalized) Filter(nodeFilters []NodeFilter, wayFilters []WayFilter) OsmChangeNormalized {
 	if wayFilters == nil && nodeFilters == nil {
 		return normalized
@@ -56,6 +57,11 @@ func (normalized OsmChangeNormalized) Filter(nodeFilters []NodeFilter, wayFilter
 
 }
 
+// Normalize combines different actions of the same type to one action. Example:
+//
+// - different Modify sections will be combined to one single Modify section
+// - different Delete sections will be combined to one single Delete section
+// - different Create sections will be combined to one single Create section
 func (osmChange OsmChange) Normalize() OsmChangeNormalized {
 	return OsmChangeNormalized{
 		Modify: normalizeActionObject(osmChange.Modify),
