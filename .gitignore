@@ -4,5 +4,4 @@
 .idea
 *.log
 volumes
-*statistics.csv
 data/*
