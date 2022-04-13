@@ -33,6 +33,10 @@ The project OSM-CQRS implements an exemplary architecture how the Command Query 
 
 - The Docs folder contains diagrams, log evaluations, and general notes and research on the individual technologies used.
 
+### [Watcher-Config](./watcher-config/)
+
+- This Folder contains filter configurations for the change-set watcher
+
 ## Full Pipeline Setup
 
 ```vim
@@ -50,3 +54,7 @@ docker-compose up
 ```vim
 docker-compose -f docker-compose.production.yml up --build
 ```
+
+## License
+
+MIT License © 2022 [Finn Beer](https://github.com/noxz-dev), [Jannes Neemann](https://github.com/JamesNeumann), [Darius Alter](https://github.com/herralter) 
