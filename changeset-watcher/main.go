@@ -107,7 +107,7 @@ func main() {
 			logger.Error(err.Error())
 			continue
 		}
-
+		//Unzip osmChange file
 		reader, err := gzip.NewReader(resp.Body)
 
 		if err != nil {
@@ -117,6 +117,7 @@ func main() {
 
 		body, _ = io.ReadAll(reader)
 		resp.Body.Close()
+		//Covert osmChangeFile to struct
 		logger.Info("parsing xml ...")
 		osm := types.OsmChange{}
 		err = xml.Unmarshal(body, &osm)
@@ -124,18 +125,20 @@ func main() {
 			logger.Error(err)
 			continue
 		}
-
+		//General Preprocessing
 		osmNormalized := osm.Normalize()
 		osmNormalized.RemoveAllDuplicates()
-
 		reloadNodes(&osmNormalized)
-
+		//Specific Preprocessing
 		logger.Info("READ FROM FILTER CONFIG")
 		logIfFailing(filterFromConfig(nc, config.PathOfFilterConfig, &osmNormalized, startTime))
 	}
 }
 
+// filterFromConfig determine all subject from the configFile (filename) and
+// starts for each subject a specific preprocessing
 func filterFromConfig(nc *nats.Conn, filename string, normalized *types.OsmChangeNormalized, startTime time.Time) error {
+	//Read Config File and determine subjects
 	file, err := os.OpenFile(filename, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		return err
@@ -149,6 +152,7 @@ func filterFromConfig(nc *nats.Conn, filename string, normalized *types.OsmChang
 	subjectCount := len(filterConfig.Subjects)
 	wg := new(sync.WaitGroup)
 	wg.Add(subjectCount)
+	//Start for each subject a specific preprocessing
 	for _, subject := range filterConfig.Subjects {
 		go startAsyncSpecificProcessing(nc, subject, normalized, wg, startTime)
 	}
@@ -156,8 +160,10 @@ func filterFromConfig(nc *nats.Conn, filename string, normalized *types.OsmChang
 	return nil
 }
 
+//Wrapper Method to collect statistic data from specific preprocessing
 func startAsyncSpecificProcessing(nc *nats.Conn, subject types.Subject, normalized *types.OsmChangeNormalized, wg *sync.WaitGroup, startTime time.Time) {
 	defer wg.Done()
+	//Create statistic object
 	var subjectStat = statistics.NewStatistic("/watcher-config/"+subject.Name+".statistics.csv",
 		config.NumberOfIncomingElements,
 		config.NumberOfReloadedNodes,
@@ -165,15 +171,19 @@ func startAsyncSpecificProcessing(nc *nats.Conn, subject types.Subject, normaliz
 		config.NumberOfPublishedElements,
 		config.DurationForFiltering)
 	defer subjectStat.Close()
+	//Collect some data for statistics
 	logIfFailing(subjectStat.BeginnColum())
 	logIfFailing(subjectStat.SetValue(config.NumberOfIncomingElements, strconv.Itoa(normalized.Size())))
 	logIfFailing(subjectStat.SetValue(config.NumberOfReloadedNodes, strconv.Itoa(normalized.Reloaded.Size())))
 	logIfFailing(subjectStat.StartTimer(config.DurationForFiltering))
+	//start actual specific preprocessing
 	publishedElementsCount := startSpecificProcessing(nc, subject, normalized)
 	logIfFailing(subjectStat.SetValue(config.NumberOfPublishedElements, strconv.Itoa(publishedElementsCount)))
 	logIfFailing(subjectStat.StopTimerAndSetDuration(config.DurationForFiltering))
+	//Collect some data for statistics again
 	duration := time.Since(startTime)
 	logIfFailing(subjectStat.SetValue(config.DurationTotal, strconv.FormatInt(duration.Milliseconds(), 10)))
+	//persist collected statistics
 	logIfFailing(subjectStat.EndColum())
 }
 
@@ -187,7 +197,7 @@ func startSpecificProcessing(nc *nats.Conn, subject types.Subject, normalized *t
 }
 
 func applyFilterReduceAndSend(nc *nats.Conn, subject types.Subject, normalized types.OsmChangeNormalized) int {
-	//Filtering
+	//Filtering and Reducing
 	payload := reduceToSearchPoints(normalized, subject.NodeFilters, subject.WayFilters)
 	//Sending
 	if subject.Compress {
@@ -243,12 +253,13 @@ func reduceToSearchPoints(t types.OsmChangeNormalized, nodeFilters []types.NodeF
 	tmp = append(tmp, filteredWays.Delete.Nodes...)
 	tmp = append(tmp, filteredWays.Reloaded.Nodes...)
 
+	//Calculating centroids from filtered Ways. Note, that "filteredWays.Reloaded.Nodes" does not contain any Ways.
 	modifySearchPoints := reduceWaysToSearchPoints(filteredWays.Modify.Ways, tmp)
 	createSearchPoints := reduceWaysToSearchPoints(filteredWays.Create.Ways, tmp)
 	deleteSearchPoints := reduceWaysToSearchPoints(filteredWays.Delete.Ways, tmp)
 
 	filteredNodes := t.Filter(nodeFilters, []types.WayFilter{})
-
+	//transform Node to Search Points
 	modifySearchPoints = append(modifySearchPoints, reduceNodesToSearchPoints(filteredNodes.Modify.Nodes)...)
 	createSearchPoints = append(createSearchPoints, reduceNodesToSearchPoints(filteredNodes.Create.Nodes)...)
 	deleteSearchPoints = append(deleteSearchPoints, reduceNodesToSearchPoints(filteredNodes.Delete.Nodes)...)
@@ -295,6 +306,7 @@ func reduceWaysToSearchPoints(ways []types.Way, nodes []types.Node) []types.Sear
 	searchPoints := make([]types.SearchPoint, 0)
 
 	for _, way := range ways {
+		//Find all Nodes, that are referenced by the Way
 		wayNodes := make([]types.Node, 0)
 		for _, nr := range way.NodeRefs {
 			for _, n := range nodes {
@@ -303,9 +315,10 @@ func reduceWaysToSearchPoints(ways []types.Way, nodes []types.Node) []types.Sear
 				}
 			}
 		}
-
+		//Calculate centroid
 		centroid := utils.CalculateCentroid(&wayNodes)
 
+		//Create Name for Search Point.
 		name, exists := way.GetTag("name")
 		if !exists {
 			name = way.GetAddressString()

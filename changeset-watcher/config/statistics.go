@@ -1,5 +1,8 @@
 package config
 
+/**
+These constants define header names for statistics
+*/
 const (
 	NumberOfReloadedNodes     = "number of reloaded nodes"
 	DurationForFiltering      = "duration for specific-preprocessing (in ms)"
