@@ -14,7 +14,6 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/cloudevents/sdk-go/v2/event"
 	"github.com/google/uuid"
-	"noxz.dev/changeset-watcher/config"
 	"noxz.dev/changeset-watcher/types"
 )
 
@@ -57,16 +56,7 @@ func CreateEvent(source string, payload interface{}, subject string, contentType
 	return &natsPublishEvent, err
 }
 
-func GenSubject(names ...string) string {
-	var subject = config.RootEvent
-
-	for _, name := range names {
-		subject += "." + name
-	}
-
-	return subject
-}
-
+// WriteObjectToFile : Serialize Struct as JSON-Object. This can be used for debugging.
 func WriteObjectToFile(object interface{}, filename string) {
 	file, _ := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 	defer file.Close()
@@ -106,12 +96,3 @@ func Compress(data []byte) (compressedBytes []byte, err error) {
 	}
 	return buffer.Bytes(), nil
 }
-
-// func GeneratePointsFromNodes(nodes *[]types.Node) []Point {
-// 	points := make([]Point, 0)
-// 	for _, n := range *nodes {
-// 		points = append(points, Point{Lat: n.Lat, Lng: n.Lon})
-// 	}
-
-// 	return points
-// }
