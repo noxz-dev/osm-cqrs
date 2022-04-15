@@ -1,0 +1,22 @@
+[[providers]]
+name = "postgis"
+type = "mvt_postgis"
+host = "${POSTGRES_HOST}"
+port = "${POSTGRES_PORT}"
+database = "${POSTGRES_DB}"
+user = "${POSTGRES_USER}"
+password = "${POSTGRES_PASS}"
+srid = 3857
+
+[[providers.layers]]
+name = "buildings"
+tablename = "public.osm_buildings"
+geometry_fieldname = "geometry"
+id_fieldname = "id"
+geometry_type = "polygon"
+sql = "SELECT ST_AsMVTGeom(geometry,!BBOX!)..."
+
+[[maps.layers]]
+name = "buildings"
+provider_layer = "postgis.buildings"
+min_zoom = 13

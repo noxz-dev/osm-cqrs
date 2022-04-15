@@ -1,0 +1,14 @@
+{
+    "Name": "routing",
+    "NodeFilters": null,
+    "WayFilters": [
+      {
+        "TagKeys": [
+          "highway"
+        ]
+      }
+    ],
+    "Compress": true,
+    "ReduceToPoints": false,
+    "Format": "XML"
+}

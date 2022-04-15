@@ -1,0 +1,146 @@
+<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="649px" height="788px" viewBox="-0.5 -0.5 649 788" content="&lt;mxfile&gt;&lt;diagram id=&quot;44Pc3DdAeort00_PEIKt&quot; name=&quot;Page-1&quot;&gt;7VpLk+I2EP41HGfKD8zjGJjZzWFTNZVJVZKjsIWtrCy5ZDHA/vq0jIQf0jBeBvAeoKiy1WrLUuvrr1sNo3CZ774KVGR/8ATTUeAlu1H4NArg4/lwUZL9QeLPJ/ODJBUk0bJa8Ep+YC30tHRDEly2FCXnVJKiLYw5YziWLRkSgm/bamtO228tUIotwWuMqC39myQyO0hnwbSW/45Jmpk3+2Z9OTLKeiVlhhK+bYjC51G4FJzLw12+W2KqrGfscnjuyzu9x4kJzGSfB2Z6GnJv1oYTWKpuMs7gsshkTqHlw+2aM6n3I4igbb9PT6HkGxHrIQO9RUikWGtFB5F6WeMxPcevmOdYij0oCEyRJG9tuyO9felRr14h3OhFuhes5/KG6EYPyrjIEVVrAsBkiKUlTLJrFcE3LMHJz1rhDQuJdydXaHrH2iTaJyLd3Nb4Cg38swa2Jt7nbRJaNjmxfg/Wu82IxK8FqjZ4C07eAQmhdMkpFzWESin4d9wRfsZsDbtMPIddggvYZXoL5xjbzhEM5Rxj2znw1riF8o/KNSajCorhIiFlzGGvABddQxWcMFnNJFrA13us8L08XkcRaC2rnkO7LZtFbm2/knZHMNr62hnb78jMTCzt9tjwBdhmqFArynepCmWPqyJnj/it2s+FQimBoPANrTB94SWRhDOlTJJE2WFBVccCxd/Tyn0M+sF86+rTGOM3StLWs0gLxAHSiwILAvuJ1QCwaRDp8EstWvCNpISBg5mAp/YHlcWhsSY75btGCySlRCxBQgnLfb7iCsI5Lssq8FlAdjg07Sya4rWaZgmkQFj6rWo9Pfi16E/tm5PL8GUwbfPlQ+hZhBk5eCG6AC8YHu5NDLBMsf9H7cpjZJr/6k2qGk+7VmuvW2cRSmQTynwoQoksQoFXcJSoVIiUJcAC7hhXydzgEdePbARdLeT6doi9QmyZ21Dw/aGwMHdgIYfwoQ4Cm4ICC8pfAQbB+JYwmJyEARcy4ylniD7X0k+jwkCgBYtwKFgEp8n0hiYYjCWDXwUFwx3LzGxOnUGsnDI4JHJBn4xy6tR155Nad9onmwzcun1zyRRIb4v2QXtD38ssV1xKnp+XWUpeNNLKGKBRJY7NvFJkPF9tyg/zyjqNNKc7k0Lqdrr9a1+tFTCIKMW0X055ATbvpoXhLdPC0+fFK7lx6GCy8WBubJcS8E4KBNBRdhEYywFC/NiEbw2KsWeDwp9NrhTiT5fYroQKR1XBH47c7bpCzPNCwHlzeDBENwWDfSAqNitKykxtFm/UVsrN6j9cuQ1YRFYHpXuJ5VaB8AIFFszOr61cAuXTWQvlE8ep5lpx0JG63YDxHGddozcA49mH3QEY71S4m1/pRBvYifyHDIfUCHd2u7NbX3abtkP4LcktHKJc4arpDlfUdVR16ySfoVz9HHT0ckxxjtkQWX/gTVso6Z31zy4BkyFioKveGw4WA50F32QT424g0FQ/OECi4JYAOSNOlhiJOLuHynuoPL8gdtNYaVeDGmAGi5E1iT+Gc+BC7fs1XgeIe1R9fXfJd+pC9bt1YN8B8tOV4YYsaLtDm/4SVGatxguSgEcFXHjMUyb0q+u7v8x/+G8FyxG6/nL0tR7I1aGs8g0Ra+Wp6uCC/IDnkem+AMYfOiWdcGZjfBI4QH78re9TKLerWylmWKAeh5o7tO/Q/iloO9jbjewzchRo1n88rfoa/98Nn/8H&lt;/diagram&gt;&lt;/mxfile&gt;">
+    <defs/>
+    <g>
+        <path d="M 338 147 L 338 175.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 338 180.88 L 334.5 173.88 L 338 175.63 L 341.5 173.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="183" y="87" width="310" height="60" rx="9" ry="9" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px">
+            <text x="337.5" y="128">
+                normalize changset
+            </text>
+        </g>
+        <rect x="38" y="32" width="600" height="20" fill="none" stroke="none" pointer-events="all"/>
+        <path d="M 338 52 L 338 80.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 338 85.88 L 334.5 78.88 L 338 80.63 L 341.5 78.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <ellipse cx="338" cy="27" rx="25" ry="25" fill="none" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <rect x="320.5" y="17" width="35" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <path d="M 320.5 17 L 338 27 L 355.5 17" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="end" font-size="25px">
+            <rect fill="#ffffff" stroke="none" x="130" y="-2" width="177" height="61" stroke-width="0"/>
+            <text x="304.5" y="23">
+                new change set
+            </text>
+            <text x="304.5" y="53">
+                discovered
+            </text>
+        </g>
+        <path d="M 338 242 L 338 265.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 338 270.88 L 334.5 263.88 L 338 265.63 L 341.5 263.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="183" y="182" width="310" height="60" rx="9" ry="9" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px">
+            <text x="337.5" y="223">
+                reload missing nodes
+            </text>
+        </g>
+        <path d="M 338 332 L 338 355.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 338 360.88 L 334.5 353.88 L 338 355.63 L 341.5 353.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="183" y="272" width="310" height="60" rx="9" ry="9" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px">
+            <text x="337.5" y="313">
+                remove duplicates
+            </text>
+        </g>
+        <path d="M 363 387 L 531 387 Q 541 387 541 397 L 541 425.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 541 430.88 L 537.5 423.88 L 541 425.63 L 544.5 423.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 313 387 L 143 387 Q 133 387 133 397 L 133 425.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 133 430.88 L 129.5 423.88 L 133 425.63 L 136.5 423.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 338 412 L 338 425.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 338 430.88 L 334.5 423.88 L 338 425.63 L 341.5 423.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 338 362 L 363 387 L 338 412 L 313 387 Z" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 335 374.5 L 341 374.5 L 341 384 L 350.5 384 L 350.5 390 L 341 390 L 341 399.5 L 335 399.5 L 335 390 L 325.5 390 L 325.5 384 L 335 384 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 541 492 L 541 525.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 541 530.88 L 537.5 523.88 L 541 525.63 L 544.5 523.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="448" y="432" width="186" height="60" rx="9" ry="9" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px">
+            <text x="540.5" y="473">
+                extract streets
+            </text>
+        </g>
+        <path d="M 541 592 L 541 665.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 541 670.88 L 537.5 663.88 L 541 665.63 L 544.5 663.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="448" y="532" width="186" height="60" rx="9" ry="9" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px">
+            <text x="540.5" y="573">
+                compress
+            </text>
+        </g>
+        <ellipse cx="541" cy="697" rx="25" ry="25" fill="none" stroke="rgb(0, 0, 0)" stroke-width="3" pointer-events="all"/>
+        <rect x="523.5" y="687" width="35" height="20" fill="rgb(0, 0, 0)" stroke="none" pointer-events="all"/>
+        <path d="M 523.5 687 L 541 697 L 558.5 687" fill="none" stroke="#ffffff" stroke-miterlimit="10" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px">
+            <rect fill="#ffffff" stroke="none" x="459" y="730" width="165" height="61" stroke-width="0"/>
+            <text x="540.5" y="752.5">
+                publish to
+            </text>
+            <text x="540.5" y="782.5">
+                subject routing
+            </text>
+        </g>
+        <path d="M 133 492 L 133 665.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 133 670.88 L 129.5 663.88 L 133 665.63 L 136.5 663.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="38" y="432" width="190" height="60" rx="9" ry="9" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px">
+            <text x="132.5" y="473">
+                compress
+            </text>
+        </g>
+        <ellipse cx="133" cy="697" rx="25" ry="25" fill="none" stroke="rgb(0, 0, 0)" stroke-width="3" pointer-events="all"/>
+        <rect x="115.5" y="687" width="35" height="20" fill="rgb(0, 0, 0)" stroke="none" pointer-events="all"/>
+        <path d="M 115.5 687 L 133 697 L 150.5 687" fill="none" stroke="#ffffff" stroke-miterlimit="10" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px">
+            <rect fill="#ffffff" stroke="none" x="77" y="730" width="113" height="61" stroke-width="0"/>
+            <text x="132.5" y="752.5">
+                publish to
+            </text>
+            <text x="132.5" y="782.5">
+                subject all
+            </text>
+        </g>
+        <path d="M 338 512 L 338 545.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 338 550.88 L 334.5 543.88 L 338 545.63 L 341.5 543.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="245" y="432" width="186" height="80" rx="12" ry="12" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px">
+            <text x="337.5" y="468">
+                extract named
+            </text>
+            <text x="337.5" y="498">
+                elements
+            </text>
+        </g>
+        <path d="M 338 632 L 338 665.63" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 338 670.88 L 334.5 663.88 L 338 665.63 L 341.5 663.88 Z" fill="rgb(0, 0, 0)" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <rect x="245" y="552" width="186" height="80" rx="12" ry="12" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px">
+            <text x="337.5" y="588">
+                reduce to
+            </text>
+            <text x="337.5" y="618">
+                points
+            </text>
+        </g>
+        <ellipse cx="338" cy="697" rx="25" ry="25" fill="none" stroke="rgb(0, 0, 0)" stroke-width="3" pointer-events="all"/>
+        <rect x="320.5" y="687" width="35" height="20" fill="rgb(0, 0, 0)" stroke="none" pointer-events="all"/>
+        <path d="M 320.5 687 L 338 697 L 355.5 687" fill="none" stroke="#ffffff" stroke-miterlimit="10" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px">
+            <rect fill="#ffffff" stroke="none" x="257" y="730" width="163" height="61" stroke-width="0"/>
+            <text x="337.5" y="752.5">
+                publish to
+            </text>
+            <text x="337.5" y="782.5">
+                subject search
+            </text>
+        </g>
+        <rect x="28" y="412" width="620" height="240" rx="16.8" ry="16.8" fill="none" stroke="rgb(0, 0, 0)" stroke-dasharray="5 2 1 2" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px" transform="rotate(-90,25,532)">
+            <text x="24.5" y="529.5">
+                subject specific
+            </text>
+        </g>
+        <rect x="28" y="72" width="620" height="280" rx="19.6" ry="19.6" fill="none" stroke="rgb(0, 0, 0)" stroke-dasharray="5 2 1 2" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="Helvetica" text-anchor="middle" font-size="25px" transform="rotate(-90,25,212)">
+            <text x="24.5" y="209.5">
+                general
+            </text>
+        </g>
+    </g>
+</svg>

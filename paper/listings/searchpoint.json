@@ -1,0 +1,13 @@
+{
+  "name": "Bibliothek der Hochschule Hannover",
+  "location": {
+    "lat": 52.35377458181819,
+    "lon": 9.722751190909092
+  },
+  "tags": [
+    {
+      "K": "addr:city",
+      "V": "Hannover"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+<way id="488895337" version="5" timestamp="2022-03-13T07:19:48Z">
+    <nd ref="4811778030" />
+    <nd ref="9334487443" />
+    <nd ref="9334487444" />
+    <nd ref="322018949" />
+    <nd ref="33202869" />
+    <tag k="highway" v="secondary" />
+    <tag k="maxspeed" v="50" />
+    <tag k="name" v="Hannoversche Straße" />
+</way>

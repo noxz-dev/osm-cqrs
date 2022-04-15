@@ -1,0 +1,22 @@
+{
+  "Name": "search",
+  "NodeFilters": [
+    {
+      "TagKeys": [
+        "building",
+        "name"
+      ]
+    }
+  ],
+  "WayFilters": [
+    {
+      "TagKeys": [
+        "building",
+        "name"
+      ]
+    }
+  ],
+  "Compress": false,
+  "ReduceToPoints": true,
+  "Format": "JSON"
+}

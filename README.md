@@ -8,7 +8,11 @@ processor ([changeset watcher](./changeset-watcher/)).
 
 ## Folder Structure
 
-### Module: [Changeset-Watcher](./changeset-watcher//)
+### [Paper](./paper/)
+
+- Contains the scientific paper of this project (PDF, tex-file, images and listings)
+
+### Module: [Changeset-Watcher](./changeset-watcher/)
 
 - The changeset watcher is the core of the pipeline, it takes care that new changes which are published as changesets on
   planet.osm.org are sent to the read projektions after respective pre-processing steps.
